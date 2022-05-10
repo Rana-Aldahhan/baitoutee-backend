@@ -40,6 +40,19 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'user' => [
+            'driver' => 'sanctum',
+            'provider' => 'users',
+        ],
+        'chef' => [
+            'driver' => 'sanctum',
+            'provider' => 'chefs',
+        ],
+        'delivery' => [
+            'driver' => 'sanctum',
+            'provider' => 'deliverymen',
+        ],
+
     ],
 
     /*
@@ -63,6 +76,14 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+        'chefs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Chef::class,
+        ],
+        'deliverymen' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Deliveryman::class,
         ],
 
         // 'users' => [
