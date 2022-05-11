@@ -13,8 +13,14 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('user')->group(function () { 
+        //unauthenticated (guest) routes
+        Route::get('/check-phone-number-code',[]);
+        Route::get('/locations',[]);
+        Route::post('/request-register',[]);
+        Route::post('/login',[]);
+        // authenticated routes
+        Route::middleware(['auth:user'])->group(function(){  
+            Route::delete('/logout',[]);//TODO remove checkNotRestricted middleware from this route
+        });
 });
-//Route::middleware(['auth:user'])->group();
