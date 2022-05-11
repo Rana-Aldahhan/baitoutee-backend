@@ -36,7 +36,7 @@ class GlobalVariablesSeeder extends Seeder
             'value'=>'1000'
         ]);
         DB::table('global_variables')->insert([
-            'name' =>'cost_of_one_km',
+            'name' =>'balance',
             'value'=>'0'
         ]);
         DB::table('global_variables')->insert([

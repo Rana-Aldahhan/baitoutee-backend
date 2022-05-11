@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_join_requests', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('location_id')->references('id')->on('locations');
-            $table->foreignId('user_id')->nullable()->references('id')->on('users');
+            $table->foreignId('location_id')->references('id')->on('locations');;
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -25,11 +24,11 @@ return new class extends Migration
             $table->enum('gender',['m','f']);
             $table->string('national_id');
             $table->string('campus_card_id');
-            $table->int('campus_unit_number');
+            $table->integer('campus_unit_number');
             $table->date('campus_card_expiry_date');
             $table->string('study_specialty');
-            $table->smallInteger('study_year');
-            $table->boolean('approved')->nullable();
+            $table->tinyInteger('study_year');
+            $table->timestamp('approved_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -42,6 +41,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_join_requests');
+        Schema::dropIfExists('users');
     }
 };

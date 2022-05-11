@@ -52,7 +52,7 @@ class User extends Authenticatable
         $this->hasMany(Order::class);
     }
     public function subscriptions(){
-        $this->hasMany(Subscription::class);
+        $this->belongsToMany(Subscription::class)->withPivot('notes','paid','total_cost','delivery_cost_per_day')->withTimestamps();
     }
     public function outcomingReports(){
         $this->morphMany(Reports::class,'sendable');

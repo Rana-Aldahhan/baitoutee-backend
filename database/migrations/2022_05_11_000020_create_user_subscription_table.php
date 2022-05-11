@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('student_subscription', function (Blueprint $table) {
+        Schema::create('user_subscription', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->references('id')->on('users');
-            $table->foreignId('subsicription_id')->references('id')->on('subsicriptions');
+            $table->foreignId('subscriptions_id')->references('id')->on('subscriptions');
             $table->string('notes');
             $table->boolean('paid');
             $table->float('total_cost', 8, 2);

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('user')->group(function () { 
         //unauthenticated (guest) routes
+        Route::post('/send-code',[]);
         Route::get('/check-phone-number-code',[]);
         Route::get('/locations',[]);
         Route::post('/request-register',[]);

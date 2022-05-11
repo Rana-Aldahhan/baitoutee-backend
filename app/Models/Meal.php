@@ -31,7 +31,7 @@ class Meal extends Model
     {
         return $this->belongsTo(Chef::class);
     }
-    public function users()
+    public function savingUsers()
     {
         return $this->belongsToMany(User::class);
     }

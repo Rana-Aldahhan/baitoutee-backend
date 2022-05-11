@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->references('id')->on('users');
             $table->foreignId('chef_id')->references('id')->on('chefs');
             $table->foreignId('delivery_id')->nullable()->references('id')->on('deliveries');
-            $table->foreignId('subsicription_id')->nullable()->references('id')->on('subsicriptions');
+            $table->foreignId('subscriptions_id')->nullable()->references('id')->on('subscriptions');
             $table->time('selected_delivery_time');
             $table->string('notes');
             $table->enum('status',['pending','approved','not approved','prepared','picked','delivered','not delivered','canceled'])->default('pending');

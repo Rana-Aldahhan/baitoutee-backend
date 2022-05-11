@@ -26,6 +26,6 @@ class Subscription extends Model
     }
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot('notes','paid','total_cost','delivery_cost_per_day')->withTimestamps();
     }
 }

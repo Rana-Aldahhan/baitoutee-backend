@@ -32,7 +32,8 @@ class Order extends Model
         $this->belongsTo(Subscription::class,'subscription_id');
     }
     public function meals(){
-        $this->belongsToMany(Meal::class,'meals_order','order_id','meal_id');
+        $this->belongsToMany(Meal::class,'meals_order','order_id','meal_id')
+        ->withPivot('meal_quantity','notes','meal_rate','meal_rate_notes')->withTimestamps();
     }
     public function reports(){
         $this->hasMany(Reports::class);
