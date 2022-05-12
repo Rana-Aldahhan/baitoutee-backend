@@ -8,7 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class UserJoinRequest extends Model
 {
     use HasFactory;
-    
+    /**
+     * The attributes that are not mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $guarded = [];
      /**
      * relationships
      */

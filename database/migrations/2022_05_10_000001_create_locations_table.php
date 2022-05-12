@@ -18,6 +18,9 @@ return new class extends Migration
             $table->float('longitude',17,15);
             $table->float('latitude',17,15);
             $table->string('name');
+            $table->float('distance_to_first_location')->nullable();
+            $table->float('distance_to_second_location')->nullable();
+            $table->float('distance_to_third_location')->nullable();
             $table->timestamps();
         });
     }

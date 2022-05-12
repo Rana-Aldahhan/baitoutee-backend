@@ -18,9 +18,9 @@ return new class extends Migration
             $table->foreignId('location_id')->references('id')->on('locations');
             $table->foreignId('user_id')->nullable()->references('id')->on('users');
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email');
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('phone_number')->unique();
+            $table->string('phone_number');
             $table->date('birth_date');
             $table->enum('gender',['m','f']);
             $table->string('national_id');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->date('campus_card_expiry_date');
             $table->string('study_specialty');
             $table->smallInteger('study_year');
-            $table->boolean('approved')->nullable();
+            $table->boolean('approved')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });
