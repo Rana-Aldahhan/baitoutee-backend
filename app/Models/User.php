@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -39,28 +40,48 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['access_token'];
+
+    protected function accessToken(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->getFirstToken(),
+        );
+    }
+    /**
      * relationships
      */
     public function location()
     {
-        $this->belongsTo(Location::class,'location_id');
+        return $this->belongsTo(Location::class,'location_id');
     }
     public function joinRequests(){
-        $this->hasMany(UserJoinRequest::class);
+        return $this->hasMany(UserJoinRequest::class);
     }
     public function orders(){
-        $this->hasMany(Order::class);
+        return $this->hasMany(Order::class);
     }
     public function subscriptions(){
-        $this->belongsToMany(Subscription::class)->withPivot('notes','paid','total_cost','delivery_cost_per_day')->withTimestamps();
+        return $this->belongsToMany(Subscription::class)->withPivot('notes','paid','total_cost','delivery_cost_per_day')->withTimestamps();
     }
     public function outcomingReports(){
-        $this->morphMany(Reports::class,'sendable');
+        return $this->morphMany(Reports::class,'sendable');
     }
     public function incomingReports(){
-        $this->morphMany(Reports::class,'receivable');
+        return $this->morphMany(Reports::class,'receivable');
     }
     public function savedMeals(){
-        $this->belongsToMany(Meal::class,'meals_saved_list','user_id','meal_id');
+        return $this->belongsToMany(Meal::class,'meals_saved_list','user_id','meal_id');
+    }
+    /**
+     * getters
+     */
+    public function getFirstToken()
+    {
+        return $this->tokens()->first()->token;
     }
 }

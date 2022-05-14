@@ -13,30 +13,30 @@ class Order extends Model
      */
     public function user()
     {
-        $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class,'user_id');
     }
     public function chef()
     {
-        $this->belongsTo(Chef::class,'chef_id');
+        return $this->belongsTo(Chef::class,'chef_id');
     }
     public function delivery()
     {
-        $this->belongsTo(Delivery::class,'delivery_id');
+        return $this->belongsTo(Delivery::class,'delivery_id');
     }
     public function deliveryman()//TODO check if it is valid
     {
-        $this->hasOneThrough(Deliveryman::class,Delivery::class,'deliveryman_id');
+        return $this->hasOneThrough(Deliveryman::class,Delivery::class,'deliveryman_id');
     }
     public function subscription()
     {
-        $this->belongsTo(Subscription::class,'subscription_id');
+        return $this->belongsTo(Subscription::class,'subscription_id');
     }
     public function meals(){
-        $this->belongsToMany(Meal::class,'meals_order','order_id','meal_id')
+        return $this->belongsToMany(Meal::class,'meals_order','order_id','meal_id')
         ->withPivot('meal_quantity','notes','meal_rate','meal_rate_notes')->withTimestamps();
     }
     public function reports(){
-        $this->hasMany(Reports::class);
+        return $this->hasMany(Reports::class);
     }
     
 }

@@ -74,8 +74,8 @@ class ChefAuthController extends Controller
                     return $this->successResponseWithCustomizedStatus(ChefAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
                 {
-                    $user=$joinRequest->user()->withTrashed()->get();
-                    $user->deleted_at !=null?$isblocked=true:$is_blocked=false;
+                    $chef=$joinRequest->chef->withTrashed()->first();
+                    $chef->deleted_at !=null?$isblocked=true:$is_blocked=false;
                     if($is_blocked)//case is blocked
                     {
                         // return $this->errorResponse('حسابك تم حجبه, لا يمكنك الدخول',403);
@@ -83,7 +83,7 @@ class ChefAuthController extends Controller
                     }
                     else//case not blocked
                     {
-                        $loggedChef=$this->login($request);
+                        $loggedChef=$this->login($chef);
                         return $this->successResponseWithCustomizedStatus(ChefAccessStatus::approved->value,$loggedChef);
                     }
             }
@@ -171,8 +171,7 @@ class ChefAuthController extends Controller
         return $this->successResponse([],201);
 
     }
-    public function login(Request $request){
-        $chef=Chef::where('phone_number',$request['phone_number'])->first();
+    public function login(Chef $chef){
         $access_token= $chef->createToken('app',['chef'])->plainTextToken;
         $chef->append('access_token');
         $chef->access_token=$access_token;

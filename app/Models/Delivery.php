@@ -12,9 +12,9 @@ class Delivery extends Model
      * relationships
      */
     public function orders(){
-        $this->hasMany(Order::class);
+        return $this->hasMany(Order::class);
     }
     public function deliveryman(){
-        $this->belongesTo(Deliveryman::class,'deliveryman_id');
+        return $this->belongesTo(Deliveryman::class,'deliveryman_id');
     }
 }

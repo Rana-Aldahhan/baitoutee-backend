@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserJoinRequest extends Model
 {
+    use \Backpack\CRUD\app\Models\Traits\CrudTrait;
     use HasFactory;
     /**
      * The attributes that are not mass assignable.
@@ -19,11 +20,11 @@ class UserJoinRequest extends Model
      */
     public function location()
     {
-        $this->belongsTo(Location::class,'location_id');
+        return $this->belongsTo(Location::class,'location_id');
     }
     public function user()
     {
-        $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class,'user_id');
     }
 
 }

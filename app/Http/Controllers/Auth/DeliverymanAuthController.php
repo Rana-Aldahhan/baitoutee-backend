@@ -74,15 +74,15 @@ class DeliverymanAuthController extends Controller
                     return $this->successResponseWithCustomizedStatus(DeliverymanAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
                 {
-                    $user=$joinRequest->user()->withTrashed()->get();
-                    $user->deleted_at !=null?$isblocked=true:$is_blocked=false;
+                    $deliveryman=$joinRequest->deliveryman->withTrashed()->first();
+                    $deliveryman->deleted_at !=null?$isblocked=true:$is_blocked=false;
                     if($is_blocked)//case is blocked
                     {
                         return $this->errorResponseWithCustomizedStatus(DeliverymanAccessStatus::blocked->value,'حسابك تم حجبه, لا يمكنك الدخول',403);
                     }
                     else//case not blocked
                     {
-                        $loggedDeliveryman=$this->login($request);
+                        $loggedDeliveryman=$this->login($deliveryman);
                         return $this->successResponseWithCustomizedStatus(DeliverymanAccessStatus::approved->value,$loggedDeliveryman);
                     }
             }
@@ -119,8 +119,7 @@ class DeliverymanAuthController extends Controller
         return $this->successResponse([],201);
 
     }
-    public function login(Request $request){
-        $deliveryman=Deliveryman::where('phone_number',$request['phone_number'])->first();
+    public function login(Deliveryman $deliveryman){
         $access_token= $deliveryman->createToken('app',['deliveryman'])->plainTextToken;
         $deliveryman->append('access_token');
         $deliveryman->access_token=$access_token;

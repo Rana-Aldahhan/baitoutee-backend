@@ -24,6 +24,6 @@ class Location extends Model
      * relationships
      */
     public function users(){
-        $this->hasMany(User::class);
+        return $this->hasMany(User::class);
     }
 }

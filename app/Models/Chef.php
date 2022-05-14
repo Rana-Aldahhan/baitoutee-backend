@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,6 +23,19 @@ class Chef extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+        /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['access_token'];
+
+    protected function accessToken(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->getFirstToken(),
+        );
+    }
 
     /**
      * relationships
@@ -40,5 +54,12 @@ class Chef extends Authenticatable
     }
     public function chefJoinRequest(){
         return $this->belongsTo(ChefJoinRequest::class);
+    }
+     /**
+     * getters
+     */
+    public function getFirstToken()
+    {
+        return $this->tokens()->first()->token;
     }
 }

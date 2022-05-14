@@ -17,6 +17,6 @@ class Report extends Model
         return $this->morphTo();
     }
     public function order(){
-        $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class);
     }
 }

@@ -46,7 +46,6 @@ class UserAuthController extends Controller
          */ 
         if($verificationCode!='0000')//if the respone returned invalid code
         {
-            //return $this->errorResponse('الرمز الذي أدخلته غير صالح',401);
             return $this->errorResponseWithCustomizedStatus(UserAccessStatus::notVerified->value,'الرمز الذي أدخلته غير صالح',401);
         }
         else // the response retuned it is a valid code:check if the user has registedred before 
@@ -59,7 +58,6 @@ class UserAuthController extends Controller
             $joinRequest!=null?$registered=true:$registered=false;
             if(!$registered) // case the user has not registered yet
             {
-                    //return $this->successResponse(['code_is_valid'=>$code_is_valid,'registered'=>$registered]);
                     return $this->successResponseWithCustomizedStatus(UserAccessStatus::notRegistered->value,[]);
             }
             else // case the user has registered :check if the registration request has been approved
@@ -67,15 +65,13 @@ class UserAuthController extends Controller
                 $approved=$joinRequest->approved;
                 if(!$approved) //case not approved
                 {
-                    //return $this->successResponse(['code_is_valid'=>$code_is_valid,'registered'=>$registered,'approved'=>$approved]);
                     return $this->successResponseWithCustomizedStatus(UserAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
                 {
-                    $user=$joinRequest->user()->withTrashed()->get();
+                    $user=$joinRequest->user->withTrashed()->first();
                     $user->deleted_at !=null?$isblocked=true:$is_blocked=false;
                     if($is_blocked)//case is blocked
                     {
-                        //return $this->errorResponse('حسابك تم حجبه, لا يمكنك الدخول',403);
                         return $this->errorResponseWithCustomizedStatus(UserAccessStatus::blocked->value,'حسابك تم حجبه, لا يمكنك الدخول',403);
                     }
                     else//case not blocked:check if account is active
@@ -83,24 +79,11 @@ class UserAuthController extends Controller
                         now()>$user->campus_card_expiry_date?$is_active=false:$is_active=true;
                         if(!$is_active)//case the account is not active
                         {
-                           // return $this->errorResponse('انتهت مدة صلاحية حسابك السابق الرجاء إعادة تفعيله',403);
                             return $this->errorResponseWithCustomizedStatus(UserAccessStatus::inactive->value,'انتهت مدة صلاحية حسابك السابق الرجاء إعادة تفعيله',403);
                         }
                         else//case the account is active:log in
                         {
-                            // $code_is_valid=false;
-                            // $registered=false;
-                            // $approved=false;
-                            // $is_blocked=false;
-                            // $is_active=true;
-                            // return $this->successResponse(
-                            // ['code_is_valid'=>$code_is_valid,
-                            // 'registered'=>$registered,
-                            // 'approved'=>$approved,
-                            // 'is_blocked'=>$is_blocked,
-                            // 'is_active'=>$is_active
-                            // ]);
-                            $loggedUser=$this->login($request);
+                            $loggedUser=$this->login($user);
                             return $this->successResponseWithCustomizedStatus(UserAccessStatus::active->value,$loggedUser);
 
                         }
@@ -152,9 +135,7 @@ class UserAuthController extends Controller
         return $this->successResponse([],201);
 
     }
-    public function login(Request $request){
-        //TODO switch it with request['phone']
-        $user=User::where('phone_number',$request['phone_number'])->first();
+    public function login(User $user){
         $access_token= $user->createToken('app',['user'])->plainTextToken;
         $user->append('access_token');
         $user->access_token=$access_token;
