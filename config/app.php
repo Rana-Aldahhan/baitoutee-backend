@@ -211,5 +211,11 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),
+    /**
+     * Proxy URL
+     * this variable is added to be able to send requests that needs a proxy
+     */
+    'proxy'=>env('PROXY_URL',''),
+
 
 ];

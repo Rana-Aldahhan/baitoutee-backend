@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\CommonAuthController;
+use App\Http\Controllers\Auth\ChefAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,11 +17,11 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('chef')->group(function () { 
         //unauthenticated (guest) routes
-        Route::get('/check-phone-number-code',[]);
-        Route::post('/request-register',[]);
-        Route::post('/login',[]);
+        Route::post('/send-code',[CommonAuthController::class,'sendPhoneNumberVerificationCode']);
+        Route::get('/check-code-and-accessibility',[ChefAuthController::class,'checkChefCodeAndRegisterStatus']);
+        Route::post('/request-register',[ChefAuthController::class,'makeRegisterRequest'])->middleware('verified.phone');
         // authenticated routes
         Route::middleware(['auth:chef'])->group(function(){  
-            Route::delete('/logout',[]);
+            Route::delete('/logout',[ChefAuthController::class,'logout']);
         });
 });

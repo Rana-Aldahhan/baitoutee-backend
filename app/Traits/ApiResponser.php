@@ -16,10 +16,25 @@ trait ApiResponser{
 			'data' => $data
 		], $code);
 	}
+	protected function successResponseWithCustomizedStatus($status,$data, $code = 200)
+	{
+		return response()->json([
+			'status'=>$status,
+			'data' => $data
+		], $code);
+	}
 
 	protected function errorResponse($message = null, $code)
 	{
 		return response()->json([
+			'errors' => $message,
+			'data' => []
+		], $code);
+	}
+	protected function errorResponseWithCustomizedStatus($status,$message, $code )
+	{
+		return response()->json([
+			'status'=>$status,
 			'errors' => $message,
 			'data' => []
 		], $code);

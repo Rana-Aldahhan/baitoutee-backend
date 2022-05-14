@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\CommonAuthController;
+use App\Http\Controllers\Auth\DeliverymanAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,11 +17,11 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('delivery')->group(function () { 
         //unauthenticated (guest) routes
-        Route::get('/check-phone-number-code',[]);
-        Route::post('/request-register',[]);
-        Route::post('/login',[]);
+        Route::post('/send-code',[CommonAuthController::class,'sendPhoneNumberVerificationCode']);
+        Route::get('/check-code-and-accessibility',[DeliverymanAuthController::class,'checkDeliverymanCodeAndRegisterStatus']);
+        Route::post('/request-register',[DeliverymanAuthController::class,'makeRegisterRequest'])->middleware('verified.phone');
         // authenticated routes
-        Route::middleware(['auth:delivery'])->group(function(){  
-            Route::delete('/logout',[]);
+        Route::middleware(['auth:deliveryman'])->group(function(){  
+            Route::delete('/logout',[DeliverymanAuthController::class,'logout']);
         });
 });

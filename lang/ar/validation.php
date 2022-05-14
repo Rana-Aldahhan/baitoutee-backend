@@ -35,7 +35,7 @@ return [
     'current_password' => 'كلمة السر  غير صحيحة.',
     'date' => ':attribute ليس تاريخاً صالحاً.',
     'date_equals' => 'The :attribute must be a date equal to :date.',
-    'date_format' => 'The :attribute does not match the format :format.',
+    'date_format' => ':attribute يجل أن يطابق الصيغة :format.',
     'declined' => 'The :attribute must be declined.',
     'declined_if' => 'The :attribute must be declined when :other is :value.',
     'different' => 'The :attribute and :other must be different.',
@@ -61,7 +61,7 @@ return [
         'string' => 'The :attribute must be greater than or equal to :value characters.',
         'array' => 'The :attribute must have :value items or more.',
     ],
-    'image' => 'The :attribute must be an image.',
+    'image' => ':attribute يجب أن تكون صورة.',
     'in' => 'قيمة :attribute غير صالحة.',
     'in_array' => 'The :attribute field does not exist in :other.',
     'integer' => 'The :attribute must be an integer.',
@@ -173,7 +173,11 @@ return [
         'study_specialty'=>'التخصص الدراسي',
         'study_year'=>'السنة الدراسية',
         'location'=>'الموقع',
-        'code'=>'رمز التحقق'
+        'code'=>'رمز التحقق',
+        'delivery_starts_at'=>'وقت بداية التوصيل المتاحة',
+        'delivery_ends_at' => 'وقت نهاية التوصيل المتاحة',
+        'max_meals_per_day' => 'عدد الوجبات الأعظمي التي يمكن تحضيرها باليوم',
+        'profile_picture' => 'الصورة الشخصية',
         
     ],
 

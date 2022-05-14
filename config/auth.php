@@ -48,7 +48,7 @@ return [
             'driver' => 'sanctum',
             'provider' => 'chefs',
         ],
-        'delivery' => [
+        'deliveryman' => [
             'driver' => 'sanctum',
             'provider' => 'deliverymen',
         ],

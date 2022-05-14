@@ -30,9 +30,8 @@ return new class extends Migration
             $table->integer('balance')->nullable(false)->default(0);
             $table->string('profile_picture', 50)->nullable(false)->default('default_profile_pic');
             $table->timestamp('approved_at')->nullable();
-            $table->timestamp('deleted_at')->nullable();
             $table->string('certificate')->nullable(true);
-
+            $table->softDeletes();
 
         });
     }

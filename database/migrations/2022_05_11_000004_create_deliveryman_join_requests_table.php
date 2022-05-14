@@ -21,14 +21,11 @@ return new class extends Migration
             $table->string('email',50)->nullable(false)->unique();
             $table->date('birth_date')->nullable(false);
             $table->enum('gender', ['m', 'f'])->nullable(false);
-            $table->enum('transportation_type', ['دراجة هوائية','دراجة كهربائية', 'دراجة نارية','سيارة'])->nullable(false);
+            $table->enum('transportation_type', ['bicycle','electricBicycle', 'motorcycle','car'])->nullable(false);
             $table->string('work_days',50)->nullable(false);
             $table->time('work_hours_from',)->nullable(false);
             $table->time('work_hours_to')->nullable(false);
-            $table->boolean('is_available')->nullable(false)->default(false);
-            $table->integer('balance')->nullable(false)->default(0);
             $table->boolean('approved')->default(false);
-            $table->timestamp('deleted_at')->nullable();
 
         });
     }

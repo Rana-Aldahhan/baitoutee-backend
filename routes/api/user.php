@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\CommonAuthController;
 use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\LocationController;
 use Illuminate\Http\Request;
@@ -17,11 +18,10 @@ use Illuminate\Support\Facades\Route;
 */
 Route::prefix('user')->group(function () { 
         //unauthenticated (guest) routes
-        Route::post('/send-code',[UserAuthController::class,'sendPhoneNumberVerificationCode']);
-        Route::get('/check-phone-number-code',[UserAuthController::class,'checkUserCodeAndRegisterStatus']);
+        Route::post('/send-code',[CommonAuthController::class,'sendPhoneNumberVerificationCode']);
+        Route::get('/check-code-and-accessibility',[UserAuthController::class,'checkUserCodeAndRegisterStatus']);
         Route::get('/locations',[LocationController::class,'getCampusLocations']);
         Route::post('/request-register',[UserAuthController::class,'makeRegisterRequest'])->middleware('verified.phone');
-        Route::post('/login',[UserAuthController::class,'login'])->middleware('verified.phone');
         // authenticated routes
         Route::middleware(['auth:user'])->group(function(){  
             Route::delete('/logout',[UserAuthController::class,'logout']);//TODO remove checkNotRestricted middleware from this route

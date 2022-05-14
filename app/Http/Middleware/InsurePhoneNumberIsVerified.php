@@ -24,10 +24,11 @@ class InsurePhoneNumberIsVerified
         //request should have phone or phone_number input
         $phone=$request['phone_number'];
         $phone==null?$request['phone']:$request['phone_number'];
-        $numberOfMinutesOfValidVerrificationCode=10;
+        $numberOfMinutesOfValidVerrificationCode=30;
         if($phone !=null){
-           $verifiedAt= DB::table('phone_number_verifications')
-            ->where('phone_number', $phone)->select('verified_at')->first()->verified_at;
+           $verifiedAtRecord= DB::table('phone_number_verifications')
+            ->where('phone_number', $phone)->select('verified_at')->first();
+            $verifiedAtRecord!=null?$verifiedAt=$verifiedAtRecord->verified_at:$verifiedAt=null;
             if(is_null($verifiedAt) || now()->diffInMinutes($verifiedAt)>$numberOfMinutesOfValidVerrificationCode)
                 return $this->errorResponse('رقم الهاتف لم يتم التحقق منه أو رمز التحقق انتهت صلاحيته',403);
         }
