@@ -24,4 +24,7 @@ Route::group([
     Route::get('/user-join-request/{id}/approve',[JoinRequestsController::class,'approveUser']);
     Route::get('/chef-join-request/{id}/approve',[JoinRequestsController::class,'approveChef']);
     Route::get('/deliveryman-join-request/{id}/approve',[JoinRequestsController::class,'approveDeliveryman']);
+    Route::get('/user-join-request/{id}/reject',[JoinRequestsController::class,'rejectUser']);
+    Route::get('/chef-join-request/{id}/reject',[JoinRequestsController::class,'rejectChef']);
+    Route::get('/deliveryman-join-request/{id}/reject',[JoinRequestsController::class,'rejectDeliveryman']);
 }); // this should be the absolute last line of this file

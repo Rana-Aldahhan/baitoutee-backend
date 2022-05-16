@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('work_days',50)->nullable(false);
             $table->time('work_hours_from',)->nullable(false);
             $table->time('work_hours_to')->nullable(false);
-            $table->boolean('approved')->default(false);
+            $table->boolean('approved')->nullable()->default(null);
 
         });
     }

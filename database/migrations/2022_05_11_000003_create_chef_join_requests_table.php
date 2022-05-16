@@ -27,7 +27,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('max_meals_per_day')->nullable(false);
             $table->string('profile_picture')->default('default_profile_pic.jpg');
             $table->string('certificate')->nullable(true);
-            $table->boolean('approved')->default(false);
+            $table->boolean('approved')->nullable()->default(null);
         });
     }
 

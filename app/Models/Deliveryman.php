@@ -28,14 +28,7 @@ class Deliveryman extends Authenticatable
      *
      * @var array
      */
-    protected $appends = ['access_token'];
-
-    protected function accessToken(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->getFirstToken(),
-        );
-    }
+    protected $appends = [];
 
     /**
      * relationships
@@ -46,11 +39,5 @@ class Deliveryman extends Authenticatable
     public function deliveries(){
         return $this->hasMany(Delivery::class);
     }
-     /**
-     * getters
-     */
-    public function getFirstToken()
-    {
-        return $this->tokens()->first()->token;
-    }
+
 }

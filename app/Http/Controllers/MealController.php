@@ -56,7 +56,7 @@ class MealController extends Controller
          * @return JsonResponse
          */
         public function indexCategories(){
-            $categories_id = auth('chef')->user()->meals->only('category_id')->unique();
+            $categories_id = auth('chef')->user()->meals->pluck('category_id')->unique();
             $categories = Category::whereIn('id', $categories_id->toArray())->get(['id','name']);
             return $this->successResponse($categories);
         }

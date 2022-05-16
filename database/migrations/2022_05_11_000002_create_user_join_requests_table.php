@@ -29,7 +29,7 @@ return new class extends Migration
             $table->date('campus_card_expiry_date');
             $table->string('study_specialty');
             $table->smallInteger('study_year');
-            $table->boolean('approved')->default(false);
+            $table->boolean('approved')->nullable()->default(null);
             $table->softDeletes();
             $table->timestamps();
         });

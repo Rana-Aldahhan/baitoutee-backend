@@ -148,6 +148,9 @@ return [
         'max_meals_per_day' => [
             'maxMeals' => ':attribute يتجاوز عدد الحصص الكلية',
         ],
+        'delivery_ends_at'=>[
+            'TimeAfter'=>' :attribute يجب أن يكون أكبر من الوقت السابق'
+        ],
     ],
 
     /*

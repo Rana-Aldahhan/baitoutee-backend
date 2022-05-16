@@ -44,14 +44,8 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $appends = ['access_token'];
+    protected $appends = [];
 
-    protected function accessToken(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->getFirstToken(),
-        );
-    }
     /**
      * relationships
      */
@@ -77,11 +71,5 @@ class User extends Authenticatable
     public function savedMeals(){
         return $this->belongsToMany(Meal::class,'meals_saved_list','user_id','meal_id');
     }
-    /**
-     * getters
-     */
-    public function getFirstToken()
-    {
-        return $this->tokens()->first()->token;
-    }
+
 }

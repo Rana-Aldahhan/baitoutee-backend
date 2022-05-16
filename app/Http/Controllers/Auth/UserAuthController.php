@@ -9,19 +9,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Enums\UserAccessStatus;
+use App\Enums\Gender;
 
-enum UserAccessStatus : int {
-    case active=0;
-    case notApproved=1;
-    case notRegistered=2;
-    case notVerified=3;
-    case inactive=4;
-    case blocked=5;
-}
-enum Gender:int {
-    case m=0;
-    case f=1;
-}
+// enum UserAccessStatus : int {
+//     case active=0;
+//     case notApproved=1;
+//     case notRegistered=2;
+//     case notVerified=3;
+//     case inactive=4;
+//     case blocked=5;
+// }
+// enum Gender:int {
+//     case m=0;
+//     case f=1;
+// }
 class UserAuthController extends Controller
 {
 
@@ -68,7 +70,9 @@ class UserAuthController extends Controller
             else // case the user has registered :check if the registration request has been approved
             {
                 $approved=$joinRequest->approved;
-                if(!$approved) //case not approved
+                if($approved===null)//case the user request is rejected
+                    return $this->errorResponseWithCustomizedStatus(UserAccessStatus::rejected->value,'تم رفض طلب الانضمام الخاص بك لا يمكنك الدخول',403);
+                else if($approved==false) //case not approved
                 {
                     return $this->successResponseWithCustomizedStatus(UserAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
@@ -141,7 +145,6 @@ class UserAuthController extends Controller
     }
     public function login(User $user){
         $access_token= $user->createToken('app',['user'])->plainTextToken;
-        $user->append('access_token');
         $user->access_token=$access_token;
         return $user;
     }

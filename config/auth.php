@@ -52,6 +52,11 @@ return [
             'driver' => 'sanctum',
             'provider' => 'deliverymen',
         ],
+        'api' => [
+            'driver' => 'token',
+            'provider' => 'users',
+            'hash' => false,
+        ]
 
     ],
 

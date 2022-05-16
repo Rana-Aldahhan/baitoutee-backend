@@ -28,14 +28,7 @@ class Chef extends Authenticatable
      *
      * @var array
      */
-    protected $appends = ['access_token'];
-
-    protected function accessToken(): Attribute
-    {
-        return new Attribute(
-            get: fn () => $this->getFirstToken(),
-        );
-    }
+     protected $appends = [];
 
     /**
      * relationships
@@ -55,11 +48,5 @@ class Chef extends Authenticatable
     public function chefJoinRequest(){
         return $this->belongsTo(ChefJoinRequest::class);
     }
-     /**
-     * getters
-     */
-    public function getFirstToken()
-    {
-        return $this->tokens()->first()->token;
-    }
+
 }

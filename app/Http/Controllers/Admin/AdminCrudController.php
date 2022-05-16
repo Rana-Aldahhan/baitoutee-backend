@@ -6,6 +6,7 @@ use App\Http\Requests\AdminRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use App\Models\Admin;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Class AdminCrudController
@@ -41,8 +42,8 @@ class AdminCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        if(backpack_user()->role->name!='super admin')
-            abort(403);
+        \Auth::shouldUse('backpack');
+        Gate::authorize('add-admins');
         CRUD::setValidation(AdminRequest::class);
         CRUD::column('name');
         CRUD::column('email');
@@ -70,8 +71,8 @@ class AdminCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        if(backpack_user()->role->name!='super admin')
-            abort(403);
+        \Auth::shouldUse('backpack');
+        Gate::authorize('add-admins');
         CRUD::setValidation(AdminRequest::class);
 
         CRUD::field('name');
@@ -106,8 +107,8 @@ class AdminCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
-        if(backpack_user()->role->name!='super admin')
-            abort(403);
+        \Auth::shouldUse('backpack');
+        Gate::authorize('add-admins');
         $this->setupCreateOperation();
         Admin::updating(function($entry) {
             $entry->password =bcrypt($entry->password) ;
@@ -115,8 +116,8 @@ class AdminCrudController extends CrudController
     }
     protected function setupShowOperation()
     {
-        if(backpack_user()->role->name!='super admin')
-            abort(403);
+        \Auth::shouldUse('backpack');
+        Gate::authorize('add-admins');
          $this->autoSetupShowOperation();
 
     }

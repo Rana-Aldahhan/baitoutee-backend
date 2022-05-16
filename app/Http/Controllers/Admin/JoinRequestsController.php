@@ -10,14 +10,19 @@ use App\Models\User;
 use App\Models\Chef;
 use App\Models\Deliveryman;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class JoinRequestsController extends Controller
 {
+
     public function approveUser(Request $request,$id)
     {
+        
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-join-requests');
         $joinRequest=UserJoinRequest::find($id);
-        //case the join request is already approved
-        if($joinRequest->approved)
+        //case the join request is already rejected or approved
+        if($joinRequest->approved===false || $joinRequest->approved===true)
             return  redirect('/admin/user-join-request');
         //create new user entity
         $user=User::create([
@@ -45,9 +50,11 @@ class JoinRequestsController extends Controller
     }
     public function approveChef(Request $request,$id)
     {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-join-requests');
         $joinRequest=ChefJoinRequest::find($id);
-        //case the join request is already approved
-        if($joinRequest->approved)
+        //case the join request is already rejected or approved
+        if($joinRequest->approved===false || $joinRequest->approved===true)
             return  redirect('/admin/chef-join-request');
         //create new user entity
         $user=Chef::create([
@@ -74,9 +81,11 @@ class JoinRequestsController extends Controller
     }
     public function approveDeliveryman(Request $request,$id)
     {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-join-requests');
         $joinRequest=DeliverymanJoinRequest::find($id);
-        //case the join request is already approved
-        if($joinRequest->approved)
+        //case the join request is already rejected or approved
+        if($joinRequest->approved===false || $joinRequest->approved===true)
             return  redirect('/admin/chef-join-request');
         //create new user entity
         $user=Deliveryman::create([
@@ -96,6 +105,52 @@ class JoinRequestsController extends Controller
 
         // make the request entity approved
         $joinRequest->approved=true;
+        $joinRequest->save();
+        return redirect('/admin/deliveryman-join-request');
+    }
+    public function rejectUser(Request $request,$id)
+    {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-join-requests');
+        $joinRequest=UserJoinRequest::find($id);
+        //case the join request is already rejected or approved
+        if($joinRequest->approved===false || $joinRequest->approved===true)
+            return  redirect('/admin/user-join-request');
+        //TODO send notification to that user
+
+        // make the request entity rejected
+        $joinRequest->approved=false;
+        $joinRequest->save();
+        return redirect('/admin/user-join-request');
+    }
+    public function rejectChef(Request $request,$id)
+    {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-join-requests');
+        $joinRequest=ChefJoinRequest::find($id);
+        //case the join request is already rejected or approved
+        if($joinRequest->approved===false || $joinRequest->approved===true)
+            return  redirect('/admin/chef-join-request');
+       
+        //TODO send notification to that chef
+
+        // make the request entity rejected
+        $joinRequest->approved=false;
+        $joinRequest->save();
+        return redirect('/admin/chef-join-request');
+    }
+    public function rejectDeliveryman(Request $request,$id)
+    {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-join-requests');
+        $joinRequest=DeliverymanJoinRequest::find($id);
+        //case the join request is already rejected or approved
+        if($joinRequest->approved===false || $joinRequest->approved===true)
+            return  redirect('/admin/deliveryman-join-request');
+        //TODO send notification to that chef
+
+        // make the request entity approved
+        $joinRequest->approved=false;
         $joinRequest->save();
         return redirect('/admin/deliveryman-join-request');
     }

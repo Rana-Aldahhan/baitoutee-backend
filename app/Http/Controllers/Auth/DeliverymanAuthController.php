@@ -9,25 +9,24 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Enums\DeliverymanAccessStatus;
+use App\Enums\TransportationType;
+use App\Enums\Gender;
 
+// enum DeliverymanAccessStatus : int {
+//     case approved=0;
+//     case notApproved=1;
+//     case notRegistered=2;
+//     case notVerified=3;
+//     case blocked=4;
+// }
+// enum TransportationType : int {
+//     case bicycle=0;
+//     case electricBicycle=1;
+//     case motorcycle=2;
+//     case car=3;
+// }
 
-enum DeliverymanAccessStatus : int {
-    case approved=0;
-    case notApproved=1;
-    case notRegistered=2;
-    case notVerified=3;
-    case blocked=4;
-}
-enum TransportationType : int {
-    case bicycle=0;
-    case electricBicycle=1;
-    case motorcycle=2;
-    case car=3;
-}
-enum Gender:int {
-    case m=0;
-    case f=1;
-}
 class DeliverymanAuthController extends Controller
 {
     public function checkDeliverymanCodeAndRegisterStatus(Request $request){
@@ -69,13 +68,13 @@ class DeliverymanAuthController extends Controller
             {
                 return $this->successResponseWithCustomizedStatus(DeliverymanAccessStatus::notRegistered->value,[]);
             }
-            else // case the user has registered :check if the registration request has been approved
-            {
-                $approved=$joinRequest->approved;
-                if(!$approved) //case not approved
+            if($approved===null)//case the user request is rejected
+             return $this->errorResponseWithCustomizedStatus(DeliverymanAccessStatus::rejected->value,'تم رفض طلب الانضمام الخاص بك لا يمكنك الدخول',403);
+            else if($approved==false) //case not approved
                 {
                     return $this->successResponseWithCustomizedStatus(DeliverymanAccessStatus::notApproved->value,[]);
-                }else //case approved :check if blocked or inactive account
+                }
+                else //case approved :check if blocked or inactive account
                 {
                     $deliveryman=$joinRequest->deliveryman()->withTrashed()->first();
                     $deliveryman->deleted_at !=null?$isblocked=true:$is_blocked=false;
@@ -124,7 +123,6 @@ class DeliverymanAuthController extends Controller
     }
     public function login(Deliveryman $deliveryman){
         $access_token= $deliveryman->createToken('app',['deliveryman'])->plainTextToken;
-        $deliveryman->append('access_token');
         $deliveryman->access_token=$access_token;
         return $deliveryman;
     }

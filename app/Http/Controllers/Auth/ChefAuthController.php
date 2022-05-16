@@ -11,18 +11,19 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use App\Traits\DistanceCalculator;
+use App\Enums\ChefAccessStatus;
+use App\Enums\Gender;
+use App\Rules\BeforeMidnight;
+use App\Rules\TimeAfter;
+use Carbon\Carbon;
+// enum ChefAccessStatus : int {
+//     case approved=0;
+//     case notApproved=1;
+//     case notRegistered=2;
+//     case notVerified=3;
+//     case blocked=4;
+// }
 
-enum ChefAccessStatus : int {
-    case approved=0;
-    case notApproved=1;
-    case notRegistered=2;
-    case notVerified=3;
-    case blocked=4;
-}
-enum Gender:int {
-    case m=0;
-    case f=1;
-}
 
 class ChefAuthController extends Controller
 {
@@ -72,7 +73,9 @@ class ChefAuthController extends Controller
             else // case the user has registered :check if the registration request has been approved
             {
                 $approved=$joinRequest->approved;
-                if(!$approved) //case not approved
+                if($approved===null)//case the chef request is rejected
+                    return $this->errorResponseWithCustomizedStatus(ChefAccessStatus::rejected->value,'تم رفض طلب الانضمام الخاص بك لا يمكنك الدخول',403);
+                else if($approved==false) //case not approved
                 {
                     // return $this->successResponse(['code_is_valid'=>$code_is_valid,'registered'=>$registered,'approved'=>$approved]);
                     return $this->successResponseWithCustomizedStatus(ChefAccessStatus::notApproved->value,[]);
@@ -104,9 +107,8 @@ class ChefAuthController extends Controller
             'location'=>'required',
             'latitude'=>'required|numeric',
             'longitude'=>'required|numeric',
-            //TODO add check 
-            'delivery_starts_at' =>'required|date_format:H:i:s',
-            'delivery_ends_at' =>'required|date_format:H:i:s',
+            'delivery_starts_at' =>['required','date_format:H:i:s'],
+            'delivery_ends_at' =>['required','date_format:H:i:s',new TimeAfter($request['delivery_starts_at']), new BeforeMidnight],
             'max_meals_per_day'=>'required|numeric',
             'profile_picture'=>'nullable|image',
         ]);
@@ -178,7 +180,6 @@ class ChefAuthController extends Controller
     }
     public function login(Chef $chef){
         $access_token= $chef->createToken('app',['chef'])->plainTextToken;
-        $chef->append('access_token');
         $chef->access_token=$access_token;
         return $chef;
     }
