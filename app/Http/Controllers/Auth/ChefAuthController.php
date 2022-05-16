@@ -19,6 +19,10 @@ enum ChefAccessStatus : int {
     case notVerified=3;
     case blocked=4;
 }
+enum Gender:int {
+    case m=0;
+    case f=1;
+}
 
 class ChefAuthController extends Controller
 {
@@ -26,7 +30,7 @@ class ChefAuthController extends Controller
 
     public function checkChefCodeAndRegisterStatus(Request $request){
         $validator = Validator::make($request->all(), [
-            'phone' => 'required',
+            'phone_number' => 'required',
             'code' =>'required'
         ]);
         if($validator->fails())//case of input validation failure
@@ -35,7 +39,7 @@ class ChefAuthController extends Controller
         }
         //query parameters
         $verificationCode=$request['code'];
-        $phoneNumber=$request['phone'];
+        $phoneNumber=$request['phone_number'];
         //response data
         $code_is_valid=false;
         $registered=false;
@@ -74,7 +78,7 @@ class ChefAuthController extends Controller
                     return $this->successResponseWithCustomizedStatus(ChefAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
                 {
-                    $chef=$joinRequest->chef->withTrashed()->first();
+                    $chef=$joinRequest->chef()->withTrashed()->first();
                     $chef->deleted_at !=null?$isblocked=true:$is_blocked=false;
                     if($is_blocked)//case is blocked
                     {
@@ -96,10 +100,11 @@ class ChefAuthController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:chef_join_requests,email',
             'birth_date'=>'required|date',
-            'gender'=> ['required', Rule::in(['f', 'm'])],
+            'gender'=> ['required', Rule::in([0,1])],
             'location'=>'required',
             'latitude'=>'required|numeric',
             'longitude'=>'required|numeric',
+            //TODO add check 
             'delivery_starts_at' =>'required|date_format:H:i:s',
             'delivery_ends_at' =>'required|date_format:H:i:s',
             'max_meals_per_day'=>'required|numeric',
@@ -136,7 +141,7 @@ class ChefAuthController extends Controller
             $fileNameToStore= $filename.'_'.time().'.'.$extension;
             // Upload Image
             $profilePath = $request->file('profile_picture')->storeAs('public/profiles', $fileNameToStore);
-            $profilePath=asset('storage/profiles/'.$fileNameToStore);
+            //$profilePath=asset('storage/profiles/'.$fileNameToStore);
         }
         //store certificate if given
          $certificatePath=null;
@@ -151,16 +156,16 @@ class ChefAuthController extends Controller
              $fileNameToStore= $filename.'_'.time().'.'.$extension;
              // Upload Image
              $certificatePath = $request->file('certificate')->storeAs('public/certificates', $fileNameToStore);
-             $certificatePath=asset('storage/certificatess/'.$fileNameToStore);
+             //$certificatePath=asset('storage/certificatess/'.$fileNameToStore);
          }
-         is_null($profilePath)?$profilePath=asset('storage/profiles/default_profile_pic.jpg'):$profilePath=$profilePath;
+         is_null($profilePath)?$profilePath='storage/profiles/default_profile_pic.jpg':$profilePath=$profilePath;
         //make new chef join request
         $joinRequest=ChefJoinRequest::create([
             'phone_number' => $request['phone_number'],
             'name' => $request['name'],
             'email' => $request['email'],
             'birth_date'=>$request['birth_date'],
-            'gender'=> $request['gender'],
+            'gender'=> Gender::from($request['gender'])->name,
             'delivery_starts_at' =>$request['delivery_starts_at'],
             'delivery_ends_at' =>$request['delivery_ends_at'],
             'max_meals_per_day'=>$request['max_meals_per_day'],

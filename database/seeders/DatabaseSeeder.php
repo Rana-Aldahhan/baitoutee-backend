@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             GlobalVariablesSeeder::class,
             LocationsSeeder::class,
+            CategoriesSeeder::class,
             RolesSeeder::class
         ]);
     }

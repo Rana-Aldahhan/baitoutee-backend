@@ -40,8 +40,6 @@ class DeliverymanJoinRequestCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('id');
-        CRUD::column('created_at');
-        CRUD::column('updated_at');
         CRUD::column('phone_number');
         CRUD::column('name');
         CRUD::column('email');
@@ -52,6 +50,9 @@ class DeliverymanJoinRequestCrudController extends CrudController
         CRUD::column('work_hours_from');
         CRUD::column('work_hours_to');
         CRUD::column('approved');
+        CRUD::column('created_at');
+        CRUD::column('updated_at');
+        $this->crud->addButtonFromView('line', 'approveUser', 'approveUser', 'beginning');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:

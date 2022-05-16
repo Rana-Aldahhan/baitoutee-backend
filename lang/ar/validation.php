@@ -145,6 +145,9 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'max_meals_per_day' => [
+            'maxMeals' => ':attribute يتجاوز عدد الحصص الكلية',
+        ],
     ],
 
     /*
@@ -178,6 +181,14 @@ return [
         'delivery_ends_at' => 'وقت نهاية التوصيل المتاحة',
         'max_meals_per_day' => 'عدد الوجبات الأعظمي التي يمكن تحضيرها باليوم',
         'profile_picture' => 'الصورة الشخصية',
+        'expected_preparation_time' => 'الوقت المتوقع لتحضير الوجبة',
+        'max_meals_per_day' => 'العدد الأعظمي الممكن تحضيره من هذه الوجبة يوميا',
+        'ingredients' => 'المكونات',
+        'discount_percentage'=>'نسبة الخصم على السعر',
+        'is_available' =>'متاحة',
+        'approved'=> 'مقبولة',
+        'price' =>'السعر',
+        'image' =>'الصورة',
         
     ],
 

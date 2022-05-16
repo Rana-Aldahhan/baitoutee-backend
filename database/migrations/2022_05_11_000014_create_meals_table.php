@@ -18,13 +18,16 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('chef_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
             $table->foreignId('category_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
-            $table->string('image', 50)->nullable(false)->default('default_profile_pic');
+            $table->string('image')->nullable(false)->default('default_meal_pic.jpg');
             $table->string('name', 50)->nullable(false);
             $table->unsignedInteger('price')->nullable(false);
+            $table->unsignedTinyInteger('max_meals_per_day')->nullable(false);
             $table->boolean('is_available')->nullable(false)->default(false);
             $table->unsignedTinyInteger('expected_preparation_time')->nullable(false); // in minutes
             $table->unsignedTinyInteger('discount_percentage')->nullable(true);
             $table->mediumText('ingredients')->nullable(false);
+            $table->float('rating')->nullable(true);
+            $table->unsignedInteger('rates_count')->nullable(true);
             $table->boolean('approved')->nullable(false)->default(false);
 
         });

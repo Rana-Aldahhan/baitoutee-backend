@@ -30,8 +30,8 @@ trait DistanceCalculator{
            }
         ]}' ,'text/plain'
         )->post('http://open.mapquestapi.com/directions/v2/routematrix?key=le8apjRfdPnenbbE1Y8rypVVYlxm0RGn');
-        $distanceInMiles=$response['distance'][1];
-        return $this->convertMileToKm($distanceInMiles) ;
+         $distanceInMiles=$response['distance'][1];
+         return $this->convertMileToKm($distanceInMiles) ;
 	}
    protected function convertMileToKm($distanceInMiles){
       return $distanceInMiles* 1.6;

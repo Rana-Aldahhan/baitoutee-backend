@@ -24,11 +24,15 @@ enum TransportationType : int {
     case motorcycle=2;
     case car=3;
 }
+enum Gender:int {
+    case m=0;
+    case f=1;
+}
 class DeliverymanAuthController extends Controller
 {
     public function checkDeliverymanCodeAndRegisterStatus(Request $request){
         $validator = Validator::make($request->all(), [
-            'phone' => 'required',
+            'phone_number' => 'required',
             'code' =>'required'
         ]);
         if($validator->fails())//case of input validation failure
@@ -37,7 +41,7 @@ class DeliverymanAuthController extends Controller
         }
         //query parameters
         $verificationCode=$request['code'];
-        $phoneNumber=$request['phone'];
+        $phoneNumber=$request['phone_number'];
         //response data
         $code_is_valid=false;
         $registered=false;
@@ -51,7 +55,6 @@ class DeliverymanAuthController extends Controller
          */ 
         if($verificationCode!='0000')//if the respone returned invalid code
         {
-            //return $this->errorResponse('الرمز الذي أدخلته غير صالح',401);
             return $this->errorResponseWithCustomizedStatus(DeliverymanAccessStatus::notVerified->value,'الرمز الذي أدخلته غير صالح',401);
         }
         else // the response retuned it is a valid code:check if the user has registedred before 
@@ -74,7 +77,7 @@ class DeliverymanAuthController extends Controller
                     return $this->successResponseWithCustomizedStatus(DeliverymanAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
                 {
-                    $deliveryman=$joinRequest->deliveryman->withTrashed()->first();
+                    $deliveryman=$joinRequest->deliveryman()->withTrashed()->first();
                     $deliveryman->deleted_at !=null?$isblocked=true:$is_blocked=false;
                     if($is_blocked)//case is blocked
                     {
@@ -95,7 +98,7 @@ class DeliverymanAuthController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:deliveryman_join_requests,email',
             'birth_date'=>'required|date',
-            'gender'=> ['required', Rule::in(['f', 'm'])],
+            'gender'=> ['required', Rule::in([0,1])],
             'transportation_type'=>['required', Rule::in([0,1,2,3])],
             'work_days'=>'required',
             'work_hours_from'=>'required|date_format:H:i:s',
@@ -110,7 +113,7 @@ class DeliverymanAuthController extends Controller
             'name' => $request['name'],
             'email' => $request['email'],
             'birth_date'=>$request['birth_date'],
-            'gender'=> $request['gender'],
+            'gender'=>Gender::from($request['gender'])->name,
             'transportation_type'=>TransportationType::from($request['transportation_type'])->name,
             'work_days'=>$request['work_days'],
             'work_hours_from'=>$request['work_hours_from'],

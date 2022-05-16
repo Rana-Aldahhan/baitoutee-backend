@@ -18,11 +18,16 @@ enum UserAccessStatus : int {
     case inactive=4;
     case blocked=5;
 }
+enum Gender:int {
+    case m=0;
+    case f=1;
+}
 class UserAuthController extends Controller
 {
+
     public function checkUserCodeAndRegisterStatus(Request $request){
         $validator = Validator::make($request->all(), [
-            'phone' => 'required',
+            'phone_number' => 'required',
             'code' =>'required'
         ]);
         if($validator->fails())//case of input validation failure
@@ -31,7 +36,7 @@ class UserAuthController extends Controller
         }
         //query parameters
         $verificationCode=$request['code'];
-        $phoneNumber=$request['phone'];
+        $phoneNumber=$request['phone_number'];
         //response data
         $code_is_valid=false;
         $registered=false;
@@ -68,7 +73,7 @@ class UserAuthController extends Controller
                     return $this->successResponseWithCustomizedStatus(UserAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
                 {
-                    $user=$joinRequest->user->withTrashed()->first();
+                    $user=$joinRequest->user()->withTrashed()->first();
                     $user->deleted_at !=null?$isblocked=true:$is_blocked=false;
                     if($is_blocked)//case is blocked
                     {
@@ -85,7 +90,6 @@ class UserAuthController extends Controller
                         {
                             $loggedUser=$this->login($user);
                             return $this->successResponseWithCustomizedStatus(UserAccessStatus::active->value,$loggedUser);
-
                         }
                     } 
             }
@@ -98,7 +102,7 @@ class UserAuthController extends Controller
             'name' => 'required',
             'email' => 'required|email',
             'birth_date'=>'required|date',
-            'gender'=> ['required', Rule::in(['f', 'm'])],
+            'gender'=> ['required', Rule::in([0,1])],
             'national_id'=>'required|numeric',
             'campus_card_id'=>'required',
             'campus_unit_number' => 'required|numeric',
@@ -116,7 +120,7 @@ class UserAuthController extends Controller
             'name' => $request['name'],
             'email' => $request['email'],
             'birth_date'=>date_format(date_create($request['birth_date']),'Y-m-d'),
-            'gender'=> $request['gender'],
+            'gender'=> Gender::from($request['gender'])->name,
             'national_id'=>$request['national_id'],
             'campus_card_id'=>$request['campus_card_id'],
             'campus_unit_number' => $request['campus_unit_number'],

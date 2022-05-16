@@ -15,13 +15,13 @@ class CommonAuthController extends Controller
          * to the provided phone number
          */
         $validator = Validator::make($request->all(), [
-            'phone' => 'required'
+            'phone_number' => 'required'
         ]);
         if($validator->fails())//case of input validation failure
         {
             return $this->errorResponse($validator->errors()->first(),422);
         }
-        $phoneNumber=$request->query('phone');
+        $phoneNumber=$request['phone_number'];
         //store in the database that this phone number has been sent a verification code
         DB::table('phone_number_verifications')->updateOrInsert(
             ['phone_number'=>$phoneNumber],

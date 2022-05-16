@@ -22,4 +22,6 @@ Route::group([
     Route::crud('chef-join-request', 'ChefJoinRequestCrudController');
     Route::crud('deliveryman-join-request', 'DeliverymanJoinRequestCrudController');
     Route::get('/user-join-request/{id}/approve',[JoinRequestsController::class,'approveUser']);
+    Route::get('/chef-join-request/{id}/approve',[JoinRequestsController::class,'approveChef']);
+    Route::get('/deliveryman-join-request/{id}/approve',[JoinRequestsController::class,'approveDeliveryman']);
 }); // this should be the absolute last line of this file

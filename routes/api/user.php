@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('user')->group(function () { 
         //unauthenticated (guest) routes
         Route::post('/send-code',[CommonAuthController::class,'sendPhoneNumberVerificationCode']);
-        Route::get('/check-code-and-accessibility',[UserAuthController::class,'checkUserCodeAndRegisterStatus']);
+        Route::post('/check-code-and-accessibility',[UserAuthController::class,'checkUserCodeAndRegisterStatus']);
         Route::get('/locations',[LocationController::class,'getCampusLocations']);
         Route::post('/request-register',[UserAuthController::class,'makeRegisterRequest'])->middleware('verified.phone');
         // authenticated routes

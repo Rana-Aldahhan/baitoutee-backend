@@ -44,7 +44,6 @@ class UserJoinRequestCrudController extends CrudController
         //CRUD::column('user_id');
         CRUD::column('name');
         CRUD::column('email');
-        CRUD::column('email_verified_at');
         CRUD::column('phone_number');
         CRUD::column('birth_date');
         CRUD::column('gender');
@@ -55,10 +54,8 @@ class UserJoinRequestCrudController extends CrudController
         CRUD::column('study_specialty');
         CRUD::column('study_year');
         CRUD::column('approved');
-        CRUD::column('deleted_at');
         CRUD::column('created_at');
-        CRUD::column('updated_at');
-        $this->crud->addButtonFromView('line', 'approve', 'approve', 'beginning');
+        $this->crud->addButtonFromView('line', 'approveUser', 'approveUser', 'beginning');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
