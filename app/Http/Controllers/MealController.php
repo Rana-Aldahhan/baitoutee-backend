@@ -2,210 +2,454 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PriceChangeRequest;
+use App\Rules\ImageLink;
+use App\Rules\MaximumMealNumber;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Models\Meal;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\RequiredIf;
+use phpDocumentor\Reflection\Types\Boolean;
+use Illuminate\Support\Facades\DB;
+
 
 class MealController extends Controller
 {
-        private function getupdateRules()
+
+    /**
+     * helper methode to get the rules to validate meal
+     * @return array
+     */
+    protected function getRules(Request $request)
+    {
+        return [
+            'image' => 'required|image',
+            'name' => 'required|min:1|max:50',
+            'category_id' => 'required_without:new_category_name|exists:categories,id',
+            'category_name' => 'required_without:category_id',
+            'ingredients' => 'required',
+            'expected_preparation_time' => 'required|numeric|max:255',
+            'max_meals_per_day' => ['required', 'numeric', 'min:0', 'max:255', new MaximumMealNumber($request['max_meals_per_day'])],  // check if this make a problem
+            'price' => 'required|numeric',
+          //  'reason' => new RequiredIf($this->changedPrice),
+            'discount_percentage' => 'nullable|numeric',
+        ];
+
+    }
+    protected function getUpdateRules(Request $request)
+    {
+
+        return [
+            'image' => 'filled',
+            'name' => 'filled|min:1|max:50',
+            'category_id' => 'filled|exists:categories,id',
+            'ingredients' => 'filled',
+            'expected_preparation_time' => 'filled|numeric|max:255',
+            'max_meals_per_day' => ['filled', 'numeric', 'min:0', 'max:255', new MaximumMealNumber($request['max_meals_per_day'])],  // check if this make a problem
+            'price' => 'filled|numeric',
+           // 'reason' => new RequiredIf($this->changedPrice),
+            'discount_percentage' => 'nullable|numeric',
+        ];
+
+    }
+
+    /**
+     * helper method to validate a meal
+     * @param Request $request
+     * @return \Illuminate\Contracts\Validation\Validator|JsonResponse
+     */
+    protected function validateMeal(Request $request,$rules)
+    {
+        $validator = Validator::make($request->only('image', 'name',
+            'category_id', 'ingredients', 'expected_preparation_time', 'max_meals_per_day',
+            'price', 'discount_percentage', 'new_category_name'),
+            $rules);
+        if ($validator->fails())//case of input validation failure
         {
-            return [
-                'image' => 'filled|image',
-                'name' => 'filled|min:1|max:50',
-                'category_id'=>'filled|exists:categories,category_id',
-                'expected_preparation_time' => 'filled|numeric|max:255',
-                'max_meals_per_day' => ['filled','numeric','min:0','max:255','maxMeals'],  // check if this make a problem
-                'price' => 'filled|numeric',
-                'discount_percentage'=>'date',
-            ];
-        }
-        protected function getRules(){
-            return [
-                'image' => 'required|image',
-                'name' => 'required|min:1|max:50',
-                'category_id'=>'filled|exists:categories,category_id',
-                'ingredients' => 'required',
-                'expected_preparation_time' => 'required|numeric|max:255',
-                'max_meals_per_day' => ['required','numeric','min:0','max:255','maxMeals'],  // check if this make a problem
-                'price' => 'required|numeric',
-                'discount_percentage'=>'nullable|date',
-                ];
-    
+            return $this->errorResponse($validator->errors()->first(), 422);
+        } else
+            return $validator;
+    }
+
+    private function getCategories($categories_id){
+        $categories = Category::whereIn('id', $categories_id)->get(['id', 'name']);
+        $categories->push(Category::all('id', 'name')->first());
+        $categories->push(Category::all('id', 'name')->skip(1)->first());
+        return $categories;
+    }
+    /**
+     * Display a listing of categories
+     *
+     * @return JsonResponse
+     */
+    public function indexCategories()
+    {
+        $categories_id = auth('chef')->user()->meals->pluck('category_id')->unique();
+        return $this->successResponse($this->getCategories($categories_id));
+    }
+
+    /**
+     * get the chef meals of a specific category
+     * @param $id
+     * @return JsonResponse
+     */
+    public function getMealOfCategory($id)
+    {
+        $meals = auth('chef')->user()->meals;
+        /// $request->route('id'); or  $request->id; (try)
+        /// $category->meals (try this instead 👈🏻)
+        $categoryMeals = $meals->where('category_id', $id);
+
+        foreach ($categoryMeals as $categoryMeal){
+            $categoryMeal->image =  asset($categoryMeal->image);
         }
 
-        protected function validateMeal(Request $request){
-            $rules = $this->getRules();
-            $messages = $this->getMessages();
-            $validator = Validator::make($request->only('image', 'name',
-                'category_id', 'ingredients', 'expected_preparation_time', 'max_meals_per_day',
-                'price','discount_percentage'),
-                $rules,$messages);
-    
-            if($validator->fails())//case of input validation failure
-            {
-                return $this->errorResponse($validator->errors()->first(),422);
+        return $this->successResponse($categoryMeals);
+    }
+
+    /**
+     * get the number of active meals and the number of total meals
+     * of the chef meals
+     * @return JsonResponse
+     */
+    public function getActiveMealsCount()
+    {
+        $ChefMeals = auth('chef')->user()->meals;
+        $countActive = $ChefMeals->where('is_available', true)->get()->count();
+        $countNonActive = $ChefMeals->count() - $countActive;
+        $mealsCount = Collection::make([
+            'active_meals' => $countActive,
+            'total_meals' => $countNonActive,
+        ]);
+        return $this->successResponse($mealsCount);
+    }
+
+    /**
+     * show the chef the price that will be shown to the students
+     * by adding the application profit
+     * @param  $price
+     * @return JsonResponse
+     */
+    public function getPriceForStudent($price)
+    {
+       /* $validator = Validator::make([$price], ['price' => 'required|numeric']);
+        if ($validator->fails())//case of input validation failure
+            return $this->errorResponse($validator->errors()->first(), 422);*/
+        $meal_profit =DB::table('global_variables')->where('id',3)->get('value')->first();
+        $student_price = intval($price) + intval($meal_profit->value);
+        $price = Collection::make([
+            'student_price' => $student_price
+        ]);
+        return $this->successResponse($price);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function store(Request $request)
+    {
+        $rules = $this->getRules($request);
+        $validateResponse = $this->validateMeal($request,$rules);
+
+        if ($validateResponse instanceof JsonResponse) {
+            return $validateResponse;
+        }
+
+        $imagePath = $this->storeMealPic($request); //TODO: enhance and send only the pic
+        //TODO : enhance create by using validateResponse
+        $newMeal = Meal::create([
+            'chef_id' =>  auth('chef')->id(),
+            'image' => $imagePath,
+            'name' => $request['name'],
+            'ingredients' => $request['ingredients'],
+            'expected_preparation_time' => $request['expected_preparation_time'],
+            'max_meals_per_day' => $request['max_meals_per_day'],
+            'price' => $request['price'],
+            'discount_percentage' => $request['discount_percentage'], // check if this make a problem if it was null
+            'category_id' =>  $request['category_id']
+        ]);
+
+        if ($newMeal->exists) {
+            $newMeal->image = asset($newMeal->image);
+            return $this->successResponse($newMeal, 201);
+        } else {
+            return $this->errorResponse("لم يتمكن من إنشاء وجبة", 400);
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  Meal  $meal
+     * @return JsonResponse
+     */
+    public function show(Meal $meal)
+    {
+        if ($meal->exists) {
+            return $this->successResponse($meal);
+        } else {
+            return $this->errorResponse("لم يتمكن من عرض الوجبة", 404);
+        }
+    }
+
+    /**
+     * helper function to store price change request entity
+     *
+     * @param Request $request
+     * @param Meal $meal
+     * @return void
+     */
+    private function storePriceChangeRequest(Request $request, Meal $meal)
+    {
+        PriceChangeRequest::create([
+            'meal_id' => $meal->id,
+            'new_price' => $request['price'],
+            'reason' => $request['reason']
+        ]);
+    }
+
+    /**
+     * helper method to store meal image
+     * @param Request $request
+     * @return false|string|null
+     */
+    private function storeMealPic(Request $request){
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            // Get filename with the extension
+            $filenameWithExt = $request->file('image')->getClientOriginalName();
+            // Get just filename
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            // Get just ext
+            $extension = $request->file('image')->getClientOriginalExtension();
+            // Filename to store
+            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+            // Upload Image
+            $imagePath = $request->file('image')->storeAs('public/mealImages', $fileNameToStore);
+            //$profilePath=asset('storage/profiles/'.$fileNameToStore);
+        }
+        return $imagePath;
+    }
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param Request $request
+     * @param  Meal $meal
+     * @return JsonResponse
+     */
+    public function update(Request $request, Meal $meal)
+    {
+        // if the image had been updated then store the file
+       // dd($request->all());
+        $imagePath = $this->storeMealPic($request);
+
+        $rules = $this->getUpdateRules($request);
+        $oldMeal = Meal::find($meal->id);
+        if($imagePath !=null){
+            $oldImage = storage_path('app/'.$oldMeal->image);
+            if(File::exists($oldImage)){
+                File::delete($oldImage);
             }
         }
-        /*
-         * Display a listing of the resource.
-         *
-         * @return JsonResponse
-         */
-        public function indexCategories(){
+        $validateResponse = $this->validateMeal($request,$rules);
+        if ($validateResponse instanceof JsonResponse) {
+            return $validateResponse;
+        }
+
+        if($request['price'] != null){
+            if ($oldMeal->price != intval($request['price'])) {
+                if($request['reason']== null){
+                    return  $this->errorResponse("عند تغيير السعر حقل السبب مطلوب",400);
+                }
+                else{
+                    $this->storePriceChangeRequest($request, $meal);
+                }
+            }
+        }
+
+        $updatedMeal = $meal->fill($validateResponse->validated())->save(); // check if it is working or do update
+
+        $meal->image = $imagePath;
+        $meal->save();
+        if ($updatedMeal) {
+            return $this->successResponse($updatedMeal);
+        } else {
+            return $this->errorResponse("لم يتمكن من تعديل معلومات الوجبة", 404);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param Meal $meal
+     * @return JsonResponse
+     */
+    public function destroy(Meal $meal)
+    {
+        //ToDO : ON DELETE CASCADE FOR MEAL AND PRICE CHANGE REQUEST
+        $oldMeal = Meal::find($meal->id);
+        $oldImage = storage_path('app/'.$oldMeal->image);
+        if(File::exists($oldImage)){
+                File::delete($oldImage);
+        }
+        $success = $meal->delete();
+        if ($success) {
+            //$message = str("تم حذف الوجبة ".$meal->name)->after;
+            return $this->successResponse([], 200);
+        } else {
+            return $this->errorResponse("لم يتمكن من حذف الوجبة", 404);
+        }
+    }
+
+    /**
+     * subtracting one portion of a meal
+     *
+     * @param Meal $meal
+     * @return JsonResponse
+     */
+    public function addMealNumber(Meal $meal)
+    {
+        $newNumMeal = $meal->max_meals_per_day + 1;
+        return $this->editMaximumMealNumber($meal,$newNumMeal);
+
+    }
+
+    /**
+     * adding one portion of a meal
+     *
+     * @param Meal $meal
+     * @return JsonResponse
+     */
+    public function subtractMealNumber(Meal $meal)
+    {
+        $newNumMeal = $meal->max_meals_per_day - 1;
+        return $this->editMaximumMealNumber($meal,$newNumMeal);
+
+    }
+
+    /**
+     * edit the number of portion of a meal
+     *
+     * @param Meal $meal
+     * @param $newNumMeal
+     * @return JsonResponse
+     */
+    private function editMaximumMealNumber(Meal $meal,$newNumMeal)
+    {
+        $validator = Validator::make([$newNumMeal],
+            ['newNumMeal' => 'maxMeals']
+            , [], ['newNumMeal' => 'العدد الأعظمي الممكن تحضيره من هذه الوجبة يوميا']);
+
+        if ($validator->fails())//case of input validation failure
+            return $this->errorResponse($validator->errors()->first(), 422);
+
+        $updatedMeal = $meal->update([
+            'max_meals_per_day' => $newNumMeal
+        ]);
+        if ($updatedMeal) {
+            return $this->successResponse($updatedMeal);
+        } else {
+            return $this->errorResponse("لم يتمكن من تعديل معلومات الوجبة", 404);
+        }
+
+    }
+
+    /**
+     * edit the availability of a meal
+     *
+     * @param Meal $meal
+     * @return JsonResponse
+     */
+    public function editAvailability(Meal $meal)
+    {
+        $availability = !$meal->is_available;
+        $updatedMeal = $meal->update([
+            'is_available' => $availability
+        ]);
+        if ($updatedMeal) {
+            return $this->successResponse($updatedMeal);
+        } else {
+            return $this->errorResponse("لم يتمكن من تعديل معلومات الوجبة", 404);
+        }
+    }
+
+    /**
+     * store new category.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function storeCategory(Request $request)
+    {
+        if ($request['category_name'] != null) {
             $categories_id = auth('chef')->user()->meals->pluck('category_id')->unique();
-            $categories = Category::whereIn('id', $categories_id->toArray())->get(['id','name']);
-            return $this->successResponse($categories);
-        }
-        public function getMealOfCategory($id)
-        {
-            $meals = auth('chef')->user()->meals;
-            /// $request->route('id'); or  $request->id; (try)
-            $categoryMeals = $meals->where('category_id', $id);
-            return $this->successResponse($categoryMeals);
-        }
-    
-        /*
-         * Store a newly created resource in storage.
-         *
-         * @param Request $request
-         * @return JsonResponse
-         */
-    
-        public function store(Request $request)
-        {
-            // validate it is a chef in middleware
-            // validate the meal in StoreMealRequest
-            // $validated = $request->validated();
-    
-            // it is better to use form request StoreMealRequest
-            // it is not good to use $request->all()
-    
-            $this->validateMeal($request);
-            $imagePath=null;
-            if($request->hasFile('image')){
-                // Get filename with the extension
-                $filenameWithExt = $request->file('image')->getClientOriginalName();
-                // Get just filename
-                $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-                // Get just ext
-                $extension = $request->file('image')->getClientOriginalExtension();
-                // Filename to store
-                $fileNameToStore= $filename.'_'.time().'.'.$extension;
-                // Upload Image
-                $imagePath = $request->file('image')->storeAs('public/mealImages', $fileNameToStore);
-                //$profilePath=asset('storage/profiles/'.$fileNameToStore);
+            if ($this->getCategories($categories_id)->contains((function ($value, $key) {
+                global $request;
+                return ($value->name === $request['category_name']) ;
+            }))) {
+                return $this->errorResponse("اسم التصنيف الذي قمت بإدخاله موجود بالفعل", 400);
             }
-            $newMeal =Meal::create([
-                'image'=>$imagePath,
-                'name'=>$request['name'],
-                'category_id'=>$request['category_id'],
-                'ingredients'=>$request['ingredients'],
-                'expected_preparation_time'=>$request['expected_preparation_time'],
-                'max_meals_per_day'=>$request['max_meals_per_day'],
-                'price'=>$request['price'],
-                'discount_percentage'=>$request['discount_percentage'], // check if this make a problem if it was null
+            $newCategory = Category::create([
+                'name' => $request['category_name']
             ]);
-            if($newMeal){
-                return $this->successResponse($newMeal,201);
-            }else{
-                return $this->errorResponse("لم يتمكن من إنشاء وجبة",400);
-            }
+            return $this->successResponse($newCategory);
         }
-    
-        /*
-         * Display the specified resource.
-         *
-         * @param  Meal  $meal
-         * @return JsonResponse
-         */
-        public function show(Meal  $meal)
-        {
-            if($meal){
-                return $this->successResponse($meal);
-            }
-            else{
-                return $this->errorResponse("لم يتمكن من عرض الوجبة",404);
-            }
-        }
-    
-    
-        /*
-         * Update the specified resource in storage.
-         *
-         * @param Request $request
-         * @param  Meal $meal
-         * @return JsonResponse
-         */
-        public function update(Request $request,Meal $meal)
-        {
-            //create fillable property
-            $this->validateMeal($request);
-            $input = $request->all();
-            $updatedMeal = $meal->fill($input)->save(); // check if it is working or do update
-            if($updatedMeal){
-                return $this->successResponse($updatedMeal);
-            }else{
-                return $this->errorResponse("لم يتمكن من تعديل معلومات الوجبة",404);
-            }
-        }
-    
-        /**
-         * Remove the specified resource from storage.
-         *
-         * @param  Meal  $meal
-         * @return JsonResponse
-         */
-        public function destroy(Meal $meal)
-        {
-            $success = $meal->delete();
-            if($success){
-                //$message = str("تم حذف الوجبة ".$meal->name)->after;
-                return $this->successResponse($success,200);
-            }else{
-                return $this->errorResponse("لم يتمكن من حذف الوجبة",404);
-            }
-        }
-    
-        public function editMaximumMealNumber(Request $request,Meal $meal){
-            $request->merge([
-                'newNumMeal' => intval($meal->max_meals_per_day + $request['value'])
-            ]);
-            //request()->request->add(['index'=>'value']); // if 👆🏻 not working try this
-            $validator = Validator::make($request->only('value','newNumMeal'),
-                ['value' => ['required','numeric',
-                    Rule::in([-1, +1])],
-                 'newNumMeal' => 'maxMeals']
-                ,[],['newNumMeal' => 'العدد الأعظمي الممكن تحضيره من هذه الوجبة يوميا']);
-    
-            if($validator->fails())//case of input validation failure
-            {
-                return $this->errorResponse($validator->errors()->first(),422);
-            }
-    
-            $updatedMeal = $meal->update([
-                'max_meals_per_day' => $request['value']
-            ]);
-            if($updatedMeal){
-                return $this->successResponse($updatedMeal);
-            }else{
-                return $this->errorResponse("لم يتمكن من تعديل معلومات الوجبة",404);
-            }
-    
-        }
-        public function editAvailability(Meal $meal){
-            $availability = !$meal->is_available;
-            $updatedMeal = $meal->update([
-                'is_available' => $availability
-            ]);
-            if($updatedMeal){
-                return $this->successResponse($updatedMeal);
-            }else{
-                return $this->errorResponse("لم يتمكن من تعديل معلومات الوجبة",404);
-            }
-        }
-    
+    }
+
 }
+
+/** old functions **/
+// create category route inside store meal and update meal
+/* private function createCategory(Request $request, Meal $meal)
+ {
+     // the categoryname is unique
+     if($request['category_id']!=null){
+         $meal->category_id = $request['category_id'];
+     }else if($request['new_category_name']!=null){
+         // check if the name is unique
+         $newCategory = Category::create([
+             'name' =>$request['new_category_name']
+         ]);
+         $newCategoryId = $newCategory->id;
+         $meal->category_id =$newCategoryId;
+     }
+     $meal->save();
+ }
+
+public function editMaximumMealNumber(Request $request, Meal $meal)
+    {
+        $request->merge([
+            'newNumMeal' => intval($meal->max_meals_per_day + $request['value'])
+        ]);
+        //request()->request->add(['index'=>'value']); // if 👆🏻 not working try this
+        $validator = Validator::make($request->only('value', 'newNumMeal'),
+            ['value' => ['required', 'numeric',
+                Rule::in([-1, +1])],
+                'newNumMeal' => 'maxMeals']
+            , [], ['newNumMeal' => 'العدد الأعظمي الممكن تحضيره من هذه الوجبة يوميا']);
+
+        if ($validator->fails())//case of input validation failure
+        {
+            return $this->errorResponse($validator->errors()->first(), 422);
+        }
+
+        $updatedMeal = $meal->update([
+            'max_meals_per_day' => $request['value']
+        ]);
+        if ($updatedMeal) {
+            return $this->successResponse($updatedMeal);
+        } else {
+            return $this->errorResponse("لم يتمكن من تعديل معلومات الوجبة", 404);
+        }
+
+    }
+*/

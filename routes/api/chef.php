@@ -25,14 +25,19 @@ Route::prefix('chef')->group(function () {
         Route::middleware(['auth:chef'])->group(function(){  
             Route::delete('/logout',[ChefAuthController::class,'logout']);
             Route::group(['prefix' => 'meals'], function () {
+                Route::post('/category/',[MealController::class, 'storeCategory']);
                 Route::get('/categories', [MealController::class, 'indexCategories']);
+                Route::get('/active-count', [MealController::class, 'getActiveMealsCount']);
+                Route::get('/meal/{price}', [MealController::class, 'getPriceForStudent']);
                 Route::get('/categories/{id}', [MealController::class, 'getMealOfCategory']);
                 Route::post('/',[MealController::class, 'store']);
                 Route::get('/{meal}',[MealController::class, 'show']);
                 Route::put('/{meal}',[MealController::class, 'update']);
+                Route::put('/{meal}/add-portion',[MealController::class, 'addMealNumber']);
+                Route::put('/{meal}/subtract-portion',[MealController::class, 'subtractMealNumber']);
                 Route::delete('/{meal}',[MealController::class, 'destroy']);
-                Route::put('/{meal}/edit-max-meal-num',[MealController::class, 'editMaximumMealNumber']);
-                Route::get('/{meal}/edit-availability',[MealController::class, 'editAvailability']); //because i dont need request like edit?
+                //Route::put('/{meal}/edit-max-meal-num',[MealController::class, 'editMaximumMealNumber']);
+                Route::put('/{meal}/edit-availability',[MealController::class, 'editAvailability']);
             });
         });
 });

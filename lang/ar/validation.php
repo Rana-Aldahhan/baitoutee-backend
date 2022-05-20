@@ -146,7 +146,9 @@ return [
             'rule-name' => 'custom-message',
         ],
         'max_meals_per_day' => [
-            'maxMeals' => ':attribute يتجاوز عدد الحصص الكلية',
+            'MaximumMealNumber' => ':attribute يتجاوز عدد الحصص الكلية',
+        ],'image-link' => [
+            'Imagelink' => ':attribute ليس رابط صورة',
         ],
         'delivery_ends_at'=>[
             'TimeAfter'=>' :attribute يجب أن يكون أكبر من الوقت السابق'

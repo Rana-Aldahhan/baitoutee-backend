@@ -28,7 +28,7 @@ return new class extends Migration
             $table->mediumText('ingredients')->nullable(false);
             $table->float('rating')->nullable(true);
             $table->unsignedInteger('rates_count')->nullable(true);
-            $table->boolean('approved')->nullable(false)->default(false);
+            $table->boolean('approved')->nullable()->default(null);
 
         });
     }

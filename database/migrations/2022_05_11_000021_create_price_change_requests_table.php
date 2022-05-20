@@ -19,7 +19,7 @@ return new  class extends Migration
             $table->foreignId('meal_id')->nullable(false)->constrained();
             $table->unsignedInteger('new_price')->nullable(false);
             $table->string('reason', 250)->nullable(false);
-            $table->boolean('approved')->default(false);
+            $table->boolean('approved')->nullable()->default(null);;
         });
     }
 
