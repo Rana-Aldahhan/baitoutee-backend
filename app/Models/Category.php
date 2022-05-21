@@ -9,6 +9,7 @@ class Category extends Model
 {
     use HasFactory;
     protected $guarded = [];
+    protected $hidden = ['updated_at','created_at'];
     /**
      * relationships
      */

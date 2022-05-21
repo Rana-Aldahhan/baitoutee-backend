@@ -17,6 +17,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\RequiredIf;
 use phpDocumentor\Reflection\Types\Boolean;
 use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\Types\True_;
 
 
 class MealController extends Controller
@@ -121,7 +122,7 @@ class MealController extends Controller
     public function getActiveMealsCount()
     {
         $ChefMeals = auth('chef')->user()->meals;
-        $countActive = $ChefMeals->where('is_available', true)->get()->count();
+        $countActive = $ChefMeals->where('is_available', true)->count();
         $countNonActive = $ChefMeals->count() - $countActive;
         $mealsCount = Collection::make([
             'active_meals' => $countActive,
@@ -278,8 +279,10 @@ class MealController extends Controller
 
         $updatedMeal = $meal->fill($validateResponse->validated())->save(); // check if it is working or do update
 
-        $meal->image = $imagePath;
-        $meal->save();
+        if( $imagePath !=null){
+            $meal->image = $imagePath;
+            $meal->save();
+        }
         if ($updatedMeal) {
             return $this->successResponse($updatedMeal);
         } else {
@@ -319,7 +322,13 @@ class MealController extends Controller
     public function addMealNumber(Meal $meal)
     {
         $newNumMeal = $meal->max_meals_per_day + 1;
-        return $this->editMaximumMealNumber($meal,$newNumMeal);
+
+        if($this->editMaximumMealNumber($meal,$newNumMeal)  == true) {
+            return $this->successResponse($newNumMeal);
+        }
+        else{
+            return $this->editMaximumMealNumber($meal,$newNumMeal);
+        }
 
     }
 
@@ -332,16 +341,21 @@ class MealController extends Controller
     public function subtractMealNumber(Meal $meal)
     {
         $newNumMeal = $meal->max_meals_per_day - 1;
-        return $this->editMaximumMealNumber($meal,$newNumMeal);
+        if($this->editMaximumMealNumber($meal,$newNumMeal)  == true) {
+            return $this->successResponse($newNumMeal);
+        }
+        else{
+            return $this->editMaximumMealNumber($meal,$newNumMeal);
+        }
 
     }
 
     /**
-     * edit the number of portion of a meal
+     * helper methode to edit the number of portion of a meal
      *
      * @param Meal $meal
      * @param $newNumMeal
-     * @return JsonResponse
+     * @return bool|JsonResponse
      */
     private function editMaximumMealNumber(Meal $meal,$newNumMeal)
     {
@@ -356,7 +370,7 @@ class MealController extends Controller
             'max_meals_per_day' => $newNumMeal
         ]);
         if ($updatedMeal) {
-            return $this->successResponse($updatedMeal);
+           return true;
         } else {
             return $this->errorResponse("لم يتمكن من تعديل معلومات الوجبة", 404);
         }

@@ -31,7 +31,7 @@ Route::prefix('chef')->group(function () {
                 Route::get('/meal/{price}', [MealController::class, 'getPriceForStudent']);
                 Route::get('/categories/{id}', [MealController::class, 'getMealOfCategory']);
                 Route::post('/',[MealController::class, 'store']);
-                Route::get('/{meal}',[MealController::class, 'show']);
+                //Route::get('/{meal}',[MealController::class, 'show']); no need to it because all data is returned to the index
                 Route::put('/{meal}',[MealController::class, 'update']);
                 Route::put('/{meal}/add-portion',[MealController::class, 'addMealNumber']);
                 Route::put('/{meal}/subtract-portion',[MealController::class, 'subtractMealNumber']);
