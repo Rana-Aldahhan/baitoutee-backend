@@ -16,10 +16,10 @@ return new  class extends Migration
         Schema::create('price_change_requests', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('meal_id')->nullable(false)->constrained();
+            $table->foreignId('meal_id')->nullable(false)->constrained()->cascadeOnDelete();
             $table->unsignedInteger('new_price')->nullable(false);
             $table->string('reason', 250)->nullable(false);
-            $table->boolean('approved')->nullable()->default(null);;
+            $table->boolean('approved')->nullable()->default(null);
         });
     }
 

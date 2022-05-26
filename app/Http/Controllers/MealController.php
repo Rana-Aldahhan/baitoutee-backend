@@ -106,7 +106,7 @@ class MealController extends Controller
         /// $request->route('id'); or  $request->id; (try)
         /// $category->meals (try this instead 👈🏻)
         $categoryMeals = $meals->where('category_id', $id);
-
+        $categoryMeals->toArray();
         foreach ($categoryMeals as $categoryMeal){
             $categoryMeal->image =  asset($categoryMeal->image);
         }
@@ -165,7 +165,7 @@ class MealController extends Controller
             return $validateResponse;
         }
 
-        $imagePath = $this->storeMealPic($request); //TODO: enhance and send only the pic
+        $imagePath = $this->storeMealPic($request);
         //TODO : enhance create by using validateResponse
         $newMeal = Meal::create([
             'chef_id' =>  auth('chef')->id(),
@@ -218,6 +218,7 @@ class MealController extends Controller
         ]);
     }
 
+    //TODO: make it a trait so we don't repeat the code
     /**
      * helper method to store meal image
      * @param Request $request
@@ -298,7 +299,6 @@ class MealController extends Controller
      */
     public function destroy(Meal $meal)
     {
-        //ToDO : ON DELETE CASCADE FOR MEAL AND PRICE CHANGE REQUEST
         $oldMeal = Meal::find($meal->id);
         $oldImage = storage_path('app/'.$oldMeal->image);
         if(File::exists($oldImage)){
