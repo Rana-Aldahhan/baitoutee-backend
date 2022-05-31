@@ -82,7 +82,7 @@ class MealController extends Controller
         $categories = Category::whereIn('id', $categories_id)->get(['id', 'name']);
         $categories->push(Category::all('id', 'name')->first());
         $categories->push(Category::all('id', 'name')->skip(1)->first());
-        return $categories;
+        return $categories->unique();
     }
     /**
      * Display a listing of categories
@@ -107,11 +107,11 @@ class MealController extends Controller
         /// $category->meals (try this instead 👈🏻)
         $categoryMeals = $meals->where('category_id', $id);
         $categoryMeals->toArray();
-        foreach ($categoryMeals as $categoryMeal){
+       /* foreach ($categoryMeals as $categoryMeal){
             $categoryMeal->image =  asset($categoryMeal->image);
-        }
+        }*/
 
-        return $this->successResponse($categoryMeals);
+        return $this->successResponse($categoryMeals->filter());
     }
 
     /**
@@ -180,7 +180,7 @@ class MealController extends Controller
         ]);
 
         if ($newMeal->exists) {
-            $newMeal->image = asset($newMeal->image);
+          //  $newMeal->image = asset($newMeal->image);
             return $this->successResponse($newMeal, 201);
         } else {
             return $this->errorResponse("لم يتمكن من إنشاء وجبة", 400);
@@ -238,6 +238,7 @@ class MealController extends Controller
             // Upload Image
             $imagePath = $request->file('image')->storeAs('public/mealImages', $fileNameToStore);
             //$profilePath=asset('storage/profiles/'.$fileNameToStore);
+            $imagePath = '/storage/mealImages/' . $fileNameToStore;
         }
         return $imagePath;
     }
@@ -257,10 +258,7 @@ class MealController extends Controller
         $rules = $this->getUpdateRules($request);
         $oldMeal = Meal::find($meal->id);
         if($imagePath !=null){
-            $oldImage = storage_path('app/'.$oldMeal->image);
-            if(File::exists($oldImage)){
-                File::delete($oldImage);
-            }
+            unlink(storage_path('app/public'.Str::after($oldMeal->image,'/storage')));
         }
         $validateResponse = $this->validateMeal($request,$rules);
         if ($validateResponse instanceof JsonResponse) {
@@ -321,8 +319,10 @@ class MealController extends Controller
      */
     public function addMealNumber(Meal $meal)
     {
+        $max_meals_per_day = auth('chef')->user()->get('max_meals_per_day')->first();
         $newNumMeal = $meal->max_meals_per_day + 1;
-
+        if($newNumMeal>$max_meals_per_day)
+            return $this->errorResponse("لقد تجاوزت العدد الأقصى من الوجبات",400);
         if($this->editMaximumMealNumber($meal,$newNumMeal)  == true) {
             return $this->successResponse($newNumMeal);
         }
@@ -341,6 +341,8 @@ class MealController extends Controller
     public function subtractMealNumber(Meal $meal)
     {
         $newNumMeal = $meal->max_meals_per_day - 1;
+        if($newNumMeal<0)
+            return $this->errorResponse("ادخال غير صالح",400);
         if($this->editMaximumMealNumber($meal,$newNumMeal)  == true) {
             return $this->successResponse($newNumMeal);
         }
@@ -416,6 +418,9 @@ class MealController extends Controller
                 'name' => $request['category_name']
             ]);
             return $this->successResponse($newCategory);
+        }
+        else{
+            return  $this->errorResponse("حقل التصنيف مطلوب",422);
         }
     }
 

@@ -14,6 +14,7 @@ class Chef extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable ,SoftDeletes;
     protected $guarded = [];
+    protected $hidden = ['created_at','updated_at'];
 
     /**
      * The attributes that should be cast.

@@ -10,6 +10,11 @@ class Meal extends Model
     use HasFactory;
     protected $guarded = [];
     protected $hidden = ['created_at','updated_at','chef_id'];
+
+    protected $casts = [
+        'approved' => 'boolean',
+        'is_available' => 'boolean',
+    ];
     /**
      * relationships
      */
