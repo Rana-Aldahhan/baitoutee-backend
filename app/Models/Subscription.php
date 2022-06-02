@@ -9,6 +9,7 @@ class Subscription extends Model
 {
     use HasFactory;
     protected $guarded = [];
+    protected $with=['chef:id,name'];
     /**
      * relationships
      */

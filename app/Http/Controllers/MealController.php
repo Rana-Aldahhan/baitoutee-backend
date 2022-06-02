@@ -423,35 +423,49 @@ class MealController extends Controller
             return  $this->errorResponse("حقل التصنيف مطلوب",422);
         }
     }
-
+    //TODO return the total price
     public function getTopTenRated(){
-        $topRatedMeals=Meal::approved()->sortBy(function($meal){
+        $topRatedMeals=Meal::approved()
+        ->where('rating','!=',null)// delete this if we want to have defaults
+        ->get()
+        ->sorTByDesc(function($meal){
             //TODO follow the same sorting method of the top rated chefs
             return ($meal->rating + $meal->rates_count )/(5+$meal->rates_count);
-        })->take(10)->get();
+        })
+        ->take(10)->values();
         return $this->successResponse($topRatedMeals,200);
     }
     public function getMealTopTenOffers(){
-        $offers=Meal::approved()->where('discount_percentage','>',0)->sortBy(function($meal){
-            return $meal->discount_percentage;
-        })->take(10)->get();
+        $offers=Meal::approved()
+        ->where('discount_percentage','>',0)
+        ->orWhere('category_id',1)
+        ->orderByDesc('discount_percentage')
+        ->take(10)
+        ->get();
         return $this->successResponse($offers,200);
     }
     public function getAllOffers(){
-        $offersPagination=Meal::approved()->where('discount_percentage','>',0)->sortBy(function($meal){
-            return $meal->discount_percentage;
-        })->paginate(15);
+        $offersPagination=Meal::approved()
+        ->where('discount_percentage','>',0)
+        ->orWhere('category_id',1)
+        ->orderByDesc('discount_percentage')
+        ->paginate(15);
         return $this->paginatedResponse($offersPagination);
     }
     public function getTopTenRecent(){
-        $recentMeals=Meal::approved()->sortByDesc(function($meal){
-            return $meal->created_at;
-        })->take(10)->get();
+        $recentMeals=Meal::approved()
+        ->orderByDesc('created_at')
+        ->take(10)
+        ->get();
         return $this->successResponse($recentMeals,200);
     }
     public function getTopTenOrdered(){
-        //TODO check this
-        $meals=Meal::approved()->withCount('orders')->get()->sortBy('orders_count')->take(10)->get();
+        $meals=Meal::approved()
+        ->withCount('orders')
+        ->get()
+        ->sortByDesc('orders_count')
+        ->take(10)
+        ->values();
         return $this->successResponse($meals);
     }
 

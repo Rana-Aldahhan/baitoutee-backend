@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('delivery_id')->nullable()->references('id')->on('deliveries');
             $table->foreignId('subscription_id')->nullable()->references('id')->on('subscriptions');
             $table->time('selected_delivery_time');
-            $table->string('notes');
+            $table->string('notes')->nullable();
             $table->enum('status',['pending','approved','not approved','prepared','picked','delivered','not delivered','canceled'])->default('pending');
             $table->float('total_cost', 8, 2);
             $table->timestamp('accepted_at')->nullable();
