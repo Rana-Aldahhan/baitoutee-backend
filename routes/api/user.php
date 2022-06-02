@@ -25,10 +25,11 @@ Route::prefix('user')->group(function () {
         // authenticated routes
         Route::middleware(['auth:user'])->group(function(){  
             Route::delete('/logout',[UserAuthController::class,'logout']);//TODO remove checkNotRestricted middleware from this route
-            Route::get('/filter-nearest-chefs',[\App\Http\Controllers\ChefController::class, 'filterNearest']);
             Route::get('/filter-top-rated-chefs',[\App\Http\Controllers\ChefController::class, 'filterTopRated']);
+            Route::get('/filter-nearest-chefs',[\App\Http\Controllers\ChefController::class, 'filterNearest']);
             Route::get('/filter-top-ordered-chefs',[\App\Http\Controllers\ChefController::class, 'filterTopOrders']);
             Route::get('/filter-newest-chefs',[\App\Http\Controllers\ChefController::class, 'filterNewestChefs']);
 
         });
+
 });

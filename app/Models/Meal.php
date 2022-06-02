@@ -12,6 +12,10 @@ class Meal extends Model
     protected $guarded = [];
     protected $hidden = ['created_at','updated_at','chef_id'];
     protected $with=['chef:id,name','category:name,id'];
+    protected $casts = [
+        'approved' => 'boolean',
+        'is_available' => 'boolean',
+    ];
     /**
      * relationships
      */
