@@ -419,6 +419,37 @@ class MealController extends Controller
         }
     }
 
+    public function getTopTenRated(){
+        $topRatedMeals=Meal::approved()->sortBy(function($meal){
+            //TODO follow the same sorting method of the top rated chefs
+            return ($meal->rating + $meal->rates_count )/(5+$meal->rates_count);
+        })->take(10)->get();
+        return $this->successResponse($topRatedMeals,200);
+    }
+    public function getMealTopTenOffers(){
+        $offers=Meal::approved()->where('discount_percentage','>',0)->sortBy(function($meal){
+            return $meal->discount_percentage;
+        })->take(10)->get();
+        return $this->successResponse($offers,200);
+    }
+    public function getAllOffers(){
+        $offersPagination=Meal::approved()->where('discount_percentage','>',0)->sortBy(function($meal){
+            return $meal->discount_percentage;
+        })->paginate(15);
+        return $this->paginatedResponse($offersPagination);
+    }
+    public function getTopTenRecent(){
+        $recentMeals=Meal::approved()->sortByDesc(function($meal){
+            return $meal->created_at;
+        })->take(10)->get();
+        return $this->successResponse($recentMeals,200);
+    }
+    public function getTopTenOrdered(){
+        //TODO check this
+        $meals=Meal::approved()->withCount('orders')->get()->sortBy('orders_count')->take(10)->get();
+        return $this->successResponse($meals);
+    }
+
 }
 
 /** old functions **/

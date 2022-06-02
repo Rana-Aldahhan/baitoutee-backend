@@ -23,7 +23,7 @@ return new class extends Migration
             $table->date('birth_date')->nullable(false);
             $table->enum('gender', ['m', 'f'])->nullable(false);
             $table->enum('transportation_type', ['bicycle','electricBicycle', 'motorcycle','car'])->nullable(false);
-            $table->string('work_days',50)->nullable(false);
+            $table->string('work_days')->nullable(false);
             $table->time('work_hours_from',)->nullable(false);
             $table->time('work_hours_to')->nullable(false);
             $table->boolean('is_available')->nullable(false)->default(false);

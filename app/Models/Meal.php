@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Meal extends Model
 {
+    use \Backpack\CRUD\app\Models\Traits\CrudTrait;
     use HasFactory;
     protected $guarded = [];
     protected $hidden = ['created_at','updated_at','chef_id'];
+    protected $with=['chef:id,name','category:name,id'];
     /**
      * relationships
      */
@@ -35,6 +37,19 @@ class Meal extends Model
     public function savingUsers()
     {
         return $this->belongsToMany(User::class);
+    }
+    /**
+     * scopes
+     */
+    /**
+     * Scope a query to only include approved meals
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('approved', true);
     }
 
 }

@@ -28,7 +28,7 @@ class UserJoinRequestCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\UserJoinRequest::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/user-join-request');
-        CRUD::setEntityNameStrings('user join request', 'user join requests');
+        CRUD::setEntityNameStrings('طلب انضمام مستخدم', 'طلبات انضمام المستخدمين');
     }
 
     /**
@@ -55,7 +55,7 @@ class UserJoinRequestCrudController extends CrudController
         CRUD::column('study_year');
         CRUD::column('approved');
         CRUD::column('created_at');
-        $this->crud->addButtonFromView('line', 'approveUser', 'approveUser', 'beginning');
+        $this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:

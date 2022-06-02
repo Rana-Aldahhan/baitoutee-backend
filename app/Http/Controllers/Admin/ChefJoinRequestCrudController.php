@@ -28,7 +28,7 @@ class ChefJoinRequestCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\ChefJoinRequest::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/chef-join-request');
-        CRUD::setEntityNameStrings('chef join request', 'chef join requests');
+        CRUD::setEntityNameStrings('طلب انضمام طاهي', 'طلبات انضمام الطهاة');
     }
 
     /**
@@ -45,7 +45,7 @@ class ChefJoinRequestCrudController extends CrudController
         CRUD::column('email');
         CRUD::column('birth_date');
         CRUD::column('gender');
-        //CRUD::column('location_id');
+        CRUD::column('location_id');
         CRUD::column('delivery_starts_at');
         CRUD::column('delivery_ends_at');
         CRUD::column('max_meals_per_day');
@@ -53,7 +53,7 @@ class ChefJoinRequestCrudController extends CrudController
         CRUD::column('certificate');
         CRUD::column('approved');
         CRUD::column('created_at');
-        $this->crud->addButtonFromView('line', 'approveUser', 'approveUser', 'beginning');
+        $this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('chef_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
             $table->foreignId('category_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
-            $table->string('image')->nullable(false)->default('default_meal_pic.jpg');
+            $table->string('image')->nullable(false)->default('/storage/mealsImages/default_meal_pic.png');
             $table->string('name', 50)->nullable(false);
             $table->unsignedInteger('price')->nullable(false);
             $table->unsignedTinyInteger('max_meals_per_day')->nullable(false);

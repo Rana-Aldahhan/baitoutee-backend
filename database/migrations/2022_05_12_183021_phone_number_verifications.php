@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('phone_number_verifications', function (Blueprint $table) {
             $table->id();
             $table->string('phone_number')->unique();
+            $table->timestamp('code_sent_at')->nullable();
             $table->timestamp('verified_at')->nullable();
         });
     }

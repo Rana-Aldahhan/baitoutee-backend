@@ -25,7 +25,7 @@ class CommonAuthController extends Controller
         //store in the database that this phone number has been sent a verification code
         DB::table('phone_number_verifications')->updateOrInsert(
             ['phone_number'=>$phoneNumber],
-            ['phone_number'=>$phoneNumber,'verified_at'=>null]
+            ['phone_number'=>$phoneNumber,'code_sent_at'=>now(),'verified_at'=>null]
         );
         return $this->successResponse(['message'=>'code sent to phone number successfully!']);
     }

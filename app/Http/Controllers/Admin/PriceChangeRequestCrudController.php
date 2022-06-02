@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\DeliverymanJoinRequestRequest;
+use App\Http\Requests\PriceChangeRequestRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Gate;
 
 /**
- * Class DeliverymanJoinRequestCrudController
+ * Class PriceChangeRequestCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class DeliverymanJoinRequestCrudController extends CrudController
+class PriceChangeRequestCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -26,9 +27,9 @@ class DeliverymanJoinRequestCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\DeliverymanJoinRequest::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/deliveryman-join-request');
-        CRUD::setEntityNameStrings('طلب انضمام عامل التوصيل', 'طلبات انضمام عمال التوصيل');
+        CRUD::setModel(\App\Models\PriceChangeRequest::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/price-change-request');
+        CRUD::setEntityNameStrings('طلب تغيير سعر', 'طلبات تغيير السعر');
     }
 
     /**
@@ -39,21 +40,32 @@ class DeliverymanJoinRequestCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('id');
-        CRUD::column('phone_number');
-        CRUD::column('name');
-        CRUD::column('email');
-        CRUD::column('birth_date');
-        CRUD::column('gender');
-        CRUD::column('transportation_type');
-        CRUD::column('work_days');
-        CRUD::column('work_hours_from');
-        CRUD::column('work_hours_to');
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-meal-prices');
+        //CRUD::column('id');
+        CRUD::column('meal_id');
+        CRUD::addColumn([
+            'name'     => 'chef_name',
+            'label'    => 'Chef name',
+            'type'     => 'closure',
+            'function' => function($entry) {
+                return $entry->meal->chef->name;
+            }
+        ]); 
+        CRUD::addColumn([
+            'name'     => 'old_price',
+            'label'    => 'Old price',
+            'type'     => 'closure',
+            'function' => function($entry) {
+                return $entry->meal->price;
+            }
+        ]); 
+        CRUD::column('new_price');
+        CRUD::column('reason');
         CRUD::column('approved');
         CRUD::column('created_at');
         CRUD::column('updated_at');
         $this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
-
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
@@ -69,20 +81,16 @@ class DeliverymanJoinRequestCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(DeliverymanJoinRequestRequest::class);
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-meal-prices');
+        CRUD::setValidation(PriceChangeRequestRequest::class);
 
         CRUD::field('id');
         CRUD::field('created_at');
         CRUD::field('updated_at');
-        CRUD::field('phone_number');
-        CRUD::field('name');
-        CRUD::field('email');
-        CRUD::field('birth_date');
-        CRUD::field('gender');
-        CRUD::field('transportation_type');
-        CRUD::field('work_days');
-        CRUD::field('work_hours_from');
-        CRUD::field('work_hours_to');
+        CRUD::field('meal_id');
+        CRUD::field('new_price');
+        CRUD::field('reason');
         CRUD::field('approved');
 
         /**
@@ -100,6 +108,8 @@ class DeliverymanJoinRequestCrudController extends CrudController
      */
     protected function setupUpdateOperation()
     {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('approve-reject-meal-prices');
         $this->setupCreateOperation();
     }
 }

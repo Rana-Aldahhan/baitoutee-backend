@@ -15,15 +15,6 @@ use App\Enums\ChefAccessStatus;
 use App\Enums\Gender;
 use App\Rules\BeforeMidnight;
 use App\Rules\TimeAfter;
-use Carbon\Carbon;
-// enum ChefAccessStatus : int {
-//     case approved=0;
-//     case notApproved=1;
-//     case notRegistered=2;
-//     case notVerified=3;
-//     case blocked=4;
-// }
-
 
 class ChefAuthController extends Controller
 {
@@ -73,9 +64,9 @@ class ChefAuthController extends Controller
             else // case the user has registered :check if the registration request has been approved
             {
                 $approved=$joinRequest->approved;
-                if($approved===null)//case the chef request is rejected
+                if($approved===0)//case the chef request is rejected
                     return $this->errorResponseWithCustomizedStatus(ChefAccessStatus::rejected->value,'تم رفض طلب الانضمام الخاص بك لا يمكنك الدخول',403);
-                else if($approved==false) //case not approved
+                else if($approved===null) //case not approved
                 {
                     // return $this->successResponse(['code_is_valid'=>$code_is_valid,'registered'=>$registered,'approved'=>$approved]);
                     return $this->successResponseWithCustomizedStatus(ChefAccessStatus::notApproved->value,[]);
@@ -184,6 +175,8 @@ class ChefAuthController extends Controller
         return $chef;
     }
     public function logout(){
+        auth('chef')->user()->is_available=false;
+        auth('chef')->user()->save();
         auth('chef')->user()->tokens()->delete();
         return $this->successResponse([],200);
     }

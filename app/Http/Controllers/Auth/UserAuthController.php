@@ -12,18 +12,6 @@ use Illuminate\Validation\Rule;
 use App\Enums\UserAccessStatus;
 use App\Enums\Gender;
 
-// enum UserAccessStatus : int {
-//     case active=0;
-//     case notApproved=1;
-//     case notRegistered=2;
-//     case notVerified=3;
-//     case inactive=4;
-//     case blocked=5;
-// }
-// enum Gender:int {
-//     case m=0;
-//     case f=1;
-// }
 class UserAuthController extends Controller
 {
 
@@ -70,15 +58,16 @@ class UserAuthController extends Controller
             else // case the user has registered :check if the registration request has been approved
             {
                 $approved=$joinRequest->approved;
-                if($approved===null)//case the user request is rejected
+                if($approved===0)//case the user request is rejected
+                // return $this->successResponseWithCustomizedStatus(UserAccessStatus::rejected->value,[]);
                     return $this->errorResponseWithCustomizedStatus(UserAccessStatus::rejected->value,'تم رفض طلب الانضمام الخاص بك لا يمكنك الدخول',403);
-                else if($approved==false) //case not approved
+                else if($approved===null) //case not approved
                 {
                     return $this->successResponseWithCustomizedStatus(UserAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
                 {
                     $user=$joinRequest->user()->withTrashed()->first();
-                    $user->deleted_at !=null?$isblocked=true:$is_blocked=false;
+                    $user->deleted_at !=null?$is_blocked=true:$is_blocked=false;
                     if($is_blocked)//case is blocked
                     {
                         return $this->errorResponseWithCustomizedStatus(UserAccessStatus::blocked->value,'حسابك تم حجبه, لا يمكنك الدخول',403);

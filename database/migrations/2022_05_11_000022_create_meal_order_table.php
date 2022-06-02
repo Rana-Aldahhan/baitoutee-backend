@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('meals_orders', function (Blueprint $table) {
+        Schema::create('meal_order', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->foreignId('order_id')->nullable(false)->constrained();
