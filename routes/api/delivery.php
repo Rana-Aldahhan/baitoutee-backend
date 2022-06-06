@@ -21,7 +21,7 @@ Route::prefix('delivery')->group(function () {
         Route::post('/check-code-and-accessibility',[DeliverymanAuthController::class,'checkDeliverymanCodeAndRegisterStatus']);
         Route::post('/request-register',[DeliverymanAuthController::class,'makeRegisterRequest'])->middleware('verified.phone');
         // authenticated routes
-        Route::middleware(['auth:deliveryman'])->group(function(){  
+        Route::middleware(['auth:deliveryman','notRestricted'])->group(function(){  
             Route::delete('/logout',[DeliverymanAuthController::class,'logout']);
         });
 });

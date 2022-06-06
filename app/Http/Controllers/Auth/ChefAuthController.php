@@ -45,7 +45,6 @@ class ChefAuthController extends Controller
          */ 
         if($verificationCode!='0000')//if the respone returned invalid code
         {
-            //return $this->errorResponse('الرمز الذي أدخلته غير صالح',401);
             return $this->errorResponseWithCustomizedStatus(ChefAccessStatus::notVerified->value,'الرمز الذي أدخلته غير صالح',401);
         }
         else // the response retuned it is a valid code:check if the user has registedred before 
@@ -58,7 +57,6 @@ class ChefAuthController extends Controller
             $joinRequest!=null?$registered=true:$registered=false;
             if(!$registered) // case the user has not registered yet
             {
-                // return $this->successResponse(['code_is_valid'=>$code_is_valid,'registered'=>$registered]);
                 return $this->successResponseWithCustomizedStatus(ChefAccessStatus::notRegistered->value,[]);
             }
             else // case the user has registered :check if the registration request has been approved
@@ -68,15 +66,14 @@ class ChefAuthController extends Controller
                     return $this->errorResponseWithCustomizedStatus(ChefAccessStatus::rejected->value,'تم رفض طلب الانضمام الخاص بك لا يمكنك الدخول',403);
                 else if($approved===null) //case not approved
                 {
-                    // return $this->successResponse(['code_is_valid'=>$code_is_valid,'registered'=>$registered,'approved'=>$approved]);
                     return $this->successResponseWithCustomizedStatus(ChefAccessStatus::notApproved->value,[]);
                 }else //case approved :check if blocked or inactive account
                 {
-                    $chef=$joinRequest->chef()->withTrashed()->first();
-                    $chef->deleted_at !=null?$isblocked=true:$is_blocked=false;
+                    $chef=$joinRequest->chef()->withTrashed()->first()->setHidden(['deleted_at','chef_join_request_id'
+                ,'birth_date','gender','location_id','is_available','balance','approved_at','certificate']);
+                    $chef->deleted_at !=null?$is_blocked=true:$is_blocked=false;
                     if($is_blocked)//case is blocked
                     {
-                        // return $this->errorResponse('حسابك تم حجبه, لا يمكنك الدخول',403);
                         return $this->errorResponseWithCustomizedStatus(ChefAccessStatus::blocked->value,'حسابك تم حجبه, لا يمكنك الدخول',403);
                     }
                     else//case not blocked
