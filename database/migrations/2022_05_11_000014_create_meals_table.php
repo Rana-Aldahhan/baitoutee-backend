@@ -27,7 +27,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('discount_percentage')->nullable(true);
             $table->mediumText('ingredients')->nullable(false);
             $table->float('rating')->nullable(true);
-            $table->unsignedInteger('rates_count')->nullable(true);
+            $table->unsignedInteger('rates_count')->default(0);
             $table->boolean('approved')->nullable()->default(null);
 
         });

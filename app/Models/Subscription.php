@@ -9,7 +9,9 @@ class Subscription extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $with=['chef:id,name'];
+    protected $with=['chef:id,name,profile_picture'];
+    protected $casts = [ 'is_available' => 'boolean' ];
+    protected $hidden=['created_at','updated_at','max_subscribers','meals_cost'];
     /**
      * relationships
      */

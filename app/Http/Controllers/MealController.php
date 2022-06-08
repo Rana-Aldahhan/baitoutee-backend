@@ -3,21 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\PriceChangeRequest;
-use App\Rules\ImageLink;
 use App\Rules\MaximumMealNumber;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use App\Models\Meal;
+use App\Models\Chef;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\RequiredIf;
-use phpDocumentor\Reflection\Types\Boolean;
 use Illuminate\Support\Facades\DB;
-use phpDocumentor\Reflection\Types\True_;
 
 
 class MealController extends Controller
@@ -105,7 +101,7 @@ class MealController extends Controller
         $meals = auth('chef')->user()->meals;
         /// $request->route('id'); or  $request->id; (try)
         /// $category->meals (try this instead 👈🏻)
-        $categoryMeals = $meals->where('category_id', $id);
+        $categoryMeals = $meals->where('category_id', $id)->values();
         $categoryMeals->toArray();
        /* foreach ($categoryMeals as $categoryMeal){
             $categoryMeal->image =  asset($categoryMeal->image);
@@ -236,9 +232,9 @@ class MealController extends Controller
             // Filename to store
             $fileNameToStore = $filename . '_' . time() . '.' . $extension;
             // Upload Image
-            $imagePath = $request->file('image')->storeAs('public/mealImages', $fileNameToStore);
+            $imagePath = $request->file('image')->storeAs('public/mealsImages', $fileNameToStore);
             //$profilePath=asset('storage/profiles/'.$fileNameToStore);
-            $imagePath = '/storage/mealImages/' . $fileNameToStore;
+            $imagePath = '/storage/mealsImages/' . $fileNameToStore;
         }
         return $imagePath;
     }
@@ -319,7 +315,7 @@ class MealController extends Controller
      */
     public function addMealNumber(Meal $meal)
     {
-        $max_meals_per_day = auth('chef')->user()->get('max_meals_per_day')->first();
+        $max_meals_per_day = auth('chef')->user()->max_meals_per_day;
         $newNumMeal = $meal->max_meals_per_day + 1;
         if($newNumMeal>$max_meals_per_day)
             return $this->errorResponse("لقد تجاوزت العدد الأقصى من الوجبات",400);
@@ -423,33 +419,60 @@ class MealController extends Controller
             return  $this->errorResponse("حقل التصنيف مطلوب",422);
         }
     }
-    //TODO return the total price
+    //TODO do we show only the active meals?
     public function getTopTenRated(){
+        // following a method inspired by Bayesian probability
+            // R refer to the "initial belief", 60th percentile (optimistic) or 40th percentile (pessimistic).
+            // W is a fraction of number of rating, perhaps between C/20 and C/5 (depending on how noisy ratings are).
+            // W = 0 is equivalent to using only the average of user ratings
+            // W = infinity is equivalent to proclaiming that every item has a true rating of R
+            // resource:
+            // https://stackoverflow.com/questions/2495509/how-to-balance-number-of-ratings-versus-the-ratings-themselves
+            $R = 2.5;  // 50% of 5 => 2.5
+            $W = 10.0; // assuming 20000 numbers of rates for an item /2000
+            // (R*W + sigma(n*rating)/(W+sigma(n))
+            // depending on R and W if there is no rating => the item rate will be 25/10 = 2.5
         $topRatedMeals=Meal::approved()
         ->where('rating','!=',null)// delete this if we want to have defaults
         ->get()
-        ->sorTByDesc(function($meal){
-            //TODO follow the same sorting method of the top rated chefs
-            return ($meal->rating + $meal->rates_count )/(5+$meal->rates_count);
+        ->sorTByDesc(function($meal) use ($R,$W){
+            return (($R*$W) + ($meal->rates_count*$meal->rating) )/($W+$meal->rates_count);
         })
-        ->take(10)->values();
+        ->take(10)
+        ->values()
+        ;
+         //calculate the new price
+         $topRatedMeals->map(function($meal){
+            $meal->setHidden(['created_at','updated_at','approved','max_meals_per_day','expected_preparation_time','ingredients','category','category_id']);
+            return $meal->price=$meal->price+$this->getMealProfit()+$this->getMealDeliveryFee($meal->chef_id);
+        });
+       
         return $this->successResponse($topRatedMeals,200);
     }
     public function getMealTopTenOffers(){
         $offers=Meal::approved()
         ->where('discount_percentage','>',0)
-        ->orWhere('category_id',1)
+        ->orWhere('category_id',1)//category of offers
         ->orderByDesc('discount_percentage')
         ->take(10)
         ->get();
+        //calculate the new price
+        $offers->map(function($meal){
+        $meal->setHidden(['created_at','updated_at','approved','max_meals_per_day','expected_preparation_time','ingredients','category','category_id']);
+        return $meal->price=$meal->price+$this->getMealProfit()+$this->getMealDeliveryFee($meal->chef_id);
+         });
         return $this->successResponse($offers,200);
     }
     public function getAllOffers(){
         $offersPagination=Meal::approved()
         ->where('discount_percentage','>',0)
-        ->orWhere('category_id',1)
+        ->orWhere('category_id',1)//category of offers
         ->orderByDesc('discount_percentage')
         ->paginate(15);
+        $offersPagination->map(function($meal){
+            $meal->setHidden(['created_at','updated_at','approved','max_meals_per_day','expected_preparation_time','ingredients','category','category_id']);
+            return $meal->price=$meal->price+$this->getMealProfit()+$this->getMealDeliveryFee($meal->chef_id);
+             });
         return $this->paginatedResponse($offersPagination);
     }
     public function getTopTenRecent(){
@@ -457,6 +480,10 @@ class MealController extends Controller
         ->orderByDesc('created_at')
         ->take(10)
         ->get();
+        $recentMeals->map(function($meal){
+            $meal->setHidden(['created_at','updated_at','approved','max_meals_per_day','expected_preparation_time','ingredients','category','category_id']);
+            return $meal->price=$meal->price+$this->getMealProfit()+$this->getMealDeliveryFee($meal->chef_id);
+             });
         return $this->successResponse($recentMeals,200);
     }
     public function getTopTenOrdered(){
@@ -466,7 +493,28 @@ class MealController extends Controller
         ->sortByDesc('orders_count')
         ->take(10)
         ->values();
+        $meals->map(function($meal){
+            $meal->setHidden(['created_at','updated_at','approved','max_meals_per_day','expected_preparation_time','ingredients','category','category_id']);
+            return $meal->price=$meal->price+$this->getMealProfit()+$this->getMealDeliveryFee($meal->chef_id);
+             });
         return $this->successResponse($meals);
+    }
+    private function getMealProfit(){
+       return DB::table('global_variables')->where('name','meal_profit')->first()->value;
+    }
+    private function getMealDeliveryFee($chefID){
+        //get the user location
+        $userLocation=auth('user')->user()->location_id;
+        $chef=Chef::find($chefID);
+        $distanceBetweenChefAndUser=0;
+        if($userLocation==1)//Mazzeh campus
+            $distanceBetweenChefAndUser=$chef->location->distance_to_first_location;
+        else if($userLocation==2)//Hamak campus
+            $distanceBetweenChefAndUser=$chef->location->distance_to_second_location;
+        else if ($userLocation==3)//Barzeh campus
+            $distanceBetweenChefAndUser=$chef->location->distance_to_third_location;
+        $kmCost=DB::table('global_variables')->where('name','cost_of_one_km')->first()->value;
+        return $distanceBetweenChefAndUser * $kmCost;
     }
 
 }
