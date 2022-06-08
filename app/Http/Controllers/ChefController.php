@@ -9,16 +9,36 @@ use App\Traits\DistanceCalculator;
 class ChefController extends Controller
 {
 
+    private function hideFromItem ($item) {
+        $item->makeHidden('chef_join_request_id');
+        $item->makeHidden('phone_number');
+        $item->makeHidden('email');
+        $item->makeHidden('birth_date');
+        $item->makeHidden('gender');
+        $item->makeHidden('location_id');
+        $item->makeHidden('delivery_starts_at');
+        $item->makeHidden('delivery_ends_at');
+        $item->makeHidden('max_meals_per_day');
+        $item->makeHidden('balance');
+        $item->makeHidden('certificate');
+        $item->makeHidden('approved_at');
+        $item->makeHidden('deleted_at');
+        return $item;
+    }
     // a filter on the distance between the student and the chefs (get the nearest first)
     // for browsing page
     public function filterNearest()
     {
+
         // get the location of the student
         $studentLocation = auth('user')->user()->location;
         // get the distances between chefs and the student
         // sort the chefs depending on the distances the lowest value first
         //$chef->deleted_at !=null?$isblocked=true;
-        $sortedChefs = Chef::all()->where('deleted_at',null)->where('deleted_at','!=',null)->sortBy(function ($chef) use ($studentLocation) {
+
+        $sortedChefs = Chef::all()->map(fn($item) => $this->hideFromItem($item))->sortBy(function ($chef) use ($studentLocation) {
+            $chef->meals->rates_count;
+            $chef->meals->rating;
             if ($studentLocation->id == 1)
                 return $chef->location->distance_to_first_location;
             else if ($studentLocation->id == 2)
@@ -45,7 +65,7 @@ class ChefController extends Controller
             // (R*W + sigma(n*rating)/(W+sigma(n))
             // depending on R and W if there is no rating => the item rate will be 25/10 = 2.5
 
-            $sortedChefs = Chef::all()->where('deleted_at',null)->sortByDesc(function ($chef) use ($R,$W){
+            $sortedChefs = Chef::all()->map(fn($item) => $this->hideFromItem($item))->sortByDesc(function ($chef) use ($R,$W){
                 // get the meals of each chef
                 [$ratingCount, $ratingValue]  =  $chef->meals->reduceSpread(function ($ratingCount,$ratingValue,$meal) use ($R,$W)  {
                     $ratingCount+=$meal->rates_count;
@@ -60,7 +80,7 @@ class ChefController extends Controller
         {
             //count orders of each chef
             // sort the chefs depending on the count
-            $sortedChefs = Chef::all()->where('deleted_at',null)->sortByDesc(fn($chef) =>
+            $sortedChefs = Chef::all()->map(fn($item) => $this->hideFromItem($item))->sortByDesc(fn($chef) =>
             count($chef->orders->where('status','delivered')))->values();
             return $this->successResponse($sortedChefs);
         }
