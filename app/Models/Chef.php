@@ -49,5 +49,4 @@ class Chef extends Authenticatable
     public function chefJoinRequest(){
         return $this->belongsTo(ChefJoinRequest::class);
     }
-
 }
