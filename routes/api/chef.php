@@ -25,7 +25,7 @@ Route::prefix('chef')->group(function () {
         Route::middleware(['auth:chef','notRestricted'])->group(function(){  
             Route::delete('/logout',[ChefAuthController::class,'logout']);
             Route::group(['prefix' => 'meals'], function () {
-                Route::post('/category/',[MealController::class, 'storeCategory']);
+                Route::post('/category',[MealController::class, 'storeCategory']);
                 Route::get('/categories', [MealController::class, 'indexCategories']);
                 Route::get('/active-count', [MealController::class, 'getActiveMealsCount']);
                 Route::get('/meal/{price}', [MealController::class, 'getPriceForStudent']);

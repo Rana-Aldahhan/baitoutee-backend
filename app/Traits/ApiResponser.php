@@ -41,11 +41,13 @@ trait ApiResponser{
 	}
 	protected function paginatedResponse($paginator,$code=200){
 		return response()->json([
+			'data'=>[
 			'total'=>$paginator->total(),
 			'per_page'=>$paginator->perPage(),
 			'current_page'=> $paginator->currentPage(),
 			'last_page'=>$paginator->lastPage(),
 			'data'=>$paginator->items(),
+			]
 		],$code);
 	}
 
