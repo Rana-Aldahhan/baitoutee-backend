@@ -39,9 +39,9 @@ Route::prefix('user')->group(function () {
         Route::get('/get-recent-meals', [MealController::class, 'getTopTenRecent']);
         Route::get('/get-top-ordered-meals', [MealController::class, 'getTopTenOrdered']);
         Route::get('/get-top-subscriptions', [SubscriptionController::class, 'getTopTenAvaialble']);
+        Route::get('/get-all-subscriptions', [SubscriptionController::class, 'getAllAvaialble']);
         Route::get('/show_meal/{meal}', [MealController::class, 'show']);
         Route::get('/add_meal_to_favorite/{meal}', [MealController::class, 'addToFavorite']);
         Route::get('/delete_meal_from_favorite/{meal}', [MealController::class, 'deleteFromFavorite']);
     });
-
 });

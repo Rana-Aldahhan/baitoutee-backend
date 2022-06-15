@@ -12,16 +12,25 @@ class SubscriptionController extends Controller
     public function getTopTenAvaialble()
     {
         $subscriptions=Subscription::where('is_available',true)
-        ->withCount('meals')
         ->orderBy('starts_at')
         ->take(10)
         ->get();
          //calculate the total price
         $subscriptions->map(function($subscription){
-            $subscription->setHidden(['meals_count']);
             $subscription->total_cost=$this->getTotalSubscriptionPrice($subscription);
         });
         return $this->successResponse($subscriptions);
+    }
+    public function getAllAvaialble()
+    {
+        $subscriptionsPaginated=Subscription::where('is_available',true)
+        ->orderBy('starts_at')
+        ->paginate(10);
+         //calculate the total price
+        $subscriptionsPaginated->map(function($subscription){
+            $subscription->total_cost=$this->getTotalSubscriptionPrice($subscription);
+        });
+        return $this->paginatedResponse($subscriptionsPaginated);
     }
     // the current way to calculate the shown price of a subscription is:
     // delvery fee * subscription days number + meal profit * subscription days number
