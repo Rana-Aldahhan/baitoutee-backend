@@ -23,6 +23,7 @@ class Chef extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_available'=>'boolean'
     ];
         /**
      * The accessors to append to the model's array form.

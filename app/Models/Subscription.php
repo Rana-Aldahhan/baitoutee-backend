@@ -21,7 +21,7 @@ class Subscription extends Model
     }
     public function meals()
     {
-        return $this->belongsToMany(Meal::class);
+        return $this->belongsToMany(Meal::class)->withPivot('day_number');
     }
     public function chef()
     {

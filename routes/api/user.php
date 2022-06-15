@@ -42,13 +42,16 @@ Route::prefix('user')->group(function () {
         Route::get('/get-top-subscriptions', [SubscriptionController::class, 'getTopTenAvaialble']);
         Route::get('/get-all-subscriptions', [SubscriptionController::class, 'getAllAvaialble']);
         Route::get('/show-meal/{meal}', [MealController::class, 'show']);
+        Route::get('/show-subscription/{subscription}',[SubscriptionController::class, 'show']);
+        Route::get('/show-subscription-meals/{subscription}',[SubscriptionController::class, 'showMeals']);
         Route::get('/add-meal-to-favorite/{meal}', [MealController::class, 'addToFavorite']);
         Route::get('/delete-meal-from-favorite/{meal}', [MealController::class, 'deleteFromFavorite']);
         //ordering
-        //get chef delivery times?or it will be there when showing a meal
-        //get delivery fee
-        Route::get('/get-delivery-fee',[OrderController::class,'getCurrentDeliveryFee']);
+        // //get chef delivery times?or it will be there when showing a meal
+        // //get delivery fee
+        // Route::get('/get-delivery-fee',[OrderController::class,'getCurrentDeliveryFee']);
         //make the order
         Route::post('/make-order',[OrderController::class,'makeOrder']);
+        Route::post('/subscriptions/{subscription}/subscribe',[SubscriptionController::class, 'subscribe']);
     });
 });
