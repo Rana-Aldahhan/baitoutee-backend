@@ -15,12 +15,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use App\Traits\PriceAndProfitCalculator;
+use App\Traits\MealsHelper;
 
 
 class MealController extends Controller
 {
-    use PriceAndProfitCalculator;
+    use  MealsHelper;
 
     /**
      * helper methode to get the rules to validate meal
@@ -197,7 +197,10 @@ class MealController extends Controller
     public function show(Meal $meal)
     {
         if ($meal->exists && $meal->approved) {
-            $meal->price = $meal->price + $this->getMealProfit() + $this->getMealDeliveryFee($meal->chef_id);
+            $meal->price = $meal->price + $this->getMealProfit();
+            $meal->delivery_fee= $this->getMealDeliveryFee($meal->chef_id);
+            $meal->remaining_available_meal_count=$meal->max_meals_per_day-$this->getCountOfTodayAssingedMeals($meal->chef,$meal);
+            $meal->chef->remaining_available_chef_meals_count=$meal->chef()->get()->first()->max_meals_per_day-$this->getCountOfTodayAssingedTotalMeals($meal->chef);
             $meal->chef->location = $meal->chef()->get()->first()->location()->get()->first()->name;
             $meal->chef->delivery_starts_at = $meal->chef()->get()->first()->delivery_starts_at;
             $meal->chef->delivery_ends_at = $meal->chef()->get()->first()->delivery_ends_at;

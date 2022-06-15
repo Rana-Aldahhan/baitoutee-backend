@@ -7,15 +7,15 @@ use App\Models\Meal;
 use App\Models\Order;
 use App\Rules\InChefDeliveryRange;
 use App\Rules\LessThenMaxMealsPerDay;
-use Carbon\Carbon;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Traits\PriceAndProfitCalculator;
+use App\Traits\MealsHelper;
 use Illuminate\Support\Arr;
 
 class OrderController extends Controller
 {
-    use PriceAndProfitCalculator;
+    use MealsHelper;
 
     public function validateOrderParameters(Request $request){
         $validator = Validator::make($request->all(), [
@@ -103,43 +103,6 @@ class OrderController extends Controller
             $order->meals()->attach($meal['id'], ['quantity' => $meal['quantity'],'notes'=>$meal['notes']]);
         }
         return $this->successResponse(['message'=>"order created successfuly!"],201);
-    }
-
-    public function getCountOfTodayAssingedTotalMeals(Chef $chef){
-        $mealsCount=0;
-        $todayOrders=Order::with('meals')
-        ->where('chef_id',$chef->id)
-        ->where('subscription_id',null)//don't count the subscription meals
-        // ->where('status','!=','pending')//take only the assigned meals to chef 
-        // ->where('status','!=','not approved')
-        // ->where('status','!=','canceled')
-        ->whereDate('selected_delivery_time',Carbon::today())//take the orders of today
-        ->get();
-        $todayOrders->map(function ($order) use (&$mealsCount){
-            $order->meals->map(function ($meal) use (&$mealsCount){
-                 $mealsCount+=$meal->pivot->quantity ;
-            });
-        });
-        return $mealsCount;
-    }
-
-    public function getCountOfTodayAssingedMeals(Chef $chef,Meal $meal){
-        $mealsCount=0;
-        $todayOrders=Order::with('meals')
-        ->where('chef_id',$chef->id)
-        // ->where('subscription_id',null)//don't count the subscription meals
-        // ->where('status','!=','pending')//take only the assigned meals to chef 
-        // ->where('status','!=','not approved')
-        // ->where('status','!=','canceled')
-        ->whereDate('selected_delivery_time',Carbon::today())//take the orders of today
-        ->get()
-        ->map(function ($order) use (&$mealsCount,$meal){
-            $order->meals->map(function ($orderMeal) use (&$mealsCount,$meal){
-                if($meal->id == $orderMeal->id)
-                    $mealsCount+=$orderMeal->pivot->quantity ;
-            });
-        });
-        return $mealsCount;
     }
 
     public function getCurrentDeliveryFee(Request $request){
