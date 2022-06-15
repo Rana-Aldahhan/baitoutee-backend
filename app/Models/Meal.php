@@ -10,8 +10,8 @@ class Meal extends Model
     use \Backpack\CRUD\app\Models\Traits\CrudTrait;
     use HasFactory;
     protected $guarded = [];
-    protected $hidden = ['created_at','updated_at','chef_id'];
-    protected $with=['chef:id,name','category:name,id'];
+    protected $hidden = ['created_at', 'updated_at', 'chef_id'];
+    protected $with = ['chef:id,name', 'category:name,id'];
     protected $casts = [
         'approved' => 'boolean',
         'is_available' => 'boolean',
@@ -19,7 +19,8 @@ class Meal extends Model
     /**
      * relationships
      */
-    public function category(){
+    public function category()
+    {
         return $this->belongsTo(Category::class);
     }
     public function orders()
@@ -40,7 +41,7 @@ class Meal extends Model
     }
     public function savingUsers()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'meals_saved_list', 'user_id', 'meal_id');
     }
     /**
      * scopes
