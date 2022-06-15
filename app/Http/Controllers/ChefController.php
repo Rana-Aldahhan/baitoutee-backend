@@ -34,7 +34,7 @@ class ChefController extends Controller
     }
 
     /**
-     * get the rating of a chef depending on his meals
+     * get the rating value and rating count of a chef depending on his meals
      * @param $chef
      * @return array
      */
@@ -56,7 +56,10 @@ class ChefController extends Controller
             $ratingValue += $meal->rates_count*$meal->rating;
             return [$ratingCount, $ratingValue] ;
             },0,0);
-        return [($R*$W + ($ratingValue))/($W+$ratingCount),$ratingCount];
+        $value = ($R*$W + ($ratingValue))/($W+$ratingCount);
+        if($ratingCount == 0)
+            $value = null;
+        return [$value,$ratingCount];
 }
     /**
      * a filter on the distance between the student and the chefs (get the nearest first)
