@@ -9,6 +9,12 @@ class Order extends Model
 {
     use HasFactory;
     /**
+     * The attributes that are not mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $guarded = [];
+    /**
      * relationships
      */
     public function user()
@@ -32,8 +38,8 @@ class Order extends Model
         return $this->belongsTo(Subscription::class,'subscription_id');
     }
     public function meals(){
-        return $this->belongsToMany(Meal::class,'meals_order','order_id','meal_id')
-        ->withPivot('meal_quantity','notes','meal_rate','meal_rate_notes')->withTimestamps();
+        return $this->belongsToMany(Meal::class,'meal_order','order_id','meal_id')
+        ->withPivot('quantity','notes','meal_rate','meal_rate_notes')->withTimestamps();
     }
     public function reports(){
         return $this->hasMany(Reports::class);

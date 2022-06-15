@@ -14,10 +14,12 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Traits\PriceAndProfitCalculator;
 
 
 class MealController extends Controller
 {
+    use PriceAndProfitCalculator;
 
     /**
      * helper methode to get the rules to validate meal
@@ -498,23 +500,6 @@ class MealController extends Controller
             return $meal->price=$meal->price+$this->getMealProfit()+$this->getMealDeliveryFee($meal->chef_id);
              });
         return $this->successResponse($meals);
-    }
-    private function getMealProfit(){
-       return DB::table('global_variables')->where('name','meal_profit')->first()->value;
-    }
-    private function getMealDeliveryFee($chefID){
-        //get the user location
-        $userLocation=auth('user')->user()->location_id;
-        $chef=Chef::find($chefID);
-        $distanceBetweenChefAndUser=0;
-        if($userLocation==1)//Mazzeh campus
-            $distanceBetweenChefAndUser=$chef->location->distance_to_first_location;
-        else if($userLocation==2)//Hamak campus
-            $distanceBetweenChefAndUser=$chef->location->distance_to_second_location;
-        else if ($userLocation==3)//Barzeh campus
-            $distanceBetweenChefAndUser=$chef->location->distance_to_third_location;
-        $kmCost=DB::table('global_variables')->where('name','cost_of_one_km')->first()->value;
-        return $distanceBetweenChefAndUser * $kmCost;
     }
 
 }

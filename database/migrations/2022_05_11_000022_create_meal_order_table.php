@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('order_id')->nullable(false)->constrained();
             $table->foreignId('meal_id')->nullable(false)->constrained();
-            $table->unsignedTinyInteger('meal_quantity')->nullable(false);
+            $table->unsignedTinyInteger('quantity')->nullable(false);
             $table->string('notes',500)->nullable();
             $table->unsignedTinyInteger('meal_rate')->nullable();
             $table->string('meal_rate_notes',500)->nullable();
