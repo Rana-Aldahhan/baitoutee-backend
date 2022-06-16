@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscription;
 use App\Models\Order;
+use App\Models\Chef;
 use Illuminate\Http\Request;
 use App\Traits\MealsHelper;
 use Carbon\Carbon;
@@ -57,6 +58,18 @@ class SubscriptionController extends Controller
         })
         ->sortBy('day_number');
         return $this->successResponse($meals);
+    }
+    public function getChefSubscriptions(Chef $chef){
+        $subscriptions=$chef->subscriptions()->where('is_available',true)->orderBy('starts_at')->get();
+        $subscriptions->map(function($subscription){
+            $subscription->total_cost=$this->getTotalSubscriptionPrice($subscription);
+            $subscription->rating=$this->getsubscriptionRating($subscription);
+            $subscription->rating_count=$this->getsubscriptionRatingCount($subscription);
+            $subscription->available_subscriptions_count=$subscription->max_subscribers-$this->getCurrentSubscribersCount($subscription);
+            $subscription->has_subscribed=auth('user')->user()->subscriptions->where('id',$subscription->id)->count()>0;
+            $subscription->setHidden(['meals','users','chef','created_at','updated_at','max_subscribers','meals_cost']);
+        });
+        return $this->successResponse($subscriptions);
     }
     private function getCurrentSubscribersCount(Subscription $subscription){
             return $subscription->users->count();
