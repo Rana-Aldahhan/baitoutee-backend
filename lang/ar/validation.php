@@ -153,6 +153,9 @@ return [
         'delivery_ends_at'=>[
             'TimeAfter'=>' :attribute يجب أن يكون أكبر من الوقت السابق'
         ],
+        'selected_delivery_time'=>[
+            'InChefDeliveryRange'=>' :attribute يجب أن يكون ضمن الأوقات المتاحة للتوصيل  '
+        ],
     ],
 
     /*
@@ -194,6 +197,7 @@ return [
         'approved'=> 'مقبولة',
         'price' =>'السعر',
         'image' =>'الصورة',
+        'selected_delivery_time'=>'الوقت المحدد للتوصيل',
         
     ],
 

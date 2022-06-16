@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscription;
-use App\Models\Chef;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Traits\PriceAndProfitCalculator;
 
 class SubscriptionController extends Controller
 {
+    use PriceAndProfitCalculator;
+    
     public function getTopTenAvaialble()
     {
         $subscriptions=Subscription::where('is_available',true)
@@ -46,22 +47,6 @@ class SubscriptionController extends Controller
     private function getSubscriptionDeliveryFee($subscription){
         return   $subscription->days_number * $this->getMealDeliveryFee($subscription->chef_id);
     }
-    private function getMealProfit(){
-        return DB::table('global_variables')->where('name','meal_profit')->first()->value;
-     }
-    private function getMealDeliveryFee($chefID){
-         //get the user location
-         $userLocation=auth('user')->user()->location_id;
-         $chef=Chef::find($chefID);
-         $distanceBetweenChefAndUser=0;
-         if($userLocation==1)//Mazzeh campus
-             $distanceBetweenChefAndUser=$chef->location->distance_to_first_location;
-         else if($userLocation==2)//Hamak campus
-             $distanceBetweenChefAndUser=$chef->location->distance_to_second_location;
-         else if ($userLocation==3)//Barzeh campus
-             $distanceBetweenChefAndUser=$chef->location->distance_to_third_location;
-         $kmCost=DB::table('global_variables')->where('name','cost_of_one_km')->first()->value;
-         return $distanceBetweenChefAndUser * $kmCost;
-    }
+    
     
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\UserAuthController;
 use App\Http\Controllers\ChefController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MealController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,8 +41,14 @@ Route::prefix('user')->group(function () {
         Route::get('/get-top-ordered-meals', [MealController::class, 'getTopTenOrdered']);
         Route::get('/get-top-subscriptions', [SubscriptionController::class, 'getTopTenAvaialble']);
         Route::get('/get-all-subscriptions', [SubscriptionController::class, 'getAllAvaialble']);
-        Route::get('/show_meal/{meal}', [MealController::class, 'show']);
-        Route::get('/add_meal_to_favorite/{meal}', [MealController::class, 'addToFavorite']);
-        Route::get('/delete_meal_from_favorite/{meal}', [MealController::class, 'deleteFromFavorite']);
+        Route::get('/show-meal/{meal}', [MealController::class, 'show']);
+        Route::get('/add-meal-to-favorite/{meal}', [MealController::class, 'addToFavorite']);
+        Route::get('/delete-meal-from-favorite/{meal}', [MealController::class, 'deleteFromFavorite']);
+        //ordering
+        //get chef delivery times?or it will be there when showing a meal
+        //get delivery fee
+        Route::get('/get-delivery-fee',[OrderController::class,'getCurrentDeliveryFee']);
+        //make the order
+        Route::post('/make-order',[OrderController::class,'makeOrder']);
     });
 });
