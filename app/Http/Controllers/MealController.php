@@ -219,7 +219,7 @@ class MealController extends Controller
         if ($data == null) {
             return $this->errorResponse("لم يتمكن من إضافة الوجبة إلى المفضلة ", 404);
         }
-        return $this->successResponse($data, 201);
+        return $this->successResponse("تم إضافة الوجبة إلى المفضلة ", 201);
 
     }
 
@@ -236,7 +236,7 @@ class MealController extends Controller
             return $this->errorResponse("الوجبة غير موجودة في قائمة المفضلة", 404);
         } else {
             $data = auth('user')->user()->savedMeals()->detach($meal->id);
-            return $this->successResponse($data, 201);
+            return $this->successResponse("تم حذف الوجبة من المفضلة ", 201);
         }
     }
 
