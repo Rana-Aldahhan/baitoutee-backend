@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Admin;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Paginator::useBootstrapFour();
         Gate::before(function ($user) {
             if ($user->role->name=='super admin') {
                 return true;
@@ -40,7 +42,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('approve-reject-meal-prices', function ($user) {
             return $user->role->name === 'accountant admin' ;
         });
-
+        Gate::define('manage-orders', function ($user) {
+            return $user->role->name === 'orders admin' ;
+        });
 
     }
 }

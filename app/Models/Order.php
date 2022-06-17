@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
+    use \Backpack\CRUD\app\Models\Traits\CrudTrait;
     use HasFactory;
     /**
      * The attributes that are not mass assignable.
