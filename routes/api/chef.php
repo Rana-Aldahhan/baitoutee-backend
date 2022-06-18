@@ -38,6 +38,9 @@ Route::prefix('chef')->group(function () {
                 //Route::put('/{meal}/edit-max-meal-num',[MealController::class, 'editMaximumMealNumber']);
                 Route::put('/{meal}/edit-availability',[MealController::class, 'editAvailability']);
             });
+            Route::group(['prefix'=> 'orders'],function(){
+                Route::get('/', [OrderController::class, 'indexForChef']);
+            });
 
         });
 });
