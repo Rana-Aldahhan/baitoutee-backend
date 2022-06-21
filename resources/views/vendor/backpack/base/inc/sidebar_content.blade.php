@@ -28,5 +28,17 @@
       </div>
     </div>
     @endif
+    @if(backpack_user()->role->name=='super admin' || backpack_user()->role->name=='orders admin')
+    <div class='nav-item'>        
+      <button class="btn" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseTwo">
+        إدارة طلبات التوصيل 
+      </button>
+      <div id="collapseThree" class="collapse hide" aria-labelledby="headingTwo" data-parent="#accordion">
+        <li class='nav-item'><a class='nav-link' href='/admin/new-orders'><i class='nav-icon la la-question'></i> الطلبات الجديدة المعلّقة </a></li>
+      </div>
+    </div>
+    @endif
   </div>
 
+
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('order') }}'><i class='nav-icon la la-question'></i> Orders</a></li>

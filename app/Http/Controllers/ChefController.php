@@ -3,11 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chef;
+use App\Models\Category;
+use App\Traits\MealsHelper;
 use Illuminate\Http\Request;
-use App\Traits\DistanceCalculator;
+
 // a controller to control the chef model
 class ChefController extends Controller
 {
+    use MealsHelper;
+    public function show(Chef $chef){
+        $chef->location_name=$chef->location->name;
+        $chef->ratings=$this->getRate($chef)[0];
+        $chef->rates_count=$this->getRate($chef)[1];
+        $chef->orders_count=$chef->orders->where('subscription_id',null)->count();
+        $chef->remaining_available_chef_meals_count=$chef->max_meals_per_day-$this->getCountOfTodayAssingedTotalMeals($chef);
+        $chef->delivery_fee=$this->getMealDeliveryFee($chef->id);
+        $chef=$chef->only(['name','delivery_starts_at','delivery_ends_at','is_available'
+        ,'location_name','ratings','rates_count'
+        ,'orders_count','max_meals_per_day','remaining_available_chef_meals_count']);
+        return $this->successResponse($chef);
+    }
+    public function getChefCategories(Chef $chef)
+    {
+
+        $categorieIds=$chef->meals->pluck(['category_id'])->unique();
+        $categories=Category::find($categorieIds);
+        return $this->successResponse($categories);
+        
+    }
+    public function getChefMealsOfCategory(Chef $chef, $categoryId){
+        $meals=$chef->meals->where('category_id',$categoryId)->values();
+        $meals->map(function ($meal)use($chef){
+            $meal->remaining_available_meal_count=$meal->max_meals_per_day-$this->getCountOfTodayAssingedMeals($chef,$meal);
+            $meal->setHidden(['chef','chef_id','created_at', 'updated_at', 'approved', 'max_meals_per_day', 'expected_preparation_time', 'ingredients', 'category', 'category_id']);
+            return $meal->price = $meal->price + $this->getMealProfit() ;
+           return $meal->only('name','is_available');
+        });
+        return $this->successResponse($meals);
+    }
+    
     /**
      * hide not needed information in the browse page
      * @param $chef
@@ -93,45 +127,45 @@ class ChefController extends Controller
      * a filter on the top-rated chefs to show in the browsing page
      * @return \Illuminate\Http\JsonResponse
      */
-        public function filterTopRated()
-        {
-            $sortedChefs = Chef::all()->map(function ($chef){
-                $chef->chef_location = $chef->location->name;
-                [$ratingValue,$ratingCount]  = $this->getRate($chef);
-                $chef->chef_rate =$ratingValue;
-                $chef->chef_rate_count = $ratingCount;
-                return $this->hideFromItem($chef);
-            })->sortByDesc(function ($chef){
-                // get the meals of each chef
-                [$ratingValue,$ratingCount]  = $this->getRate($chef);
-                return $ratingValue ;
-            })->values();
-            return $this->successResponse($sortedChefs); // what to return ?
-        }
-        public function filterTopOrders()
-        {
-            //count orders of each chef
-            // sort the chefs depending on the count
-            $sortedChefs = Chef::all()->map(function ($chef){
-                $chef->chef_location = $chef->location->name;
-                [$ratingValue,$ratingCount]  = $this->getRate($chef);
-                $chef->chef_rate =$ratingValue;
-                $chef->chef_rate_count = $ratingCount;
-                return $this->hideFromItem($chef);
-            })->sortByDesc(fn($chef) => count($chef->orders->where('status','delivered')))->values();
-            return $this->successResponse($sortedChefs);
-        }
-
-        public function filterNewestChefs()
-        {
-            $sortedChefs = Chef::all()->map(function ($chef){
-                $chef->chef_location = $chef->location->name;
-                [$ratingValue,$ratingCount]  = $this->getRate($chef);
-                $chef->chef_rate =$ratingValue;
-                $chef->chef_rate_count = $ratingCount;
-                return $this->hideFromItem($chef);
-            })->sortByDesc(fn($chef) => $chef->created_at)->values();
-            return $this->successResponse($sortedChefs);
-        }
+    public function filterTopRated()
+    {
+        $sortedChefs = Chef::all()->map(function ($chef){
+            $chef->chef_location = $chef->location->name;
+            [$ratingValue,$ratingCount]  = $this->getRate($chef);
+            $chef->chef_rate =$ratingValue;
+            $chef->chef_rate_count = $ratingCount;
+            return $this->hideFromItem($chef);
+        })->sortByDesc(function ($chef){
+            // get the meals of each chef
+            [$ratingValue,$ratingCount]  = $this->getRate($chef);
+            return $ratingValue ;
+        })->values();
+        return $this->successResponse($sortedChefs); // what to return ?
     }
+    public function filterTopOrders()
+    {
+        //count orders of each chef
+        // sort the chefs depending on the count
+        $sortedChefs = Chef::all()->map(function ($chef){
+            $chef->chef_location = $chef->location->name;
+            [$ratingValue,$ratingCount]  = $this->getRate($chef);
+            $chef->chef_rate =$ratingValue;
+            $chef->chef_rate_count = $ratingCount;
+            return $this->hideFromItem($chef);
+        })->sortByDesc(fn($chef) => count($chef->orders->where('status','delivered')))->values();
+        return $this->successResponse($sortedChefs);
+    }
+
+    public function filterNewestChefs()
+    {
+        $sortedChefs = Chef::all()->map(function ($chef){
+            $chef->chef_location = $chef->location->name;
+            [$ratingValue,$ratingCount]  = $this->getRate($chef);
+            $chef->chef_rate =$ratingValue;
+            $chef->chef_rate_count = $ratingCount;
+            return $this->hideFromItem($chef);
+        })->sortByDesc(fn($chef) => $chef->created_at)->values();
+        return $this->successResponse($sortedChefs);
+    }
+}
 

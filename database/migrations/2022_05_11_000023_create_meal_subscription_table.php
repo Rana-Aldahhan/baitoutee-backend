@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('meal_subscription', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->integer('day_number')->default(1);
             $table->foreignId('meal_id')->nullable(false)->constrained();
             $table->foreignId('subscription_id')->nullable(false)->constrained();
         });
