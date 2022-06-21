@@ -49,8 +49,8 @@ Route::prefix('user')->group(function () {
         Route::get('/show-meal/{meal}', [MealController::class, 'show']);
         Route::get('/show-subscription/{subscription}',[SubscriptionController::class, 'show']);
         Route::get('/show-subscription-meals/{subscription}',[SubscriptionController::class, 'showMeals']);
-        Route::get('/add-meal-to-favorite/{meal}', [MealController::class, 'addToFavorite']);
-        Route::get('/delete-meal-from-favorite/{meal}', [MealController::class, 'deleteFromFavorite']);
+        Route::post('/add-meal-to-favorite/{meal}', [MealController::class, 'addToFavorite']);
+        Route::delete('/delete-meal-from-favorite/{meal}', [MealController::class, 'deleteFromFavorite']);
         //order & subscribe
         Route::post('/make-order',[OrderController::class,'makeOrder']);
         Route::post('/subscriptions/{subscription}/subscribe',[SubscriptionController::class, 'subscribe']);

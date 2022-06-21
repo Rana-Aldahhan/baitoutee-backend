@@ -197,6 +197,7 @@ class MealController extends Controller
     public function show(Meal $meal)
     {
         if ($meal->exists && $meal->approved) {
+            $meal->is_saved=auth('user')->user()->savedMeals->where('id',$meal->id)->count()>0;
             $meal->price = $meal->price + $this->getMealProfit();
             $meal->delivery_fee= $this->getMealDeliveryFee($meal->chef_id);
             $meal->remaining_available_meal_count=$meal->max_meals_per_day-$this->getCountOfTodayAssingedMeals($meal->chef,$meal);
@@ -220,12 +221,12 @@ class MealController extends Controller
         // add the user id and the meal id to the favorite table
         $data = auth('user')->user()->savedMeals()->firstOrCreate(['meals.id' => $meal->id]);
         if ($data->id != $meal->id) {
-            return $this->errorResponse("الوجبة موجودة في قائمة المفضلة ", 404);
+            return $this->errorResponse("الوجبة موجودة في قائمة المفضلة ", 400);
         }
         if ($data == null) {
             return $this->errorResponse("لم يتمكن من إضافة الوجبة إلى المفضلة ", 404);
         }
-        return $this->successResponse($data, 201);
+        return $this->successResponse($data, 200);
 
     }
 
@@ -242,7 +243,7 @@ class MealController extends Controller
             return $this->errorResponse("الوجبة غير موجودة في قائمة المفضلة", 404);
         } else {
             $data = auth('user')->user()->savedMeals()->detach($meal->id);
-            return $this->successResponse($data, 201);
+            return $this->successResponse($data, 200);
         }
     }
 
