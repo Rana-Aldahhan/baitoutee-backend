@@ -8,6 +8,7 @@ use App\Models\Meal;
 use App\Models\PriceChangeRequest;
 use App\Models\User;
 use App\Rules\MaximumMealNumber;
+use App\Traits\MealsHelper;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,12 +16,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use App\Traits\MealsHelper;
-
 
 class MealController extends Controller
 {
-    use  MealsHelper;
+    use MealsHelper;
 
     /**
      * helper methode to get the rules to validate meal
@@ -197,10 +196,11 @@ class MealController extends Controller
     public function show(Meal $meal)
     {
         if ($meal->exists && $meal->approved) {
+            $meal->is_saved = auth('user')->user()->savedMeals->where('id', $meal->id)->count() > 0;
             $meal->price = $meal->price + $this->getMealProfit();
-            $meal->delivery_fee= $this->getMealDeliveryFee($meal->chef_id);
-            $meal->remaining_available_meal_count=$meal->max_meals_per_day-$this->getCountOfTodayAssingedMeals($meal->chef,$meal);
-            $meal->chef->remaining_available_chef_meals_count=$meal->chef()->get()->first()->max_meals_per_day-$this->getCountOfTodayAssingedTotalMeals($meal->chef);
+            $meal->delivery_fee = $this->getMealDeliveryFee($meal->chef_id);
+            $meal->remaining_available_meal_count = $meal->max_meals_per_day - $this->getCountOfTodayAssingedMeals($meal->chef, $meal);
+            $meal->chef->remaining_available_chef_meals_count = $meal->chef()->get()->first()->max_meals_per_day - $this->getCountOfTodayAssingedTotalMeals($meal->chef);
             $meal->chef->location = $meal->chef()->get()->first()->location()->get()->first()->name;
             $meal->chef->delivery_starts_at = $meal->chef()->get()->first()->delivery_starts_at;
             $meal->chef->delivery_ends_at = $meal->chef()->get()->first()->delivery_ends_at;
@@ -220,12 +220,12 @@ class MealController extends Controller
         // add the user id and the meal id to the favorite table
         $data = auth('user')->user()->savedMeals()->firstOrCreate(['meals.id' => $meal->id]);
         if ($data->id != $meal->id) {
-            return $this->errorResponse("الوجبة موجودة في قائمة المفضلة ", 404);
+            return $this->errorResponse("الوجبة موجودة في قائمة المفضلة ", 400);
         }
         if ($data == null) {
             return $this->errorResponse("لم يتمكن من إضافة الوجبة إلى المفضلة ", 404);
         }
-        return $this->successResponse("تم إضافة الوجبة إلى المفضلة ", 201);
+        return $this->successResponse($data, 200);
 
     }
 
@@ -242,7 +242,7 @@ class MealController extends Controller
             return $this->errorResponse("الوجبة غير موجودة في قائمة المفضلة", 404);
         } else {
             $data = auth('user')->user()->savedMeals()->detach($meal->id);
-            return $this->successResponse("تم حذف الوجبة من المفضلة ", 201);
+            return $this->successResponse($data, 200);
         }
     }
 

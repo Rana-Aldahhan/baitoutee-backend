@@ -30,8 +30,12 @@ class InChefDeliveryRange implements Rule
         $delivery_starts_at=new Carbon($this->chef->delivery_starts_at);
         $delivery_ends_at=new Carbon($this->chef->delivery_ends_at);
         $selected_dalivery_time=new Carbon ($value);
-        return $selected_dalivery_time->greaterThanOrEqualTo($delivery_starts_at)
-               && $selected_dalivery_time->lessThanOrEqualTo($delivery_ends_at);
+        return ($selected_dalivery_time->greaterThanOrEqualTo($delivery_starts_at)
+               && $selected_dalivery_time->lessThanOrEqualTo($delivery_ends_at))
+              //also accept tomorrow orders
+            || ($selected_dalivery_time->greaterThanOrEqualTo($delivery_starts_at->addDay())
+                && $selected_dalivery_time->lessThanOrEqualTo($delivery_ends_at->addDay()))
+               ;
     }
 
     /**
