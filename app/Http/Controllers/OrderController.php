@@ -7,6 +7,7 @@ use App\Models\Meal;
 use App\Models\Order;
 use App\Rules\InChefDeliveryRange;
 use App\Traits\MealsHelper;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -50,7 +51,10 @@ class OrderController extends Controller
         $meals = Meal::findOrFail(array_values(Arr::pluck($request->meals, 'id')));
         //check if chef has max meals per day
         $maxChefMeals = $chef->max_meals_per_day;
-        $currentChefAssignedMeals = $this->getCountOfTodayAssingedTotalMeals($chef);
+        if(Carbon::create($request->selected_delivery_time)->isToday())
+            $currentChefAssignedMeals = $this->getCountOfTodayAssingedTotalMeals($chef);
+        else 
+            $currentChefAssignedMeals=$this->getCountOfTommorowAssingedTotalMeals($chef);
         $currentOrderMealsCount = 0; //=$request->meals_count;
         foreach ($request->meals as $meal) {
             $currentOrderMealsCount += $meal['quantity'];
@@ -64,7 +68,10 @@ class OrderController extends Controller
             $meal = $meals[$i];
             $mealQuantity = $request->meals[$i]['quantity'];
             $mealMaxPerDay = $meal->max_meals_per_day;
-            $todayOrderedMealCount = $this->getCountOfTodayAssingedMeals($chef, $meal);
+            if(Carbon::create($request->selected_delivery_time)->isToday())
+                $todayOrderedMealCount = $this->getCountOfTodayAssingedMeals($chef, $meal);
+            else
+                $todayOrderedMealCount = $this->getCountOfTomorrowAssingedMeals($chef, $meal);
             if ($todayOrderedMealCount + $mealQuantity > $mealMaxPerDay) {
                 $mealName = $meal->name;
                 return $this->errorResponse('وصلت الوجبة ' . $mealName . ' إلى الحد الأقصى من العدد المسموح لطلبها اليوم', 400);
@@ -124,9 +131,14 @@ class OrderController extends Controller
      */
     public function indexForChefOrderedMeals()
     {
-        $chefOrders = auth('chef')->user()->orders->where('status', 'approved')->groupby('selected_delivery_time')
+        $chefOrders = auth('chef')->user()->orders()
+            ->whereDate('selected_delivery_time',Carbon::today())
+            ->where('status', 'approved')
+            ->orWhere('status', 'not assigned')
+            ->get()
+            ->groupby('selected_delivery_time')
             ->sortBy(function ($time) {
-                $dt = DateTime::createFromFormat("H:i:s", $time[0]->selected_delivery_time);
+                $dt = DateTime::createFromFormat("Y-m-d H:i:s", $time[0]->selected_delivery_time);
                 $hour = $dt->format('H');
                 return $hour;
             })->map(function ($group) {
@@ -176,7 +188,9 @@ class OrderController extends Controller
         if ($validator->fails()) { //case of input validation failure
             return $this->errorResponse($validator->errors()->first(), 422);
         }
-        $chefOrders = auth('chef')->user()->orders()->where('selected_delivery_time', $time)
+        $chefOrders = auth('chef')->user()->orders()
+            ->whereDate('selected_delivery_time',Carbon::today())
+            ->where('selected_delivery_time', Carbon::create($time))
             ->where('status', 'approved')
             ->orWhere('status', 'not assigned')
             ->get()->flatten()

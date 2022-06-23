@@ -65,5 +65,41 @@ trait MealsHelper{
         });
         return $mealsCount;
     }
+    public function getCountOfTommorowAssingedTotalMeals(Chef $chef){
+        $mealsCount=0;
+        $todayOrders=Order::with('meals')
+        ->where('chef_id',$chef->id)
+        ->where('subscription_id',null)//don't count the subscription meals
+        ->where('status','!=','pending')//take only the assigned meals to chef 
+        ->where('status','!=','not approved')
+        ->where('status','!=','canceled')
+        ->whereDate('selected_delivery_time',Carbon::tomorrow())//take the orders of tomorrow
+        ->get();
+        $todayOrders->map(function ($order) use (&$mealsCount){
+            $order->meals->map(function ($meal) use (&$mealsCount){
+                 $mealsCount+=$meal->pivot->quantity ;
+            });
+        });
+        return $mealsCount;
+    }
+
+    public function getCountOfTomorrowAssingedMeals(Chef $chef,Meal $meal){
+        $mealsCount=0;
+        $todayOrders=Order::with('meals')
+        ->where('chef_id',$chef->id)
+        ->where('subscription_id',null)//don't count the subscription meals
+        ->where('status','!=','pending')//take only the assigned meals to chef 
+        ->where('status','!=','not approved')
+        ->where('status','!=','canceled')
+        ->whereDate('selected_delivery_time',Carbon::tomorrow())//take the orders of tomorrow
+        ->get()
+        ->map(function ($order) use (&$mealsCount,$meal){
+            $order->meals->map(function ($orderMeal) use (&$mealsCount,$meal){
+                if($meal->id == $orderMeal->id)
+                    $mealsCount+=$orderMeal->pivot->quantity ;
+            });
+        });
+        return $mealsCount;
+    }
 
 }

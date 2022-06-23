@@ -35,7 +35,7 @@ return [
     'current_password' => 'كلمة السر  غير صحيحة.',
     'date' => ':attribute ليس تاريخاً صالحاً.',
     'date_equals' => 'The :attribute must be a date equal to :date.',
-    'date_format' => ':attribute يجل أن يطابق الصيغة :format.',
+    'date_format' => ':attribute يجب أن يطابق الصيغة :format.',
     'declined' => 'The :attribute must be declined.',
     'declined_if' => 'The :attribute must be declined when :other is :value.',
     'different' => 'The :attribute and :other must be different.',
