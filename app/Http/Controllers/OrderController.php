@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderIsPrepared;
 use App\Models\Chef;
 use App\Models\Meal;
 use App\Models\Order;
@@ -235,6 +236,8 @@ class OrderController extends Controller
         $updatedOrder = $order->update([
             'status' => "prepared",
         ]);
+        broadcast(new OrderIsPrepared($order));
+        OrderIsPrepared::dispatch($order);
         return $this->successResponse($updatedOrder);
     }
 
