@@ -54,7 +54,7 @@ class OrderController extends Controller
         $maxChefMeals = $chef->max_meals_per_day;
         if(Carbon::create($request->selected_delivery_time)->isToday())
             $currentChefAssignedMeals = $this->getCountOfTodayAssingedTotalMeals($chef);
-        else 
+        else
             $currentChefAssignedMeals=$this->getCountOfTommorowAssingedTotalMeals($chef);
         $currentOrderMealsCount = 0; //=$request->meals_count;
         foreach ($request->meals as $meal) {
@@ -191,7 +191,7 @@ class OrderController extends Controller
         }
         $chefOrders = auth('chef')->user()->orders()
             ->whereDate('selected_delivery_time',Carbon::today())
-            ->where('selected_delivery_time', Carbon::create($time))
+           ->where('selected_delivery_time', Carbon::create($time))
             ->where('status', 'approved')
             ->orWhere('status', 'not assigned')
             ->get()->flatten()
@@ -200,29 +200,29 @@ class OrderController extends Controller
                 if ($item->delivery_id != null) {
                     $deliveryman = $item->delivery->deliveryman;
                 }
-
                 $notes = 'order note :' . $item->notes . PHP_EOL . 'meal notes: ';
-                $notes .= $item->meals->map(function ($meal) {
+                 $orderNotes = $item->meals->map(function ($meal) use ($notes) {
                     $meal->quantity = $meal->pivot->quantity;
                     $meal->setHidden(['category_id', 'max_meals_per_day', 'is_available',
                         'expected_preparation_time', 'ingredients', 'rates_count', 'rating',
                         'created_at', 'updated_at', 'approved',
                         'pivot', 'category', 'chef']);
                     $mealNote = $meal->name . ": " . $meal->pivot->notes;
-                    return $mealNote . ", ";
+                    return $notes .=$mealNote . ", ";
                 });
                 return [
                     'id' => $item->id,
                     'status' => $item->status,
                     'selected_delivery_time' => $item->selected_delivery_time,
                     'subscription' => $item->subscription_id,
-                    'notes' => $notes/*$item->notes*/,
+                    'notes' =>$item->$orderNotes,
                     'meals' => $item->meals,
 
                     // 'deliveryman' => $deliveryman,
                 ];
 
             });
+
         return $this->successResponse($chefOrders, 200);
 
     }

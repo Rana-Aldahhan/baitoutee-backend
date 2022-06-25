@@ -14,9 +14,9 @@ class SendOrderIsPreparedNotification
      *
      * @return void
      */
-    public function __construct($order)
+    public function __construct()
     {
-       
+
     }
 
     /**

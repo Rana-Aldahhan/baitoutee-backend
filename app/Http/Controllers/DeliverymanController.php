@@ -10,7 +10,7 @@ class DeliverymanController extends Controller
     {
         $deliveryman=auth('deliveryman')->user();
         $deliveryman->update([
-            'current_longitute'=>$request->current_longitute,
+            'current_longitude'=>$request->current_longitude,
             'current_latitude'=>$request->current_latitude,
         ]);
         return $this->successResponse([],200);
