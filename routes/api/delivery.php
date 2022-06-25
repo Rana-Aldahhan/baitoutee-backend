@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\TestEvent;
 use App\Http\Controllers\Auth\CommonAuthController;
 use App\Http\Controllers\Auth\DeliverymanAuthController;
 use App\Http\Controllers\DeliverymanController;
@@ -23,6 +24,10 @@ Route::prefix('delivery')->group(function () {
         Route::post('/request-register',[DeliverymanAuthController::class,'makeRegisterRequest'])->middleware('verified.phone');
         // authenticated routes
         Route::middleware(['auth:deliveryman','notRestricted'])->group(function(){  
+            Route::get('/test',function(){
+                broadcast(new TestEvent());
+                return response()->json(['message'=>'event is broadcasted']);
+            });
             Route::post('/update-current-location',[DeliverymanController::class,'updateCurrentLocation']);
             Route::delete('/logout',[DeliverymanAuthController::class,'logout']);
         });

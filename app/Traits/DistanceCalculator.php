@@ -34,9 +34,11 @@ trait DistanceCalculator{
          $distanceInMiles=$response['distance'][1];
          return $this->convertMileToKm($distanceInMiles) ;
 	}
+
    protected function convertMileToKm($distanceInMiles){
       return $distanceInMiles* 1.6;
    }
+
    public function calculateDistanceBetweenTwoPoints(Location $location1,Location $location2) {
       $lat1=$location1->latitude;
       $lat2=$location2->latitude;
@@ -53,8 +55,8 @@ trait DistanceCalculator{
        $c = 2 *atan2(sqrt($a),sqrt(1-$a)); 
        $d = $R * $c; // Distance in km
       return abs($d);
-    }
-    
+   }
+   
    protected function deg2rad($deg) {
       return $deg * (M_PI/180);
    }

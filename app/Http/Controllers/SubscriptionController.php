@@ -99,6 +99,8 @@ class SubscriptionController extends Controller
     }
     public function subscribe(Subscription $subscription,Request $request)
     {
+        if($subscription->starts_at<now())
+         return $this->errorResponse("عذراً لم يعد التسجيل على هذا الاشتراك متاحاً",400);
         if(!$subscription->is_available)
          return $this->errorResponse("عذراً لم يعد التسجيل على هذا الاشتراك متاحاً",400);
         if(auth('user')->user()->subscriptions->where('id',$subscription->id)->count()>0)

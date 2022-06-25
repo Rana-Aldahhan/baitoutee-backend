@@ -44,16 +44,15 @@ class AssignOrderToDelivery implements ShouldQueue
         ->get();
         if($availableDeliverymen->count()>0){
             //calculate distance
-            $availableDeliverymen=$availableDeliverymen->map(function ($deliveryman) use ($chefLocation){
-                    $deliverymanLocation= new Location();
-                    $deliverymanLocation->latitude=$deliveryman->current_latitude;
-                    $deliverymanLocation->longitude=$deliveryman->current_longitude;
-                    $deliverymanLocation->name="current location";
-                    $deliveryman->distance_to_chef=$this->calculateDistanceBetweenTwoPoints($chefLocation,$deliverymanLocation);
-                    return $deliveryman;
-            }) //sort objects
-            ->sort(function ($deliveryman){
-                return $deliveryman->distance_to_chef;
+            $availableDeliverymen=$availableDeliverymen
+             //sort objects
+            ->sort(function ($deliveryman)use ($chefLocation){
+                $deliverymanLocation= new Location();
+                $deliverymanLocation->latitude=$deliveryman->current_latitude;
+                $deliverymanLocation->longitude=$deliveryman->current_longitude;
+                $deliverymanLocation->name="current location";
+                $distance=$this->calculateDistanceBetweenTwoPoints($chefLocation,$deliverymanLocation);
+                return $distance;
             });
             //make new Delivery and assign it to first deliveryman
             $user=$this->order->user;
@@ -63,6 +62,7 @@ class AssignOrderToDelivery implements ShouldQueue
                 'deliveryman_id'=>$assignedDeliveryman->id,
                 'cost'=>$deliveryCost
             ]);
+            $assignedDeliveryman->is_available=false;
             $this->order->delivery()->associate($delivery);
             $this->order->save();
            
