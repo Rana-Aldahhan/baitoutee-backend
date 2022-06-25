@@ -36,23 +36,23 @@ class AssignOrderToDelivery implements ShouldQueue
     public function handle()
     {
         sleep(2);
-        $chef = $this->order->chef;
-        $chefLocation = $chef->location;
-        $availableDeliverymen = Deliveryman::where('is_available', true)
-            ->where('updated_at', '>=', now()->subMinutes(3))
-            ->get();
-
-        if ($availableDeliverymen->count() > 0) {
-            $a = collect();
-            $availableDeliverymen =$availableDeliverymen->sortBy(function ($deliveryman) use ($a,$chefLocation){
-                    $deliverymanLocation = new Location();
-                    $deliverymanLocation->latitude = $deliveryman->current_latitude;
-                    $deliverymanLocation->longitude = $deliveryman->current_longitude;
-                    $deliverymanLocation->name = "current location";
-                    $distance_to_chef = $this->calculateDistanceBetweenTwoPoints($chefLocation, $deliverymanLocation);
-                    $a->push(["distance"=>$distance_to_chef , "id"=>$deliveryman->name]);
-                    return $distance_to_chef;
-                });
+        $chef=$this->order->chef;
+        $chefLocation=$chef->location;
+        $availableDeliverymen=Deliveryman::where('is_available',true)
+        ->where('updated_at','>=',now()->subMinute())
+        ->get();
+        if($availableDeliverymen->count()>0){
+            //calculate distance
+            $availableDeliverymen=$availableDeliverymen
+             //sort objects
+            ->sortBy(function ($deliveryman)use ($chefLocation){
+                $deliverymanLocation= new Location();
+                $deliverymanLocation->latitude=$deliveryman->current_latitude;
+                $deliverymanLocation->longitude=$deliveryman->current_longitude;
+                $deliverymanLocation->name="current location";
+                $distance=$this->calculateDistanceBetweenTwoPoints($chefLocation,$deliverymanLocation);
+                return $distance;
+            });
             //make new Delivery and assign it to first deliveryman
             $user = $this->order->user;
             $deliveryCost = $this->getDeliveryFeeFromUserTochef($chef, $user);
@@ -61,6 +61,7 @@ class AssignOrderToDelivery implements ShouldQueue
                 'deliveryman_id' => $assignedDeliveryman->id,
                 'cost' => $deliveryCost,
             ]);
+            $assignedDeliveryman->is_available=false;
             $this->order->delivery()->associate($delivery);
             $this->order->save();
             $assignedDeliveryman->is_available = false;

@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Broadcast;
 | used to check if an authenticated user can listen to the channel.
 |
 */
-
+Broadcast::channel('test.channel',function(){
+    return true;
+}, ['guards' => ['deliveryman']]);
 Broadcast::channel('order.deliverymen',function($user){
     return $user->is_available;
 });

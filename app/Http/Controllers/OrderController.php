@@ -85,6 +85,8 @@ class OrderController extends Controller
         }
 
         foreach ($meals as $meal) {
+            if($meal->chef->id != $request->chef_id)
+                return $this->errorResponse("يجب أن تكون جميع الوجبات لطاهٍ واحد", 400);
             if (!$meal->is_available) {
                 return $this->errorResponse("توجد وجبة غير متاحة للطلب", 400);
             }
@@ -200,8 +202,10 @@ class OrderController extends Controller
                 if ($item->delivery_id != null) {
                     $deliveryman = $item->delivery->deliveryman;
                 }
-                $notes = 'order note :' . $item->notes . PHP_EOL . 'meal notes: ';
-                 $orderNotes = $item->meals->map(function ($meal) use ($notes) {
+
+                $notes = 'ملاحظات الطلب :' . $item->notes  . '\n ملاحظات الوجبات: \n';
+                 $item->meals->map(function ($meal) use(&$notes) {
+                    $notes=$notes.'الوجبة '.$meal->name.' : '.$meal->pivot->notes.'\n';
                     $meal->quantity = $meal->pivot->quantity;
                     $meal->setHidden(['category_id', 'max_meals_per_day', 'is_available',
                         'expected_preparation_time', 'ingredients', 'rates_count', 'rating',
@@ -215,7 +219,7 @@ class OrderController extends Controller
                     'status' => $item->status,
                     'selected_delivery_time' => $item->selected_delivery_time,
                     'subscription' => $item->subscription_id,
-                    'notes' =>$item->$orderNotes,
+                    'notes' =>$item->$notes,
                     'meals' => $item->meals,
 
                     // 'deliveryman' => $deliveryman,
@@ -235,6 +239,7 @@ class OrderController extends Controller
     {
         $updatedOrder = $order->update([
             'status' => "prepared",
+            'prepared_at'=> now()
         ]);
         broadcast(new OrderIsPrepared($order));
         OrderIsPrepared::dispatch($order);

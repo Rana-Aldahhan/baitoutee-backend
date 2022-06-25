@@ -14,8 +14,10 @@ class BroadcastServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Broadcast::routes(['middleware' => ['auth:deliveryman']]);
-
+        // Broadcast::routes(['middleware' => ['auth:deliveryman']]);
+        // Broadcast::channel('test.channel',function(){
+        //     return true;
+        // }, ['guards' => ['deliveryman']]);
         require base_path('routes/channels.php');
     }
 }

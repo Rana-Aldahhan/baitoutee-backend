@@ -4,26 +4,34 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderIsPrepared implements ShouldBroadcastNow
+class TestEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $order;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($order)
+    public function __construct()
     {
-        $this->order = $order;
+        //
     }
-
+    /**
+     * The event's broadcast name.
+     *
+     * @return string
+     */
+    // public function broadcastAs()
+    // {
+    //     return 'TestEvent';
+    // }
     /**
      * Get the channels the event should broadcast on.
      *
@@ -31,6 +39,6 @@ class OrderIsPrepared implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('order.deliverymen');
+        return new PrivateChannel('test.channel');
     }
 }

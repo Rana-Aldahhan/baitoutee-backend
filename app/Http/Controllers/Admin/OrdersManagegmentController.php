@@ -12,7 +12,7 @@ class OrdersManagegmentController extends Controller
 {
     public function showNewOrders()
     {
-        $orders=Order::where('status','pending')->paginate(10);
+        $orders=Order::where('status','pending')->orderByDesc('created_at')->paginate(10);
         return view('admin.orders_admin.new_orders',['orders'=>$orders]);
     }
     
@@ -22,6 +22,7 @@ class OrdersManagegmentController extends Controller
         Gate::authorize('manage-orders');
         $order=Order::find($id);
         $order->status='approved';
+        $order->accepted_at=now();
         $order->save();
         //TODO send notification to chef & student
         return response()->json([]);
