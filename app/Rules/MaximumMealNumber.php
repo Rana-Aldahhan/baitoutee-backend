@@ -10,6 +10,8 @@ use Illuminate\Contracts\Validation\Rule;
 
 class MaximumMealNumber implements Rule
 {
+
+
     /*
      * Create a new rule instance.
      *
@@ -17,7 +19,6 @@ class MaximumMealNumber implements Rule
      */
     public function __construct()
     {
-        //
     }
 
     /*
@@ -30,7 +31,9 @@ class MaximumMealNumber implements Rule
 
     public function passes($attribute, $value)
     {
-        $max_meals_per_day = auth('chef')->user()->get('max_meals_per_day')->first();
+
+        $max_meals_per_day =  auth('chef')->user()->max_meals_per_day;
+        $value = intval($value);
         return  $max_meals_per_day >= $value;
     }
 
@@ -41,6 +44,6 @@ class MaximumMealNumber implements Rule
      */
     public function message()
     {
-        return trans('validation.maxMeals');
+        return trans('validation.custom.selected_max_meals_per_day.MoreThanMaxMeals');
     }
 }

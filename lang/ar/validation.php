@@ -156,6 +156,9 @@ return [
         'selected_delivery_time'=>[
             'InChefDeliveryRange'=>' :attribute يجب أن يكون ضمن الأوقات المتاحة للتوصيل  '
         ],
+        'selected_max_meals_per_day' =>[
+            'MoreThanMaxMeals' => ':attribute يجب أن يكون أكبر من العدد الأعظمي الذي يمكن تحضيره من هذه الوجبة'
+        ]
     ],
 
     /*
@@ -190,7 +193,7 @@ return [
         'max_meals_per_day' => 'عدد الوجبات الأعظمي التي يمكن تحضيرها باليوم',
         'profile_picture' => 'الصورة الشخصية',
         'expected_preparation_time' => 'الوقت المتوقع لتحضير الوجبة',
-        'max_meals_per_day' => 'العدد الأعظمي الممكن تحضيره من هذه الوجبة يوميا',
+        'meals.max_meals_per_day' => 'العدد الأعظمي الممكن تحضيره من هذه الوجبة يوميا',
         'ingredients' => 'المكونات',
         'discount_percentage'=>'نسبة الخصم على السعر',
         'is_available' =>'متاحة',
@@ -198,7 +201,7 @@ return [
         'price' =>'السعر',
         'image' =>'الصورة',
         'selected_delivery_time'=>'الوقت المحدد للتوصيل',
-        
+
     ],
 
 ];
