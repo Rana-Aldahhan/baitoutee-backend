@@ -39,6 +39,6 @@ class TimeAfter implements Rule
      */
     public function message()
     {
-        return ' :attribute يجب أن يكون أكبر من '.$this->firstTime;
+        return ' :attribute يجب أن يكون أكبر من '.$this->firstTime . ' أو يساويه ';
     }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ChefAuthController;
 use App\Http\Controllers\Auth\CommonAuthController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +43,13 @@ Route::prefix('chef')->group(function () {
             Route::get('/meals', [OrderController::class, 'indexForChefOrderedMeals']);
             Route::get('/', [OrderController::class, 'indexForChefOrders']);
             Route::put('/{order}/change-status', [OrderController::class, 'changeStatus']);
+        });
+        Route::group(['prefix' => 'subscriptions'], function () {
+            Route::post('/', [SubscriptionController::class, 'store']);
+            Route::get('/', [SubscriptionController::class, 'indexForChef']);
+            Route::put('/{subscription}', [SubscriptionController::class, 'update']);
+            Route::delete('/{subscription}', [SubscriptionController::class, 'destroy']);
+            Route::put('/{subscription}/edit-availability', [SubscriptionController::class, 'editAvailability']);
         });
 
     });

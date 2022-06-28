@@ -34,7 +34,7 @@ class MealController extends Controller
             'category_name' => 'required_without:category_id',
             'ingredients' => 'required',
             'expected_preparation_time' => 'required|numeric|max:255',
-            'max_meals_per_day' => ['required', 'numeric', 'min:0', 'max:255', new MaximumMealNumber($request['max_meals_per_day'])], // check if this make a problem
+            'max_meals_per_day' => ['required', 'numeric', 'min:0', 'max:255', new MaximumMealNumber()], // check if this make a problem
             'price' => 'required|numeric',
             //  'reason' => new RequiredIf($this->changedPrice),
             'discount_percentage' => 'nullable|numeric',
@@ -50,7 +50,7 @@ class MealController extends Controller
             'category_id' => 'filled|exists:categories,id',
             'ingredients' => 'filled',
             'expected_preparation_time' => 'filled|numeric|max:255',
-            'max_meals_per_day' => ['filled', 'numeric', 'min:0', 'max:255', new MaximumMealNumber($request['max_meals_per_day'])], // check if this make a problem
+            'max_meals_per_day' => ['filled', 'numeric', 'min:0', 'max:255', new MaximumMealNumber()], // check if this make a problem
             'price' => 'filled|numeric',
             // 'reason' => new RequiredIf($this->changedPrice),
             'discount_percentage' => 'nullable|numeric',
@@ -102,10 +102,12 @@ class MealController extends Controller
  */
     public function getMealOfCategory($id)
     {
-        $meals = auth('chef')->user()->meals;
         /// $request->route('id'); or  $request->id; (try)
         /// $category->meals (try this instead 👈🏻)
-        $categoryMeals = $meals->where('category_id', $id)->values();
+        $categoryMeals = auth('chef')->user()->meals()
+        ->where('category_id', $id)->where('approved',1)->get()->map(function ($meal){
+            return $meal->setHidden(['chef', 'category']);
+        })->values();
         $categoryMeals->toArray();
         /* foreach ($categoryMeals as $categoryMeal){
         $categoryMeal->image =  asset($categoryMeal->image);
@@ -432,11 +434,24 @@ class MealController extends Controller
  * @param Meal $meal
  * @return JsonResponse
  */
-    public function editAvailability(Meal $meal)
+    public function editAvailability(Meal $meal,Request $request)
     {
-        $availability = !$meal->is_available;
+        $newAvailability = !$meal->is_available;
+        if($newAvailability == true) {
+            $portionNum = $meal->max_meals_per_day;
+             auth('chef')->user()->meals()->where('is_available',1)->get()->map(function($meal)use (&$portionNum){
+                $portionNum += $meal->max_meals_per_day;
+            });
+            $request->merge(['portionNum' =>$portionNum]);
+            $msg = ' بتفعيل هذه الوجبة أصبح عدد الوجبات المتاحة للطلب هو ' . $portionNum . ' وهو أكبر من عدد الوجبات الممكن طلبها في اليوم ';
+            $validator = Validator::make($request->all(),
+            ['portionNum' => new MaximumMealNumber()]);
+            if ($validator->fails()) { //case of input validation failure
+                return $this->errorResponse($msg, 422);
+            }
+        }
         $updatedMeal = $meal->update([
-            'is_available' => $availability,
+            'is_available' => $newAvailability,
         ]);
         if ($updatedMeal) {
             return $this->successResponse($updatedMeal);

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->integer('day_number')->default(1);
-            $table->foreignId('meal_id')->nullable(false)->constrained();
-            $table->foreignId('subscription_id')->nullable(false)->constrained();
+            $table->foreignId('meal_id')->nullable(false)->constrained()->onDelete('cascade');;
+            $table->foreignId('subscription_id')->nullable(false)->constrained()->onDelete('cascade');;
         });
     }
 
