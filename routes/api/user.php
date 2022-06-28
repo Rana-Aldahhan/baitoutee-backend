@@ -7,6 +7,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -54,5 +55,15 @@ Route::prefix('user')->group(function () {
         //order & subscribe
         Route::post('/make-order', [OrderController::class, 'makeOrder']);
         Route::post('/subscriptions/{subscription}/subscribe', [SubscriptionController::class, 'subscribe']);
+        //student orders and tracking
+        Route::get('/current-orders',[UserController::class,'getCurrentOrders']);
+        Route::put('/orders/{order}/cancel',[UserController::class,'cancelOrder']);
+        Route::get('/orders/{order}/show',[UserController::class,'showOrder']);
+        Route::post('/orders/{order}/rate',[UserController::class,'rateOrder']);
+        Route::post('/orders/{order}/report',[UserController::class,'reportOrder']);
+        Route::get('/previous-orders',[UserController::class,'getOrdersHistory']);
+        //student subscriptions
+        Route::get('/current-subscriptions',[UserController::class,'getCurrentSubscriptions']);
+        Route::get('/current-subscriptions/{subscription}/orders',[UserController::class,'getSubscriptionOrders']);
     });
 });

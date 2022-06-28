@@ -198,6 +198,12 @@ return [
         'price' =>'السعر',
         'image' =>'الصورة',
         'selected_delivery_time'=>'الوقت المحدد للتوصيل',
+        'new_status'=>'الحالة الجديدة',
+        'reported_on'=>'الجهة المبلغة عنها',
+        'reason'=>'السبب',
+        'current_longitude'=>'خط الطول الحالي',
+        'current_latitude'=>'خط العرض الحالي',
+        'reason'=>'السبب',
         
     ],
 

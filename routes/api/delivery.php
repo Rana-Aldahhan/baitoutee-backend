@@ -28,7 +28,12 @@ Route::prefix('delivery')->group(function () {
                 broadcast(new TestEvent());
                 return response()->json(['message'=>'event is broadcasted']);
             });
-            Route::post('/update-current-location',[DeliverymanController::class,'updateCurrentLocation']);
+            Route::get('/current-delivery',[DeliverymanController::class,'getCurrentDeliveryInfoAndOrders']);
+            Route::get('/current-delivery/orders/{order}',[DeliverymanController::class,'getOrderForDelivery']);
+            Route::put('/current-delivery/orders/{order}/change-status',[DeliverymanController::class,'changeOrderStatus']);
+            Route::post('/current-delivery/orders/{order}/report',[DeliverymanController::class,'reportOrder']);
+            // Route::get('/current-delivery/chef-location',[DeliverymanController::class,'getChefLocation']);
+            Route::put('/update-current-location',[DeliverymanController::class,'updateCurrentLocation']);
             Route::delete('/logout',[DeliverymanAuthController::class,'logout']);
         });
 });

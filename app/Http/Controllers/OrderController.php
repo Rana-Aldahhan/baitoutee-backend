@@ -137,7 +137,9 @@ class OrderController extends Controller
         $chefOrders = auth('chef')->user()->orders()
             ->whereDate('selected_delivery_time',Carbon::today())
             ->where('status', 'approved')
-            ->orWhere('status', 'not assigned')
+            ->orWhere('status', 'not assigned')//TODO query might bring undesired recoreds
+            ->whereDate('selected_delivery_time',Carbon::today())
+            ->where('chef_id',auth('chef')->user()->id)
             ->get()
             ->groupby('selected_delivery_time')
             ->sortBy(function ($time) {
@@ -195,7 +197,10 @@ class OrderController extends Controller
             ->whereDate('selected_delivery_time',Carbon::today())
            ->where('selected_delivery_time', Carbon::create($time))
             ->where('status', 'approved')
-            ->orWhere('status', 'not assigned')
+            ->orWhere('status', 'not assigned')//TODO query might bring undesired recoreds
+            ->whereDate('selected_delivery_time',Carbon::today())
+            ->where('selected_delivery_time', Carbon::create($time))
+            ->where('chef_id',auth('chef')->user()->id)
             ->get()->flatten()
             ->map(function ($item) {
                 $deliveryman = null;

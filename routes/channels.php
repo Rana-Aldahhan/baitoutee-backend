@@ -17,7 +17,7 @@ Broadcast::channel('test.channel',function(){
 }, ['guards' => ['deliveryman']]);
 Broadcast::channel('order.deliverymen',function($user){
     return $user->is_available;
-});
+},['guards' => ['deliveryman']]);
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
