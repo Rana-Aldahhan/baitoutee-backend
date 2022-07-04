@@ -61,13 +61,12 @@ class AssignOrderToDelivery implements ShouldQueue
                 'deliveryman_id' => $assignedDeliveryman->id,
                 'cost' => $deliveryCost,
             ]);
-            $assignedDeliveryman->is_available=false;
             $this->order->delivery()->associate($delivery);
             $this->order->save();
             $assignedDeliveryman->is_available = false;
             $assignedDeliveryman->save();
         } else {
-            $this->order->status = 'failed assigning';
+            $this->order->status = 'failedِAssigning';
             $this->order->save();
         }
 

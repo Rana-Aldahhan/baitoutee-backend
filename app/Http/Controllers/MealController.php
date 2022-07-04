@@ -200,6 +200,8 @@ class MealController extends Controller
         if ($meal->exists && $meal->approved) {
             $meal->is_saved = auth('user')->user()->savedMeals->where('id', $meal->id)->count() > 0;
             $meal->price = $meal->price + $this->getMealProfit();
+            if($meal->discount_percentage!=null)
+             $meal->price_after_discount=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100)) +$this->getMealProfit();
             $meal->delivery_fee = $this->getMealDeliveryFee($meal->chef_id);
             $meal->remaining_available_meal_count = $meal->max_meals_per_day - $this->getCountOfTodayAssingedMeals($meal->chef, $meal);
             $meal->chef->remaining_available_chef_meals_count = $meal->chef()->get()->first()->max_meals_per_day - $this->getCountOfTodayAssingedTotalMeals($meal->chef);
@@ -509,8 +511,10 @@ class MealController extends Controller
         ;
         //calculate the new price
         $topRatedMeals->map(function ($meal) {
+            if($meal->discount_percentage !=null)
+                $meal->price_after_discount=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100)) +$this->getMealProfit();
             $meal->setHidden(['created_at', 'updated_at', 'approved', 'max_meals_per_day', 'expected_preparation_time', 'ingredients', 'category', 'category_id']);
-            return $meal->price = $meal->price + $this->getMealProfit() + $this->getMealDeliveryFee($meal->chef_id);
+            return $meal->price = $meal->price + $this->getMealProfit();
         });
 
         return $this->successResponse($topRatedMeals, 200);
@@ -525,8 +529,10 @@ class MealController extends Controller
             ->get();
         //calculate the new price
         $offers->map(function ($meal) {
+            if($meal->discount_percentage !=null)
+             $meal->price_after_discount=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100)) +$this->getMealProfit();
             $meal->setHidden(['created_at', 'updated_at', 'approved', 'max_meals_per_day', 'expected_preparation_time', 'ingredients', 'category', 'category_id']);
-            return $meal->price = $meal->price + $this->getMealProfit() + $this->getMealDeliveryFee($meal->chef_id);
+            return $meal->price = $meal->price + $this->getMealProfit();
         });
         return $this->successResponse($offers, 200);
     }
@@ -538,8 +544,10 @@ class MealController extends Controller
             ->orderByDesc('discount_percentage')
             ->paginate(15);
         $offersPagination->map(function ($meal) {
+            if($meal->discount_percentage !=null)
+             $meal->price_after_discount=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100)) +$this->getMealProfit();
             $meal->setHidden(['created_at', 'updated_at', 'approved', 'max_meals_per_day', 'expected_preparation_time', 'ingredients', 'category', 'category_id']);
-            return $meal->price = $meal->price + $this->getMealProfit() + $this->getMealDeliveryFee($meal->chef_id);
+            return $meal->price = $meal->price + $this->getMealProfit() ;
         });
         return $this->paginatedResponse($offersPagination);
     }
@@ -550,8 +558,10 @@ class MealController extends Controller
             ->take(10)
             ->get();
         $recentMeals->map(function ($meal) {
+            if($meal->discount_percentage !=null)
+                $meal->price_after_discount=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100)) +$this->getMealProfit();
             $meal->setHidden(['created_at', 'updated_at', 'approved', 'max_meals_per_day', 'expected_preparation_time', 'ingredients', 'category', 'category_id']);
-            return $meal->price = $meal->price + $this->getMealProfit() + $this->getMealDeliveryFee($meal->chef_id);
+            return $meal->price = $meal->price + $this->getMealProfit();
         });
         return $this->successResponse($recentMeals, 200);
     }
@@ -564,8 +574,10 @@ class MealController extends Controller
             ->take(10)
             ->values();
         $meals->map(function ($meal) {
+            if($meal->discount_percentage !=null)
+                $meal->price_after_discount=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100)) +$this->getMealProfit();
             $meal->setHidden(['created_at', 'updated_at', 'approved', 'max_meals_per_day', 'expected_preparation_time', 'ingredients', 'category', 'category_id']);
-            return $meal->price = $meal->price + $this->getMealProfit() + $this->getMealDeliveryFee($meal->chef_id);
+            return $meal->price = $meal->price + $this->getMealProfit() ;
         });
         return $this->successResponse($meals);
     }

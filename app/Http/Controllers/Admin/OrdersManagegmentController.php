@@ -33,7 +33,7 @@ class OrdersManagegmentController extends Controller
         \Auth::shouldUse('backpack');
         Gate::authorize('manage-orders');
         $order=Order::find($id);
-        $order->status='not approved';
+        $order->status='notApproved';
         $order->save();
         //TODO send notification to student
         return response()->json([]);

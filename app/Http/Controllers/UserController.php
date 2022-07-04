@@ -47,7 +47,7 @@ class UserController extends Controller
         $user=auth('user')->user();
         $orders=$user->orders()
         ->whereDate('selected_delivery_time','<',Carbon::today())
-        ->paginate(5);
+        ->paginate(10);
         
         $orders->map(function($order){
             $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow());
@@ -61,26 +61,39 @@ class UserController extends Controller
     public function showOrder(Order $order){
         $order->chef_name=$order->chef->name;
         $order->delivery_fee=$order->total_cost-($order->meals_cost + $order->profit );
+        $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow());
         $order->meals_count=0;
         $order->meals->map(function($meal)use($order){
             $order->meals_count+=$meal->pivot->quantity;
         });
+        if($order->subscription_id!=null)
+            {
+                $order->total_cost='-';
+                $order->delivery_fee='-';
+            }
+        $order->can_be_evaluated=$order->status=='delivered';
         $order->meals=$order->meals->map(function($meal)use($order){
             $meal->quantity=$meal->pivot->quantity;
             $meal->user_rate=$meal->pivot->meal_rate;
             if($order->subscription_id!=null)
                 $meal->price='-';
             else
-                $meal->price+=$order->profit/ $order->meals_count;
+               {
+                 $meal->price+=$order->profit/ $order->meals_count;
+                 if($meal->discount_percentage!=null)
+                     $meal->price=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100));
+                }
             $meal=$meal->only(['id','name','image','price','quantity','user_rate']);
             return $meal;
         });
-        $order=$order->only(['id','chef_name','selected_delivery_time','status',
+        $order=$order->only(['id','chef_name','selected_delivery_time','can_be_canceled','status','can_be_evaluated',
         'subscription_id','created_at','notes','delivery_fee','total_cost','meals']);
 
         return $this->successResponse($order);
     }
     public function rateOrder(Request $request,Order $order){
+        if($order->status!='delivered')
+            return $this->errorResponse('لا يمكن تقييم طلب غير مكتمل بعد',400);
         $validator = Validator::make($request->all(), [
             'meals'=>'array',
             'meals.*.id' => 'required',
@@ -103,6 +116,8 @@ class UserController extends Controller
         return $this->successResponse(['message'=>'rates sent successfully']);
     }
     public function reportOrder(Request $request,Order $order){
+        if($order->status!='delivered')
+            return $this->errorResponse('لا يمكن الإبلاغ عن طلب لم يتم إكماله بعد',400);
         $validator = Validator::make($request->all(), [
             'reported_on' =>  ['required', Rule::in(['delivery','chef'])],
             'reason'=>'required'

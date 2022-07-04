@@ -29,17 +29,20 @@ class PricingController extends Controller
     public function approvePriceChangeRequest($id) {
         \Auth::shouldUse('backpack');
         Gate::authorize('approve-reject-meal-prices');
-           $meal=PriceChangeRequest::find($id);
-           $meal->approved=true;
+           $priceChangeRequest=PriceChangeRequest::find($id);
+           $priceChangeRequest->approved=true;
+           $priceChangeRequest->save();
+           $meal=Meal::find($priceChangeRequest->meal_id);
+           $meal->price=$priceChangeRequest->new_price;
            $meal->save();
            return redirect('/admin/price-change-request');
        }
        public function rejectPriceChangeRequest($id) {
         \Auth::shouldUse('backpack');
         Gate::authorize('approve-reject-meal-prices');
-        $meal=PriceChangeRequest::find($id);
-        $meal->approved=false;
-        $meal->save();
+        $priceChangeRequest=PriceChangeRequest::find($id);
+        $priceChangeRequest->approved=false;
+        $priceChangeRequest->save();
         return redirect('/admin/price-change-request');
         }
     

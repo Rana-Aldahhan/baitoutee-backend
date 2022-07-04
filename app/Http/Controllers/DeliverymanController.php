@@ -95,7 +95,7 @@ class DeliverymanController extends Controller
     public function changeOrderStatus(Request $request,Order $order)
     {
         $validator = Validator::make($request->all(), [
-            'new_status' =>  ['required', Rule::in(['picked','delivered','not delivered'])],
+            'new_status' =>  ['required', Rule::in(['picked','delivered','notDelivered'])],
         ]);
         if($validator->fails())
         {

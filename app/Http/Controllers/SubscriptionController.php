@@ -95,6 +95,9 @@ class SubscriptionController extends Controller
                 'is_available','expected_preparation_time','discount_percentage','rates_count',
                 'rating','created_at','updated_at','category_id','approved','chef_id']);
                  });
+                 $subscription->meals=$subscription->meals->sortBy(function($meal){
+                    return $meal->day_number;
+                 });
 
               return [
                 'id' => $subscription->id,
@@ -208,6 +211,7 @@ public function editAvailability(Subscription $subscription)
     public function getTopTenAvaialble()
     {
         $subscriptions=Subscription::where('is_available',true)
+        ->where('starts_at','>',Carbon::today())
         ->orderBy('starts_at')
         ->take(10)
         ->get();
@@ -220,6 +224,7 @@ public function editAvailability(Subscription $subscription)
     public function getAllAvaialble()
     {
         $subscriptionsPaginated=Subscription::where('is_available',true)
+        ->where('starts_at','>',Carbon::today())
         ->orderBy('starts_at')
         ->paginate(10);
          //calculate the total price

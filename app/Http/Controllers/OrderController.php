@@ -92,9 +92,9 @@ class OrderController extends Controller
             }
 
         }
-        //get meal cost
+        //get meal cost (with profit)
         $mealsCost = $request->meals_cost;
-        //get profit
+        //get only profit
         $currentOrderMealsCount = 0; //=$request->meals_count;
         foreach ($request->meals as $meal) {
             $currentOrderMealsCount += $meal['quantity'];
@@ -103,7 +103,7 @@ class OrderController extends Controller
         //get delivery cost
         $deliveryFee = $this->getMealDeliveryFee($chef->id);
         //get total order cost
-        $totalCost = $mealsCost + $mealsProfit + $deliveryFee;
+        $totalCost = $mealsCost + $deliveryFee;
 
         $order = Order::create([
             'user_id' => auth('user')->user()->id,
@@ -111,7 +111,7 @@ class OrderController extends Controller
             'selected_delivery_time' => $request->selected_delivery_time,
             'notes' => $request->notes,
             'total_cost' => $totalCost,
-            'meals_cost' => $mealsCost,
+            'meals_cost' => $mealsCost-$mealsProfit,
             'profit' => $mealsProfit,
         ]);
         //attach order with meals
@@ -137,7 +137,7 @@ class OrderController extends Controller
         $chefOrders = auth('chef')->user()->orders()
             ->whereDate('selected_delivery_time',Carbon::today())
             ->where('status', 'approved')
-            ->orWhere('status', 'not assigned')//TODO query might bring undesired recoreds
+            ->orWhere('status', 'notAssigned')//TODO query might bring undesired recoreds
             ->whereDate('selected_delivery_time',Carbon::today())
             ->where('chef_id',auth('chef')->user()->id)
             ->get()
@@ -197,7 +197,7 @@ class OrderController extends Controller
             ->whereDate('selected_delivery_time',Carbon::today())
            ->where('selected_delivery_time', Carbon::create($time))
             ->where('status', 'approved')
-            ->orWhere('status', 'not assigned')//TODO query might bring undesired recoreds
+            ->orWhere('status', 'notAssigned')//TODO query might bring undesired recoreds
             ->whereDate('selected_delivery_time',Carbon::today())
             ->where('selected_delivery_time', Carbon::create($time))
             ->where('chef_id',auth('chef')->user()->id)
@@ -246,8 +246,8 @@ class OrderController extends Controller
             'status' => "prepared",
             'prepared_at'=> now()
         ]);
-        broadcast(new OrderIsPrepared($order));
-        OrderIsPrepared::dispatch($order);
+        broadcast(new OrderIsPrepared($order))->toOthers();
+       // OrderIsPrepared::dispatch($order);
         return $this->successResponse($updatedOrder);
     }
 

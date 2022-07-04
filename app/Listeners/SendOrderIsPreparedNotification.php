@@ -27,6 +27,6 @@ class SendOrderIsPreparedNotification
      */
     public function handle(OrderIsPrepared $event)
     {
-        AssignOrderToDelivery::dispatch($event->order);
+        AssignOrderToDelivery::dispatch($event->order)->onConnection('database');
     }
 }
