@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Scout\Searchable;
 
 class Chef extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable ,SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable ,SoftDeletes,Searchable;
     protected $guarded = [];
     protected $hidden = ['created_at','updated_at'];
 
@@ -49,5 +50,16 @@ class Chef extends Authenticatable
     }
     public function chefJoinRequest(){
         return $this->belongsTo(ChefJoinRequest::class);
+    }
+    /**
+     * searchable attributes
+     */
+    public function toSearchableArray()
+    {
+        $array = [
+            'name'=>$this->name,
+        ];
+
+        return $array;
     }
 }

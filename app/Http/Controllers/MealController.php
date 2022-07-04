@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Rules\MaximumMealNumber;
 use App\Traits\MealsHelper;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -580,6 +581,40 @@ class MealController extends Controller
             return $meal->price = $meal->price + $this->getMealProfit() ;
         });
         return $this->successResponse($meals);
+    }
+    // search for a meal function
+    public function searchAndSort(Request $request)
+    {
+        // get the word want to search for and what to filter on
+        $search = $request->search;
+        $priceSortDesc = ($request->price_sort == 'desc') ? true : false;
+        $rateSortDesc =  ($request->rate_sort == 'desc') ? true : false;
+
+        //return the records that fit with the search
+        $searched_meals = Meal::search($search)->query(function (Builder $builder)  {
+            $builder->approved();
+        })->get();
+
+        // not the best but it is not bad if the meal have the exact name in the search
+        //it will appear first
+        $sortedMeals = $searched_meals->sortBy(function ($meal, $key) use ($search) {
+            $meal->setHidden(['updated_at','created_at','chef_id','category_id','approved'
+        ,'discount_percentage','price','max_meals_per_day','expected_preparation_time',
+        'ingredients','category']);
+            $mealPrice = $meal->price;
+            if($meal->discount_percentage !=0){
+                $mealWithDiscount = $mealPrice -(($mealPrice*$meal->discount_percentage)/100);
+                $meal->price_with_discount = $mealWithDiscount +$this->getMealProfit();
+            }
+            $meal->price_without_discount = $mealPrice + $this->getMealProfit();
+            $restNameLength = strlen($meal->name) - strlen($search);
+            $restIngredientsLength = strlen($meal->ingredients) - strlen($search);
+            return min($restNameLength,$restIngredientsLength);
+        })->values();
+        $sortedMeals =(($request->rate_sort!=null)? $sortedMeals->sortBy('rating',SORT_REGULAR,$rateSortDesc)->values():$sortedMeals);
+        $sortedMeals =(($request->price_sort!=null)? $sortedMeals->sortBy('price',SORT_REGULAR,$priceSortDesc)->values():$sortedMeals);
+        $paginated_meals = $sortedMeals->paginate(10);
+        return $this->paginatedResponse($paginated_meals);
     }
 }
 

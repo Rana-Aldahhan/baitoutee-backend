@@ -167,5 +167,17 @@ class ChefController extends Controller
         })->sortByDesc(fn($chef) => $chef->created_at)->values();
         return $this->successResponse($sortedChefs);
     }
+    public function search(Request $request){
+        $search = $request->search;
+        $paginated_chefs = Chef::search($search)->paginate(10);
+
+        $paginated_chefs->map(function ($chef){
+            $mealsCount = $chef->meals->count();
+            $chef->rating = $chef->meals->sum('rating')/ $mealsCount ;
+            $chef->rates_count = $chef->meals->sum('rates_count');
+            $this->hideFromItem($chef);
+        });
+        return $this->paginatedResponse($paginated_chefs);
+    }
 }
 

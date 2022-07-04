@@ -65,5 +65,11 @@ Route::prefix('user')->group(function () {
         //student subscriptions
         Route::get('/current-subscriptions',[UserController::class,'getCurrentSubscriptions']);
         Route::get('/current-subscriptions/{subscription}/orders',[UserController::class,'getSubscriptionOrders']);
+        //student search
+        Route::group(['prefix' => 'search'], function () {
+            Route::get('/meals', [MealController::class, 'searchAndSort']);
+            Route::get('/subscriptions', [SubscriptionController::class, 'searchAndFilter']);
+            Route::get('/chefs', [ChefController::class, 'search']);
+        });
     });
 });

@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Meal extends Model
 {
     use \Backpack\CRUD\app\Models\Traits\CrudTrait;
-    use HasFactory;
+    use HasFactory,Searchable;
     protected $guarded = [];
     protected $hidden = ['created_at', 'updated_at', 'chef_id'];
     protected $with = ['chef:id,name', 'category:name,id'];
@@ -55,6 +56,19 @@ class Meal extends Model
     public function scopeApproved($query)
     {
         return $query->where('approved', true);
+    }
+    /**
+     * search
+     */
+
+    public function toSearchableArray()
+    {
+        $array = [
+            'name'=>$this->name,
+            'ingredients'=>$this->ingredients,
+        ];
+
+        return $array;
     }
 
 }

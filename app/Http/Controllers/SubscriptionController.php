@@ -116,15 +116,15 @@ class SubscriptionController extends Controller
         return $this->successResponse($subscriptions);
     }
 
-/**
- * edit the subscription by a chef
- *   notes:
- *  the request must have days_number and meals the rest of request parameters are not required
- *
- * @param Request $request
- * @param  Subscription $subscription
- * @return JsonResponse
- */
+    /**
+     * edit the subscription by a chef
+     *   notes:
+     *  the request must have days_number and meals the rest of request parameters are not required
+     *
+     * @param Request $request
+     * @param  Subscription $subscription
+     * @return JsonResponse
+     */
     public function update(Request $request, Subscription $subscription)
     {
         $validationResponse = $this->validateSubscriptionParameters($request,'filled');
@@ -171,42 +171,42 @@ class SubscriptionController extends Controller
     }
 
     /**
- * edit the availability of a subscription
- *
- * @param Subscription $subscription
- * @return JsonResponse
- */
-public function editAvailability(Subscription $subscription)
-{
-    $newAvailability = !$subscription->is_available;
-    $chefSubscriptions = auth('chef')->user()->subscriptions();
-    $msg ="";
-    $updatedMeal = $subscription->update([
-        'is_available' => $newAvailability,
-    ]);
-    if($newAvailability == false) {
-        $subscribersCount = $subscription->users()
-        ->where('subscription_id', '=', $subscription->id )
-        ->count();
-        if($subscribersCount>0){
-            $msg = ' تم إلغاء فعالية الاشتراك ولكنه متاح لمن اشترك قبل الإلغاء وهم '.$subscribersCount.' مشترك ';
+     * edit the availability of a subscription
+     *
+     * @param Subscription $subscription
+     * @return JsonResponse
+     */
+    public function editAvailability(Subscription $subscription)
+    {
+        $newAvailability = !$subscription->is_available;
+        $chefSubscriptions = auth('chef')->user()->subscriptions();
+        $msg ="";
+        $updatedMeal = $subscription->update([
+            'is_available' => $newAvailability,
+        ]);
+        if($newAvailability == false) {
+            $subscribersCount = $subscription->users()
+            ->where('subscription_id', '=', $subscription->id )
+            ->count();
+            if($subscribersCount>0){
+                $msg = ' تم إلغاء فعالية الاشتراك ولكنه متاح لمن اشترك قبل الإلغاء وهم '.$subscribersCount.' مشترك ';
+            }
+        }
+        else if($newAvailability == true) {
+            $numOfSubscribers =  $chefSubscriptions
+            ->get()->sum(function ($subscription) {
+                if($subscription->is_available)
+                    return $subscription->max_subscribers;
+            });
+            $numOfAvailableSubscriptions = $chefSubscriptions->where('is_available',1)->count();
+            $msg = 'أصبح لديك '.$numOfAvailableSubscriptions.' اشتراك متاح للمستخدمين حيث يمكن أن يشترك '.$numOfSubscribers.' مستخدم';
+        }
+        if ($updatedMeal) {
+            return $this->successResponse($msg);
+        } else {
+            return $this->errorResponse("لم يتمكن من تفعيل الاشتراك", 404);
         }
     }
-    else if($newAvailability == true) {
-        $numOfSubscribers =  $chefSubscriptions
-        ->get()->sum(function ($subscription) {
-            if($subscription->is_available)
-                return $subscription->max_subscribers;
-        });
-        $numOfAvailableSubscriptions = $chefSubscriptions->where('is_available',1)->count();
-        $msg = 'أصبح لديك '.$numOfAvailableSubscriptions.' اشتراك متاح للمستخدمين حيث يمكن أن يشترك '.$numOfSubscribers.' مستخدم';
-    }
-    if ($updatedMeal) {
-        return $this->successResponse($msg);
-    } else {
-        return $this->errorResponse("لم يتمكن من تفعيل الاشتراك", 404);
-    }
-}
 
     public function getTopTenAvaialble()
     {
@@ -341,6 +341,48 @@ public function editAvailability(Subscription $subscription)
             ]);
             $order->meals()->attach($meal->id, ['quantity' => 1,'notes'=>$request->notes]);
         });
+    }
+    /**
+     * search for a subscription and filter the results on days number if
+     * the user send days in the request
+     */
+    public function searchAndFilter (Request $request){
+        // get the word want to search for and what to filter on
+        $search = $request->search;
+        //return the records that fit with the search
+        $paginated_subscribtions = Subscription::with(['meals'])
+        ->whereHas('meals', function($query) use ($search) {
+          $query->where('name','like', '%' . $search . '%');
+          })->orWhere('name','like', '%' . $search . '%')
+          ->where('is_available',1)
+          ->get()->filter(function($subscription) use ($request) {
+              $subscription->total_cost = $this->getTotalSubscriptionPrice($subscription);
+              $numOfSubscribers =$this->getSubscribersCount($subscription);
+              $subscription->current_subscribers = $numOfSubscribers;
+              $subscription->setHidden(['chef_id','created_at','updated_at','meals_cost','meal_delivery_time',
+              'max_subscribers','current_subscribers','is_available']);
+              $rating =0;
+              $mealsCount = $subscription->meals->count();
+              $rateCount =0;
+              $mealsName = $subscription->meals->transform(function($meal) use (&$rating,&$rateCount){
+                  $rating+= $meal->rating;
+                  $rateCount+= $meal->rates_count;
+                  $meal->price =  $meal->price + $this->getMealProfit(); // price without delivering
+                  return $meal->name;
+              });
+              $subscription->rating = $rating/$mealsCount;
+              $subscription->rates_count = $rateCount;
+              $subscription->meals = $mealsName;
+
+              // return the subscription if it didn't start yet and it has the same days number filtered on
+              if(Carbon::now()->isBefore(Carbon::create($subscription->starts_at))
+                  && (($request->days!=null)?$subscription->days_number==$request->days:true)
+                  && $subscription->is_available == true){
+                      return $subscription;
+              }
+          })->values()->paginate(10);
+
+          return $this->paginatedResponse($paginated_subscribtions);
     }
     // the current way to calculate the shown price of a subscription is:
     // delvery fee * subscription days number + meal profit * subscription days number
