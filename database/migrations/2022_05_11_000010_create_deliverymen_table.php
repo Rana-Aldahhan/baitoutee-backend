@@ -29,8 +29,8 @@ return new class extends Migration
             $table->boolean('is_available')->nullable(false)->default(false);
             $table->integer('balance')->nullable(false)->default(0);
             $table->timestamp('approved_at')->nullable();
-            $table->float('current_longitude', 17, 15)->nullable();
-            $table->float('current_latitude', 17, 15)->nullable();
+            $table->float('current_longitude')->nullable();
+            $table->float('current_latitude')->nullable();
             $table->softDeletes();
 
         });

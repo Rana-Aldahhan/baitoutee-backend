@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('locations', function (Blueprint $table) {
             $table->id();
-            $table->float('longitude',17,15);
-            $table->float('latitude',17,15);
+            $table->float('longitude');
+            $table->float('latitude');
             $table->string('name');
             $table->float('distance_to_first_location')->nullable();
             $table->float('distance_to_second_location')->nullable();

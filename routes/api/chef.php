@@ -42,7 +42,7 @@ Route::prefix('chef')->group(function () {
         Route::group(['prefix' => 'orders'], function () {
             Route::get('/meals', [OrderController::class, 'indexForChefOrderedMeals']);
             Route::get('/', [OrderController::class, 'indexForChefOrders']);
-            Route::put('/{order}/change-status', [OrderController::class, 'changeStatus']);
+            Route::put('/{order}/change-status', [OrderController::class, 'changeStatusToPrepared']);
         });
         Route::group(['prefix' => 'subscriptions'], function () {
             Route::post('/', [SubscriptionController::class, 'store']);

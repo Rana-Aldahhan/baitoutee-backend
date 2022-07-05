@@ -35,13 +35,13 @@ class AssignOrderToDelivery implements ShouldQueue
      */
     public function handle()
     {
-        sleep(2);
-        $chef=$this->order->chef;
-        $chefLocation=$chef->location;
+        sleep(10);
         $availableDeliverymen=Deliveryman::where('is_available',true)
         ->where('updated_at','>=',now()->subMinute())
         ->get();
         if($availableDeliverymen->count()>0){
+            $chef=$this->order->chef;
+            $chefLocation=$chef->location;
             //calculate distance
             $availableDeliverymen=$availableDeliverymen
              //sort objects

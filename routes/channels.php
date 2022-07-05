@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
+use PhpParser\Node\Expr\Cast\Bool_;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,8 +16,8 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('test.channel',function(){
     return true;
 }, ['guards' => ['deliveryman']]);
-Broadcast::channel('order.deliverymen',function($user){
-    return $user->is_available;
+Broadcast::channel('order.deliverymen',function(){
+    return (bool)auth('deliveryman')->user()->is_available;
 },['guards' => ['deliveryman']]);
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
