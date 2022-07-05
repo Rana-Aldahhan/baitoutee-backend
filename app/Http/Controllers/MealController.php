@@ -582,6 +582,20 @@ class MealController extends Controller
         });
         return $this->successResponse($meals);
     }
+
+    /**
+    * index the meals for the chef
+    * to choose when adding a new subscription
+    */
+    public function indexForChef()
+    {
+        $meals = auth('chef')->user()->meals()->where('approved', true)->get();
+        $meals->map(function ($meal) {
+            $meal->setHidden(['chef','approved','created_at','updated_at','chef_id','category_id']);
+        });
+        return $this->successResponse($meals);
+    }
+
     // search for a meal function
     public function searchAndSort(Request $request)
     {
@@ -612,7 +626,12 @@ class MealController extends Controller
             return min($restNameLength,$restIngredientsLength);
         })->values();
         $sortedMeals =(($request->rate_sort!=null)? $sortedMeals->sortBy('rating',SORT_REGULAR,$rateSortDesc)->values():$sortedMeals);
-        $sortedMeals =(($request->price_sort!=null)? $sortedMeals->sortBy('price',SORT_REGULAR,$priceSortDesc)->values():$sortedMeals);
+       // $sortedMeals =(($request->price_sort!=null)? $sortedMeals->sortBy('price',SORT_REGULAR,$priceSortDesc)->values():$sortedMeals);
+       $sortedMeals =(($request->price_sort!=null)? $sortedMeals->sortBy(function($meal) use ($request){
+            if($meal->price_with_discount !=null){
+                return $meal->price_with_discount;
+            }else return $meal->price_without_discount;
+        })->values():$sortedMeals);
         $paginated_meals = $sortedMeals->paginate(10);
         return $this->paginatedResponse($paginated_meals);
     }

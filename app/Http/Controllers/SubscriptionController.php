@@ -95,9 +95,6 @@ class SubscriptionController extends Controller
                 'is_available','expected_preparation_time','discount_percentage','rates_count',
                 'rating','created_at','updated_at','category_id','approved','chef_id']);
                  });
-                 $subscription->meals=$subscription->meals->sortBy(function($meal){
-                    return $meal->day_number;
-                 });
 
               return [
                 'id' => $subscription->id,
@@ -112,8 +109,8 @@ class SubscriptionController extends Controller
                 'meals'=> $subscription->meals,
             ];
             }
-          });
-        return $this->successResponse($subscriptions);
+          })->flatten();
+        return $this->successResponse($subscriptions->toArray());
     }
 
     /**
@@ -361,19 +358,15 @@ class SubscriptionController extends Controller
               $subscription->current_subscribers = $numOfSubscribers;
               $subscription->setHidden(['chef_id','created_at','updated_at','meals_cost','meal_delivery_time',
               'max_subscribers','current_subscribers','is_available']);
-              $rating =0;
-              $mealsCount = $subscription->meals->count();
-              $rateCount =0;
-              $mealsName = $subscription->meals->transform(function($meal) use (&$rating,&$rateCount){
-                  $rating+= $meal->rating;
-                  $rateCount+= $meal->rates_count;
+              //FIXED: not recount the repeated meals
+              $mealsCount = $subscription->meals->unique()->where('rating','!=',null)->count();
+              $subscription->rating = $subscription->meals->unique()->sum('rating')/$mealsCount;
+              $subscription->rates_count =  $subscription->meals->unique()->sum('rates_count');
+              $mealsName = $subscription->meals->transform(function($meal){
                   $meal->price =  $meal->price + $this->getMealProfit(); // price without delivering
                   return $meal->name;
               });
-              $subscription->rating = $rating/$mealsCount;
-              $subscription->rates_count = $rateCount;
               $subscription->meals = $mealsName;
-
               // return the subscription if it didn't start yet and it has the same days number filtered on
               if(Carbon::now()->isBefore(Carbon::create($subscription->starts_at))
                   && (($request->days!=null)?$subscription->days_number==$request->days:true)

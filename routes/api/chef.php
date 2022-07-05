@@ -31,6 +31,7 @@ Route::prefix('chef')->group(function () {
             Route::get('/active-count', [MealController::class, 'getActiveMealsCount']);
             Route::get('/meal/{price}', [MealController::class, 'getPriceForStudent']);
             Route::get('/categories/{id}', [MealController::class, 'getMealOfCategory']);
+            Route::get('/', [MealController::class, 'indexForChef']);
             Route::post('/', [MealController::class, 'store']);
             Route::put('/{meal}', [MealController::class, 'update']);
             Route::put('/{meal}/add-portion', [MealController::class, 'addMealNumber']);

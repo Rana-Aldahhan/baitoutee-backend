@@ -57,10 +57,10 @@ class Meal extends Model
     {
         return $query->where('approved', true);
     }
+
     /**
      * search
      */
-
     public function toSearchableArray()
     {
         $array = [
