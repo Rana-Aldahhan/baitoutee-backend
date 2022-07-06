@@ -8,6 +8,7 @@ use App\Models\Report;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class DeliverymanController extends Controller
 {
@@ -25,6 +26,7 @@ class DeliverymanController extends Controller
         $deliveryman->update([
             'current_longitude'=>$request->current_longitude,
             'current_latitude'=>$request->current_latitude,
+            'updated_at'=>now()
         ]);
         return $this->successResponse([],200);
     }
@@ -38,7 +40,7 @@ class DeliverymanController extends Controller
         ->first();
         if($delivery!=null){
             $delivery->chef_name=$delivery->orders->first()->chef->name;
-            $delivery->chef_location=$delivery->orders->first()->chef->location->only(['id','latitude','longitute','name']);
+            $delivery->chef_location=$delivery->orders->first()->chef->location->only(['id','latitude','longitude','name']);
             $delivery->destination=$delivery->orders->first()->user->location->name;
             $delivery->selected_delivery_time=$delivery->orders->first()->selected_delivery_time;
             $delivery->total_meal_count=0;
@@ -81,7 +83,7 @@ class DeliverymanController extends Controller
         $order->meals->map(function($meal)use($order){
             $order->meals_count+=$meal->pivot->quantity;
         });
-        $order= $order->only(['id','user_name','user_phone_number',
+        $order= $order->only(['id','status','user_name','user_phone_number',
         'meals_count','total_cost','meals','profit']);
         $order['meals']= $order['meals']->map(function($meal)use ($order){
             $meal->price+=$order['profit']/ $order['meals_count'];
@@ -113,6 +115,11 @@ class DeliverymanController extends Controller
             $order->delivery->delivered_at=now();
             $order->save();
             $order->delivery->save();
+           //add  order delivery cost to deliveryman balance
+            $deliveryProfitPercentage= DB::table('global_variables')->where('name','delivery_profit_percentage')->first()->value;
+            $deliveryman=auth('deliveryman')->user();
+            $deliveryman->balance+=($order->delivery->cost*$deliveryProfitPercentage)/100;
+            $deliveryman->save();
         }
         return $this->successResponse(['message'=>'status of order changed successfully']);
     }

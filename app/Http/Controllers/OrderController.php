@@ -240,14 +240,17 @@ class OrderController extends Controller
      * @param Request $request
      * @param  Order $order
      */
-    public function changeStatus(Order $order)
+    public function changeStatusToPrepared(Order $order)
     {
         $updatedOrder = $order->update([
             'status' => "prepared",
             'prepared_at'=> now()
         ]);
         broadcast(new OrderIsPrepared($order))->toOthers();
-       // OrderIsPrepared::dispatch($order);
+        //add  order meals cost to chef balance
+        $chef=auth('chef')->user();
+        $chef->balance+=$order->meals_cost;
+        $chef->save();
         return $this->successResponse($updatedOrder);
     }
 

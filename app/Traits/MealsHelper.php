@@ -12,7 +12,7 @@ trait MealsHelper{
 
     protected function getMealProfit(){
         return DB::table('global_variables')->where('name','meal_profit')->first()->value;
-     }
+    }
 
     protected function getMealDeliveryFee($chefID){
          //get the user location
