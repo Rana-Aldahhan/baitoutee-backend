@@ -29,7 +29,7 @@ class ChefController extends Controller
         $categorieIds=$chef->meals->pluck(['category_id'])->unique();
         $categories=Category::find($categorieIds);
         return $this->successResponse($categories);
-        
+
     }
     public function getChefMealsOfCategory(Chef $chef, $categoryId){
         $meals=$chef->meals->where('category_id',$categoryId)->values();
@@ -41,7 +41,7 @@ class ChefController extends Controller
         });
         return $this->successResponse($meals);
     }
-    
+
     /**
      * hide not needed information in the browse page
      * @param $chef
@@ -178,6 +178,19 @@ class ChefController extends Controller
             $this->hideFromItem($chef);
         });
         return $this->paginatedResponse($paginated_chefs);
+    }
+
+    // get the chef profile
+    public function getProfile()
+    {
+        //return the picture + the name + the phone number + the location + the status(active or not)
+        $chefInfo = Chef::with('location')->where('chefs.id',auth('chef')->id())->first();
+        $chefInfo->location_name = $chefInfo->location->name;
+        $chefInfo->setHidden(['id','chef_join_request_id','created_at','updated_at','birth_date'
+                    ,'gender','location_id','delivery_starts_at','delivery_ends_at'
+                    ,'max_meals_per_day','balance','approved_at','deleted_at'
+                    ,'certificate','location']);
+        return $this->successResponse($chefInfo);
     }
 }
 

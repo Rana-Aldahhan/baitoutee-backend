@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\ChefAuthController;
 use App\Http\Controllers\Auth\CommonAuthController;
+use App\Http\Controllers\ChefController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SubscriptionController;
@@ -51,6 +52,9 @@ Route::prefix('chef')->group(function () {
             Route::put('/{subscription}', [SubscriptionController::class, 'update']);
             Route::delete('/{subscription}', [SubscriptionController::class, 'destroy']);
             Route::put('/{subscription}/edit-availability', [SubscriptionController::class, 'editAvailability']);
+        });
+        Route::group(['prefix' => 'profile'], function () {
+            Route::get('/', [ChefController::class, 'getProfile']);
         });
 
     });
