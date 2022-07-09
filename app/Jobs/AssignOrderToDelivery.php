@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\DeliveryIsAssigned;
 use App\Models\Delivery;
 use App\Models\Deliveryman;
 use App\Models\Location;
@@ -12,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Services\FCMService;
 
 class AssignOrderToDelivery implements ShouldQueue
 {
@@ -55,7 +57,7 @@ class AssignOrderToDelivery implements ShouldQueue
             });
             //make new Delivery and assign it to first deliveryman
             $user = $this->order->user;
-            $deliveryCost = $this->getDeliveryFeeFromUserTochef($chef, $user);
+            $deliveryCost = $this->order->total_cost-($this->order->meals_cost+$this->order->profit);
             $assignedDeliveryman = $availableDeliverymen->first();
             $delivery = Delivery::create([
                 'deliveryman_id' => $assignedDeliveryman->id,
@@ -65,6 +67,14 @@ class AssignOrderToDelivery implements ShouldQueue
             $this->order->save();
             $assignedDeliveryman->is_available = false;
             $assignedDeliveryman->save();
+            //send notification to assigned deliveryman
+            FCMService::sendPushNotification(
+                $assignedDeliveryman->fcm_token,
+                'طلب توصيل جديد ',
+                $delivery->id.' لقد تم إسناد طلب توصيل جديد إليك، توصيل  رقم'
+            );
+            //broadcast event to deliveryman so he knows a new delivery has been assigned to him
+            broadcast(new DeliveryIsAssigned($assignedDeliveryman));
         } else {
             $this->order->status = 'failedِAssigning';
             $this->order->save();

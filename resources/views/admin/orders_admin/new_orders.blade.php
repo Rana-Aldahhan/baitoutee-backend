@@ -93,7 +93,7 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
                             <td>{{ $order->user_id }} </td>
                             <td>{{ $order->chef_id }} </td>
                             <td>{{ $order->chef->name }} </td>
-                            <td>{{ $order->selected_delivery_time }} </td>
+                            <td>{{ $order->created_at }} </td>
                             <td>{{ $order->total_cost }} </td>
                             <td>{{ $order->profit }} </td>
                             <td>

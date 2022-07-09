@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use App\Services\FCMService;
 
 class DeliverymanController extends Controller
 {
@@ -109,6 +110,13 @@ class DeliverymanController extends Controller
             $order->delivery->picked_at=now();
             $order->save();
             $order->delivery->save();
+            //send notification of order status change to user 
+            $user=$order->user;
+            FCMService::sendPushNotification(
+                $user->fcm_token,
+                'طلبك جاري توصيله',
+                $order->id.'يتم الآن توصيل طلبك ذو الرقم '
+            );
         }
         else{
             $order->status=$request->new_status;
@@ -119,6 +127,8 @@ class DeliverymanController extends Controller
             $deliveryProfitPercentage= DB::table('global_variables')->where('name','delivery_profit_percentage')->first()->value;
             $deliveryman=auth('deliveryman')->user();
             $deliveryman->balance+=($order->delivery->cost*$deliveryProfitPercentage)/100;
+            //set the deliveryman status to available again
+            $deliveryman->is_available=true;
             $deliveryman->save();
         }
         return $this->successResponse(['message'=>'status of order changed successfully']);
@@ -145,5 +155,13 @@ class DeliverymanController extends Controller
         $report->reason=$request->reason;
         $report->save();
         return $this->successResponse(['message'=>'report sent successfully'],201);
+    }
+    public function changeAvailabilityStatus()
+    {
+        $deliveryman=auth('deliveryman')->user();
+        $deliveryman->is_available=!$deliveryman->is_available;
+        $deliveryman->save();
+
+        return $this->successResponse([]);
     }
 }

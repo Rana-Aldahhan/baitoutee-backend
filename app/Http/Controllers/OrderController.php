@@ -13,6 +13,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use App\Services\FCMService;
 
 class OrderController extends Controller
 {
@@ -246,7 +247,15 @@ class OrderController extends Controller
             'status' => "prepared",
             'prepared_at'=> now()
         ]);
+        //braodcast event to deliverymen
         broadcast(new OrderIsPrepared($order))->toOthers();
+        //send notification of order status change to user 
+        $user=$order->user;
+        FCMService::sendPushNotification(
+            $user->fcm_token,
+            'تم تحضير طلبك',
+            $order->id.' لقد تم إتمام تحضير طلبك رقم'
+        );
         //add  order meals cost to chef balance
         $chef=auth('chef')->user();
         $chef->balance+=$order->meals_cost;

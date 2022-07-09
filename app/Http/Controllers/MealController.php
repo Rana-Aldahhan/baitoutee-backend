@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Services\FCMService;
 
 class MealController extends Controller
 {
@@ -324,7 +325,15 @@ class MealController extends Controller
                 }
             }
         }
-
+        //if discount added send notification to all users
+        if($request->discount_percentage> $oldMeal->discount_percentage)
+        {
+            FCMService::sendPushNotification(
+                '/topics/user',
+                'خصم جديد',
+                "$request->discount_percentage بنسبة  $request->name تم إضافة خصم جديد على وجبة "
+            );
+        }
         $updatedMeal = $meal->fill($validateResponse->validated())->save(); // check if it is working or do update
 
         if ($imagePath != null) {

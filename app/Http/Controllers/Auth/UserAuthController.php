@@ -81,6 +81,10 @@ class UserAuthController extends Controller
                         }
                         else//case the account is active:log in
                         {
+                            //save fcm token
+                            $user->fcm_token=$request->fcm_token;
+                            $user->save();
+                            //create access token and send it with user model
                             $loggedUser=$this->login($user);
                             return $this->successResponseWithCustomizedStatus(UserAccessStatus::active->value,$loggedUser);
                         }
@@ -138,7 +142,9 @@ class UserAuthController extends Controller
         return $user;
     }
     public function logout(){
-        auth('user')->user()->tokens()->delete();
+        $user=auth('user')->user()->tokens()->delete();
+        $user->fcm_token=null;
+        $user->save();
         return $this->successResponse([],200);
     }
 }

@@ -32,7 +32,7 @@ class UserController extends Controller
         return $this->successResponse($orders);
     }
     public function cancelOrder(Order $order){
-        if(($order->status!='pending')&&($order->selected_delivery_time <Carbon::tomorrow()))
+        if((($order->status!='pending')&&($order->selected_delivery_time <Carbon::tomorrow()) )|| $order->status=='canceled')
         {
             return $this->errorResponse('لا يمكن إلغاء هذا الطلب',400);
         }
@@ -158,7 +158,7 @@ class UserController extends Controller
         })
         ->values()
         ->map(function($order){
-            $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow());
+            $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow() && $order->status!='canceled');
             $order->meal_name=$order->meals->first()->name;
             $order->meal_image=$order->meals->first()->image;
             return $order->only(['id','selected_delivery_time','meal_name','meal_image','can_be_canceled']);
