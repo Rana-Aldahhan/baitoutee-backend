@@ -63,6 +63,6 @@ Route::prefix('chef')->group(function () {
             Route::put('/edit-max-meal', [ChefController::class, 'editMaxMealsPerDay']);
             Route::get('/notes', [OrderController::class, 'getNotes']);
         });
-
+        Route::put('/change-availability-status',[ChefController::class,'changeAvailabilityStatus']);
     });
 });

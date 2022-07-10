@@ -261,6 +261,14 @@ class ChefController extends Controller
         $is_updated = $chef->fill($validator->validated())->save();
         return $this->successResponse($is_updated);
     }
+    public function changeAvailabilityStatus()
+    {
+        $chef=auth('chef')->user();
+        $chef->is_available=!$chef->is_available;
+        $chef->save();
+
+        return $this->successResponse([]);
+    }
 
 }
 
