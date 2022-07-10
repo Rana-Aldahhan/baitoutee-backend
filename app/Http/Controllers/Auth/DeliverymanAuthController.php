@@ -75,6 +75,10 @@ class DeliverymanAuthController extends Controller
                     }
                     else//case not blocked
                     {
+                         //save fcm token
+                         $deliveryman->fcm_token=$request->fcm_token;
+                         $deliveryman->save();
+                         //create access token and send it with deliveryman model
                         $loggedDeliveryman=$this->login($deliveryman);
                         return $this->successResponseWithCustomizedStatus(DeliverymanAccessStatus::approved->value,$loggedDeliveryman);
                     }
@@ -118,9 +122,11 @@ class DeliverymanAuthController extends Controller
         return $deliveryman;
     }
     public function logout(){
-        auth('deliveryman')->user()->is_available=false;
-        auth('deliveryman')->user()->save();
-        auth('deliveryman')->user()->tokens()->delete();
+        $deliveryman=auth('deliveryman')->user();
+        $deliveryman->is_available=false;
+        $deliveryman->fcm_token=null;
+        $deliveryman->save();
+       $deliveryman->tokens()->delete();
         return $this->successResponse([],200);
     }
 }

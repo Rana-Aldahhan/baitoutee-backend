@@ -78,6 +78,10 @@ class ChefAuthController extends Controller
                     }
                     else//case not blocked
                     {
+                         //save fcm token
+                         $chef->fcm_token=$request->fcm_token;
+                         $chef->save();
+                         //create access token and send it with chef model
                         $loggedChef=$this->login($chef);
                         return $this->successResponseWithCustomizedStatus(ChefAccessStatus::approved->value,$loggedChef);
                     }
@@ -132,10 +136,11 @@ class ChefAuthController extends Controller
             $fileNameToStore= $filename.'_'.time().'.'.$extension;
             // Upload Image
             $profilePath = $request->file('profile_picture')->storeAs('public/profiles', $fileNameToStore);
-            //$profilePath=asset('storage/profiles/'.$fileNameToStore);
+            //profile path to store in DB
+            $profilePath = '/storage/profiles/' . $fileNameToStore;
         }
         //store certificate if given
-         $certificatePath=null;
+         $certificatePath='';
          if($request->hasFile('certificate')){
              // Get filename with the extension
              $filenameWithExt = $request->file('certificate')->getClientOriginalName();
@@ -147,9 +152,9 @@ class ChefAuthController extends Controller
              $fileNameToStore= $filename.'_'.time().'.'.$extension;
              // Upload Image
              $certificatePath = $request->file('certificate')->storeAs('public/certificates', $fileNameToStore);
-             //$certificatePath=asset('storage/certificatess/'.$fileNameToStore);
+             //certificate path to store in DB
+            $certificatePath = '/storage/certificates/' . $fileNameToStore;
          }
-         is_null($profilePath)?$profilePath='storage/profiles/default_profile_pic.jpg':$profilePath=$profilePath;
         //make new chef join request
         $joinRequest=ChefJoinRequest::create([
             'phone_number' => $request['phone_number'],
@@ -173,9 +178,11 @@ class ChefAuthController extends Controller
         return $chef;
     }
     public function logout(){
-        auth('chef')->user()->is_available=false;
-        auth('chef')->user()->save();
-        auth('chef')->user()->tokens()->delete();
+        $chef=auth('chef')->user();
+        $chef->is_available=false;
+        $chef->fcm_token=null;
+        $chef->save();
+        $chef->tokens()->delete();
         return $this->successResponse([],200);
     }
 

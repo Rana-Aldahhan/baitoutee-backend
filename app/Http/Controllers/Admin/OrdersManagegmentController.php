@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Services\FCMService;
 
 
 class OrdersManagegmentController extends Controller
@@ -24,7 +25,20 @@ class OrdersManagegmentController extends Controller
         $order->status='approved';
         $order->accepted_at=now();
         $order->save();
-        //TODO send notification to chef & student
+        //send notification to user
+        $user=$order->user;
+        FCMService::sendPushNotification(
+            $user->fcm_token,
+            'تم قبول طلبك',
+             $order->id.'لقد تم قبول طلبك رقم'
+        );
+        //send notification to chef
+        $chef=$order->chef;
+        FCMService::sendPushNotification(
+            $chef->fcm_token,
+            'طلب جديد',
+            '! وصلك طلب جديد قم بتفقّده '
+        );
         return response()->json([]);
         
     }
@@ -35,7 +49,13 @@ class OrdersManagegmentController extends Controller
         $order=Order::find($id);
         $order->status='notApproved';
         $order->save();
-        //TODO send notification to student
+        //send notification to user
+        $user=$order->user;
+        FCMService::sendPushNotification(
+            $user->fcm_token,
+            'تم رفض طلبك',
+            $order->id.'عذراً لقد تم رفض طلبك رقم'
+        );
         return response()->json([]);
         
     }

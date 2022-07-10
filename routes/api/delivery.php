@@ -34,6 +34,7 @@ Route::prefix('delivery')->group(function () {
             Route::post('/current-delivery/orders/{order}/report',[DeliverymanController::class,'reportOrder']);
             // Route::get('/current-delivery/chef-location',[DeliverymanController::class,'getChefLocation']);
             Route::put('/update-current-location',[DeliverymanController::class,'updateCurrentLocation']);
+            Route::put('/change-availability-status',[DeliverymanController::class,'changeAvailabilityStatus']);
             Route::delete('/logout',[DeliverymanAuthController::class,'logout']);
             Route::get('/balance', [DeliverymanController::class, 'getBalance']);
         });
