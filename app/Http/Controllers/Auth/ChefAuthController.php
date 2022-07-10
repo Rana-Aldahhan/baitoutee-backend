@@ -38,16 +38,16 @@ class ChefAuthController extends Controller
         $approved=false;
         $is_blocked=false;
         //verification code validation
-         /** 
-         * TODO :send a request to the OTP provider API endpoint to check if the verification code 
+         /**
+         * TODO :send a request to the OTP provider API endpoint to check if the verification code
          * provided by the user is valid
          * @returns boolean
-         */ 
+         */
         if($verificationCode!='0000')//if the respone returned invalid code
         {
             return $this->errorResponseWithCustomizedStatus(ChefAccessStatus::notVerified->value,'الرمز الذي أدخلته غير صالح',401);
         }
-        else // the response retuned it is a valid code:check if the user has registedred before 
+        else // the response retuned it is a valid code:check if the user has registedred before
         {
             //store in the database that this phone number has been verified
              DB::table('phone_number_verifications')
@@ -82,7 +82,7 @@ class ChefAuthController extends Controller
                         return $this->successResponseWithCustomizedStatus(ChefAccessStatus::approved->value,$loggedChef);
                     }
             }
-         } 
+         }
         }
     }
     public function makeRegisterRequest(Request $request) {
@@ -119,6 +119,7 @@ class ChefAuthController extends Controller
         $newLocation->distance_to_third_location=$this->calculateDistanceBetween($newLocation,$thirdLocation);
         $newLocation->save();
          //store profile if given
+        // $profilePath = $this->storePicture($request,'profiles');
         $profilePath=null;
         if($request->hasFile('profile_picture')){
             // Get filename with the extension
@@ -177,5 +178,5 @@ class ChefAuthController extends Controller
         auth('chef')->user()->tokens()->delete();
         return $this->successResponse([],200);
     }
- 
+
 }

@@ -17,13 +17,13 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::prefix('delivery')->group(function () { 
+Route::prefix('delivery')->group(function () {
         //unauthenticated (guest) routes
         Route::post('/send-code',[CommonAuthController::class,'sendPhoneNumberVerificationCode']);
         Route::post('/check-code-and-accessibility',[DeliverymanAuthController::class,'checkDeliverymanCodeAndRegisterStatus']);
         Route::post('/request-register',[DeliverymanAuthController::class,'makeRegisterRequest'])->middleware('verified.phone');
         // authenticated routes
-        Route::middleware(['auth:deliveryman','notRestricted'])->group(function(){  
+        Route::middleware(['auth:deliveryman','notRestricted'])->group(function(){
             Route::get('/test',function(){
                 broadcast(new TestEvent());
                 return response()->json(['message'=>'event is broadcasted']);
@@ -35,5 +35,6 @@ Route::prefix('delivery')->group(function () {
             // Route::get('/current-delivery/chef-location',[DeliverymanController::class,'getChefLocation']);
             Route::put('/update-current-location',[DeliverymanController::class,'updateCurrentLocation']);
             Route::delete('/logout',[DeliverymanAuthController::class,'logout']);
+            Route::get('/balance', [DeliverymanController::class, 'getBalance']);
         });
 });

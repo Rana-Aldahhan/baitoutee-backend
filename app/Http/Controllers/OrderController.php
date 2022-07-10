@@ -13,6 +13,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\Eloquent\Collection;
 
 class OrderController extends Controller
 {
@@ -236,12 +237,14 @@ class OrderController extends Controller
 
     }
     /**
-     * put the order done or
+     * put the order done
      * @param Request $request
      * @param  Order $order
      */
     public function changeStatusToPrepared(Order $order)
     {
+        if($order->status !='approved')
+            return $this->errorResponse("لم يتم قبول هذه الوجبة من قبل الأدمن بعد",400);
         $updatedOrder = $order->update([
             'status' => "prepared",
             'prepared_at'=> now()
@@ -252,6 +255,58 @@ class OrderController extends Controller
         $chef->balance+=$order->meals_cost;
         $chef->save();
         return $this->successResponse($updatedOrder);
+    }
+
+        // get the history order
+        public function getOrderHistory(Request $request)
+        {
+            // the history is the prepared orders (the order can't be changed to prepared if the admin did not accept the order)
+            $orders = auth('chef')->user()->orders()
+            ->where('status','prepared')->get();
+            $orders->map(function($order){
+                $order->setHidden(['user_id','chef_id','delivery_id','subscription_id',
+                'total_cost','profit','accepted_at','selected_delivery_time','notes','paid_to_accountant',
+                'created_at','updated_at']);
+                if($order->subscription_id==null)
+                    $order->type = "اشتراك";
+                else $order->type ="وجبة فردية";
+            });
+            $sortedOrders = $orders->sortBy(function ($order){
+                return $order->id;
+            },SORT_REGULAR,true)->values()->all();
+            return $this->successResponse($sortedOrders);
+        }
+
+
+    public function getNotes ()
+    {
+        $chef = auth('chef')->user();
+        $meals = $chef->orders->map(function($order){
+            if($order->status =='delivered'){
+                // map on meals to see if the meal note is null or note
+                // if the meal note is null then do not return the meal
+                 $mealsWithRatingNotes = $order->meals->filter(function ($meal) use ($order){
+                    // add desired keys
+                    $meal->meal_id = $meal->pivot->meal_id;
+                    $meal->prepared_at = $order->prepared_at;
+                    $meal->order_id = $order->id;
+                    $meal->meal_rate = $meal->pivot->meal_rate;
+                    $meal->meal_rate_notes = $meal->pivot->meal_rate_notes;
+                    // remove undesired keys
+                    $meal->setHidden(['category_id','image','price','max_meals_per_day','is_available'
+                    ,'expected_preparation_time','discount_percentage','ingredients','rating','rates_count'
+                    ,'approved','chef','category','created_at','updated_at','chef_id','id','pivot']);
+                    if($meal->pivot->meal_rate_notes != null){
+                        return $meal;
+                    }
+                 });
+                 return $mealsWithRatingNotes;
+            }
+        })->flatten()->filter();
+        $sortedMeals = $meals->sortBy(function($col) {
+            return $col->prepared_at;
+        },SORT_REGULAR,true)->values()->all();
+        return $this->successResponse($sortedMeals);
     }
 
 }

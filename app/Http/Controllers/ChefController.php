@@ -4,13 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Chef;
 use App\Models\Category;
+use App\Rules\BeforeMidnight;
+use App\Rules\TimeAfter;
 use App\Traits\MealsHelper;
+use App\Traits\PictureHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Str;
 
 // a controller to control the chef model
 class ChefController extends Controller
 {
-    use MealsHelper;
+    use MealsHelper,PictureHelper;
     public function show(Chef $chef){
         $chef->location_name=$chef->location->name;
         $chef->ratings=$this->getRate($chef)[0];
@@ -184,13 +190,77 @@ class ChefController extends Controller
     public function getProfile()
     {
         //return the picture + the name + the phone number + the location + the status(active or not)
+        // with the balance the chef will get if he want to get paid for last
         $chefInfo = Chef::with('location')->where('chefs.id',auth('chef')->id())->first();
         $chefInfo->location_name = $chefInfo->location->name;
         $chefInfo->setHidden(['id','chef_join_request_id','created_at','updated_at','birth_date'
-                    ,'gender','location_id','delivery_starts_at','delivery_ends_at'
-                    ,'max_meals_per_day','balance','approved_at','deleted_at'
+                    ,'gender','location_id','balance','approved_at','deleted_at'
                     ,'certificate','location']);
         return $this->successResponse($chefInfo);
     }
+
+    //get the details of balance, can select between two dates
+    public function getBalance(Request $request)
+    {
+        //in params
+        $startDate =$request->start_date; $endDate =$request->end_date;
+        // get the meals cost with the date of prepared order and if it paid or not
+        $orders = auth('chef')->user()->orders()->whereNotNull('prepared_at')
+        ->where(function ($query) use ($startDate,$endDate){
+            if($startDate!=null)
+                $query->whereDate('prepared_at', '>=', $startDate);
+            if($endDate!=null)
+                $query->whereDate('prepared_at', '<=', $endDate);
+        })->get(['id','prepared_at','meals_cost','paid_to_chef']);
+        return $this->successResponse($orders);
+    }
+
+    public function editProfile (Request $request){
+        // change the profile picture
+        $validator = Validator::make($request->only('profile_picture'),
+        ['profile_picture'=>'nullable|image']);
+        if ($validator->fails()) { //case of input validation failure
+           return $this->errorResponse($validator->errors()->first(), 422);
+        }
+
+        $imagePath =$this->storePicture($request,'profile_picture','profiles');
+        $chef = auth('chef')->user();
+        if ($imagePath != null) {
+            if($chef->profile_picture !="")
+                unlink(storage_path('app/public' . Str::after($chef->profile_picture, '/storage')));
+            $chef->profile_picture = $imagePath;
+            $chef->save();
+        }
+
+        return $this->successResponse([]);
+    }
+
+    // edit delivery_starts_at and/or delivery_ends_at
+    public function editDeliverMealTime(Request $request)
+    {
+        $validator = Validator::make($request->only('delivery_starts_at','delivery_ends_at'),
+        ['delivery_starts_at' =>['nullable','date_format:H:i:s'],
+        'delivery_ends_at' =>['nullable','date_format:H:i:s',new TimeAfter($request['delivery_starts_at']), new BeforeMidnight]]);
+        if ($validator->fails()) { //case of input validation failure
+                return $this->errorResponse($validator->errors()->first(), 422);
+        }
+        $chef= auth('chef')->user();
+        $is_updated = $chef->fill($validator->validated())->save();
+        return $this->successResponse($is_updated);
+    }
+
+    // edit max meals per day
+    public function editMaxMealsPerDay(Request $request)
+    {
+        $validator = Validator::make($request->only('max_meals_per_day'),
+        ['max_meals_per_day'=>'required|numeric']);
+        if ($validator->fails()) { //case of input validation failure
+                return $this->errorResponse($validator->errors()->first(), 422);
+        }
+        $chef= auth('chef')->user();
+        $is_updated = $chef->fill($validator->validated())->save();
+        return $this->successResponse($is_updated);
+    }
+
 }
 

@@ -140,10 +140,16 @@ class DeliverymanController extends Controller
            {
              $report->receivable()->associate($order->user);
            }
-        else if ($request->reported_on=='chef') 
+        else if ($request->reported_on=='chef')
             $report->receivable()->associate($order->chef);
         $report->reason=$request->reason;
         $report->save();
         return $this->successResponse(['message'=>'report sent successfully'],201);
+    }
+
+    public function getBalance ()
+    {
+        $deliveryman=auth('deliveryman')->user();
+        return $this->successResponse($deliveryman->balance);
     }
 }

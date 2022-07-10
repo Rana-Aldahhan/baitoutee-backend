@@ -9,6 +9,7 @@ use App\Models\PriceChangeRequest;
 use App\Models\User;
 use App\Rules\MaximumMealNumber;
 use App\Traits\MealsHelper;
+use App\Traits\PictureHelper;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +21,7 @@ use Illuminate\Support\Str;
 
 class MealController extends Controller
 {
-    use MealsHelper;
+    use MealsHelper,PictureHelper;
 
     /**
      * helper methode to get the rules to validate meal
@@ -168,7 +169,8 @@ class MealController extends Controller
             return $validateResponse;
         }
 
-        $imagePath = $this->storeMealPic($request);
+        //$imagePath = $this->storeMealPic($request);
+        $imagePath = $this->storePicture($request,'image','mealsImages');
         //TODO : enhance create by using validateResponse
         $newMeal = Meal::create([
             'chef_id' => auth('chef')->id(),
@@ -180,6 +182,7 @@ class MealController extends Controller
             'price' => $request['price'],
             'discount_percentage' => $request['discount_percentage'], // check if this make a problem if it was null
             'category_id' => $request['category_id'],
+            'rates_count' =>0
         ]);
 
         if ($newMeal->exists) {
@@ -273,7 +276,7 @@ class MealController extends Controller
  * @param Request $request
  * @return false|string|null
  */
-    public function storeMealPic(Request $request)
+   /* public function storeMealPic(Request $request)
     {
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -291,7 +294,7 @@ class MealController extends Controller
             $imagePath = '/storage/mealsImages/' . $fileNameToStore;
         }
         return $imagePath;
-    }
+    }*/
 /**
  * Update the specified resource in storage.
  *
@@ -303,7 +306,8 @@ class MealController extends Controller
     {
         // if the image had been updated then store the file
         // dd($request->all());
-        $imagePath = $this->storeMealPic($request);
+       // $imagePath = $this->storeMealPic($request);
+       $imagePath = $this->storePicture($request,'image','mealsImages');
 
         $rules = $this->getUpdateRules($request);
         $oldMeal = Meal::find($meal->id);
@@ -347,10 +351,7 @@ class MealController extends Controller
     public function destroy(Meal $meal)
     {
         $oldMeal = Meal::find($meal->id);
-        $oldImage = storage_path('app/' . $oldMeal->image);
-        if (File::exists($oldImage)) {
-            File::delete($oldImage);
-        }
+        unlink(storage_path('app/public' . Str::after($oldMeal->image, '/storage')));
         $success = $meal->delete();
         if ($success) {
             //$message = str("تم حذف الوجبة ".$meal->name)->after;
@@ -520,6 +521,7 @@ class MealController extends Controller
 
         return $this->successResponse($topRatedMeals, 200);
     }
+    //FIXME: may give the meals that are nor approved
     public function getMealTopTenOffers()
     {
         $offers = Meal::approved()
@@ -537,6 +539,7 @@ class MealController extends Controller
         });
         return $this->successResponse($offers, 200);
     }
+    //FIXME: may give the meals that are not approved
     public function getAllOffers()
     {
         $offersPagination = Meal::approved()
@@ -620,6 +623,7 @@ class MealController extends Controller
                 $mealWithDiscount = $mealPrice -(($mealPrice*$meal->discount_percentage)/100);
                 $meal->price_with_discount = $mealWithDiscount +$this->getMealProfit();
             }
+            else $meal->price_with_discount = null;
             $meal->price_without_discount = $mealPrice + $this->getMealProfit();
             $restNameLength = strlen($meal->name) - strlen($search);
             $restIngredientsLength = strlen($meal->ingredients) - strlen($search);

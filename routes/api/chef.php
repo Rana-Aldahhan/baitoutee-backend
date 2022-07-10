@@ -6,6 +6,7 @@ use App\Http\Controllers\ChefController;
 use App\Http\Controllers\MealController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SubscriptionController;
+use App\Models\Chef;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,6 +56,12 @@ Route::prefix('chef')->group(function () {
         });
         Route::group(['prefix' => 'profile'], function () {
             Route::get('/', [ChefController::class, 'getProfile']);
+            Route::get('/balance', [ChefController::class, 'getBalance']);
+            Route::get('/order-history', [OrderController::class, 'getOrderHistory']);
+            Route::put('/edit-profile-pic', [ChefController::class, 'editProfile']);
+            Route::put('/edit-deliver-meal-time', [ChefController::class, 'editDeliverMealTime']);
+            Route::put('/edit-max-meal', [ChefController::class, 'editMaxMealsPerDay']);
+            Route::get('/notes', [OrderController::class, 'getNotes']);
         });
 
     });
