@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\OrderIsPrepared;
 use App\Models\Chef;
+use App\Models\Location;
 use App\Models\Meal;
 use App\Models\Order;
 use App\Rules\InChefDeliveryRange;
@@ -266,8 +267,8 @@ class OrderController extends Controller
         return $this->successResponse($updatedOrder);
     }
 
-        // get the history order
-        public function getOrderHistory(Request $request)
+        // get the history order for chef
+        public function getChefOrderHistory(Request $request)
         {
             // the history is the prepared orders (the order can't be changed to prepared if the admin did not accept the order)
             $orders = auth('chef')->user()->orders()
@@ -282,10 +283,46 @@ class OrderController extends Controller
             });
             $sortedOrders = $orders->sortBy(function ($order){
                 return $order->id;
-            },SORT_REGULAR,true)->values()->all();
-            return $this->successResponse($sortedOrders);
+            },SORT_REGULAR,true)->values()->paginate(10);
+            return $this->paginatedResponse($sortedOrders);
         }
+        // get the history order for deliverymen
+        public function getDeliveriedOrderHistory(Request $request)
+        {
+            // the history is the delivered orders
+            //dd(auth('deliveryman')->id());
+            $orders = auth('deliveryman')->user()->deliveryOrders()->with('chef')
+            ->with('user')->with('delivery')->get();
 
+            $orderHistory = $orders->filter(function($order){
+                // map on the orders to get the location of the chef
+                //and the location of the user of each order
+                $chefLocation = Location::find($order->chef->location_id);
+                $userLocation = Location::find($order->user->location_id);
+                 // get the meals quantities of each order
+                $mealsQuantity = $order->meals()->get()->sum(function($meal){
+                   return $meal->pivot->quantity;
+                });
+                //show desired information in each order
+                $order->chef_location = $chefLocation->name;
+                $order->distenation = $userLocation->name;
+                $order->meals_quantity = $mealsQuantity;
+                $order->delivered_at = $order->delivery->delivered_at->format('Y-m-d H:i:s');
+                $order->delivery_cost = $order->delivery->cost;
+                $order->chef_name = $order->chef->name;
+                // hide undesired information from each order
+                $order->setHidden(['user_id','chef_id','delivery_id','subscription_id','status',
+                'selected_delivery_time','notes','meals_cost','profit','accepted_at','prepared_at',
+                'paid_to_chef','paid_to_accountant','created_at','updated_at','laravel_through_key',
+                'chef','user','delivery']);
+                if ($order->status == 'delivered')
+                    return $order;
+            });
+            $sortedOrders = $orderHistory->sortBy(function ($order){
+                return $order->id;
+            },SORT_REGULAR,true)->values()->paginate(10);
+            return $this->paginatedResponse($sortedOrders);
+        }
 
     public function getNotes ()
     {

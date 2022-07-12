@@ -157,10 +157,66 @@ class DeliverymanController extends Controller
         return $this->successResponse(['message'=>'report sent successfully'],201);
     }
 
+    // get details of deliveryMan balance (today- this week - this month)
     public function getBalance ()
     {
         $deliveryman=auth('deliveryman')->user();
-        return $this->successResponse($deliveryman->balance);
+        $todayBalance = 0; $todayBalanceReceived =0;
+        $thisWeekBalance =0; $thisWeekBalanceReceived =0;
+        $thisMonthBalance =0;  $thisMonthBalanceReceived =0;
+        $todayOrders =0; $thisWeekOrders=0; $thisMonthOrders =0;
+
+        // map throw orders and deliveries to get the balance - what recieved - orders count for delivery man
+        $deliveryman->deliveries()->get()->map(function($delivery)
+        use (&$todayBalance,&$thisWeekBalance,&$thisMonthBalance,
+            &$todayBalanceReceived,&$thisWeekBalanceReceived,&$thisMonthBalanceReceived,
+            &$todayOrders,&$thisWeekOrders,&$thisMonthOrders){
+                $deliveryCost =$delivery->cost;
+                $deliveryRecievedCost =  $delivery->paid_to_deliveryman;
+                $deliveredOrders = $delivery->orders()->get()->count();
+
+            if($delivery->delivered_at->isSameDay()){
+                $todayBalance+= $deliveryCost;
+                $todayBalanceReceived+= $deliveryRecievedCost;
+                $todayOrders+= $deliveredOrders;
+            }
+            //Note: that the week start from monday not sunday
+            if($delivery->delivered_at->isSameWeek()){
+                $thisWeekBalance+= $deliveryCost;
+                $thisWeekBalanceReceived+= $deliveryRecievedCost;
+                $thisWeekOrders+= $deliveredOrders;
+            }
+            if($delivery->delivered_at->isCurrentMonth()){
+                $thisMonthBalance+= $deliveryCost;
+                $thisMonthBalanceReceived+= $deliveryRecievedCost;
+                $thisMonthOrders+= $deliveredOrders;
+            }
+        });
+        // today balance
+        $today = collect([
+            'balance'=> $todayBalance,
+            'recieved' =>$todayBalanceReceived,
+            'orders_count'=>$todayOrders
+        ]);
+        // this week balance
+        $thisWeek = collect([
+            'balance'=> $thisWeekBalance,
+            'recieved' =>$thisWeekBalanceReceived,
+            'orders_count'=>$thisWeekOrders
+        ]);
+        // this month balance
+        $thisMonth = collect([
+            'balance'=> $thisMonthBalance,
+            'recieved' =>$thisMonthBalanceReceived,
+            'orders_count'=>$thisMonthOrders
+        ]);
+        // return today-this week-this month balance
+        return $this->successResponse(collect(
+            ["balance"=>$deliveryman->balance,
+             "today"=>$today,
+             "this_week"=>$thisWeek,
+             "this_month"=>$thisMonth]
+        ));
     }
 
     public function changeAvailabilityStatus()

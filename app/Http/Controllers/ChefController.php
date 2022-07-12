@@ -199,20 +199,66 @@ class ChefController extends Controller
         return $this->successResponse($chefInfo);
     }
 
-    //get the details of balance, can select between two dates
+
+    //TODO: repeated between chef and delivery (need enhancement)
     public function getBalance(Request $request)
     {
-        //in params
-        $startDate =$request->start_date; $endDate =$request->end_date;
-        // get the meals cost with the date of prepared order and if it paid or not
-        $orders = auth('chef')->user()->orders()->whereNotNull('prepared_at')
-        ->where(function ($query) use ($startDate,$endDate){
-            if($startDate!=null)
-                $query->whereDate('prepared_at', '>=', $startDate);
-            if($endDate!=null)
-                $query->whereDate('prepared_at', '<=', $endDate);
-        })->get(['id','prepared_at','meals_cost','paid_to_chef']);
-        return $this->successResponse($orders);
+        $chef= auth('chef')->user();
+        $todayBalance = 0; $todayBalanceReceived =0;
+        $thisWeekBalance =0; $thisWeekBalanceReceived =0;
+        $thisMonthBalance =0;  $thisMonthBalanceReceived =0;
+        $todayOrders =0; $thisWeekOrders=0; $thisMonthOrders =0;
+
+        //map throw orders to get balance - what recieved - orders count for chef
+        $chef->orders()->get()->map(function($order)
+        use (&$todayBalance,&$thisWeekBalance,&$thisMonthBalance,
+            &$todayBalanceReceived,&$thisWeekBalanceReceived,&$thisMonthBalanceReceived,
+            &$todayOrders,&$thisWeekOrders,&$thisMonthOrders){
+                $mealsCost =$order->meals_cost;
+                $costRecivedCost=  $order->paid_to_chef;
+            if($order->prepared_at?->isSameDay()){
+                $todayBalance+= $mealsCost;
+                $todayBalanceReceived+= $costRecivedCost;
+                $todayOrders+= 1;
+            }
+            //Note: that the week start from monday not sunday
+            if($order->prepared_at?->isSameWeek()){
+                $thisWeekBalance+= $mealsCost;
+                $thisWeekBalanceReceived+= $costRecivedCost;
+                $thisWeekOrders+= 1;
+            }
+            if($order->prepared_at?->isCurrentMonth()){
+                $thisMonthBalance+= $mealsCost;
+                $thisMonthBalanceReceived+= $costRecivedCost;
+                $thisMonthOrders+= 1;
+            }
+        });
+                // today balance
+                $today = collect([
+                    'balance'=> $todayBalance,
+                    'recieved' =>$todayBalanceReceived,
+                    'orders_count'=>$todayOrders
+                ]);
+                // this week balance
+                $thisWeek = collect([
+                    'balance'=> $thisWeekBalance,
+                    'recieved' =>$thisWeekBalanceReceived,
+                    'orders_count'=>$thisWeekOrders
+                ]);
+                // this month balance
+                $thisMonth = collect([
+                    'balance'=> $thisMonthBalance,
+                    'recieved' =>$thisMonthBalanceReceived,
+                    'orders_count'=>$thisMonthOrders
+                ]);
+                // return today-this week-this month balance
+                return $this->successResponse(collect(
+                    ["balance"=>$chef->balance,
+                     "today"=>$today,
+                     "this_week"=>$thisWeek,
+                     "this_month"=>$thisMonth]
+                ));
+
     }
 
     public function editProfile (Request $request){
@@ -246,7 +292,7 @@ class ChefController extends Controller
         }
         $chef= auth('chef')->user();
         $is_updated = $chef->fill($validator->validated())->save();
-        return $this->successResponse($is_updated);
+        return $this->successResponse([]);
     }
 
     // edit max meals per day
@@ -259,7 +305,7 @@ class ChefController extends Controller
         }
         $chef= auth('chef')->user();
         $is_updated = $chef->fill($validator->validated())->save();
-        return $this->successResponse($is_updated);
+        return $this->successResponse([]);
     }
     public function changeAvailabilityStatus()
     {

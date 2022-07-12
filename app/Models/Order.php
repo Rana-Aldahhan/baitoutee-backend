@@ -15,6 +15,7 @@ class Order extends Model
      * @var array<int, string>
      */
     protected $guarded = [];
+    protected $dates = ['prepared_at'];
     /**
      * relationships
      */
