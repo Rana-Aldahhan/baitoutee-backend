@@ -23,19 +23,22 @@ Route::prefix('delivery')->group(function () {
         Route::post('/check-code-and-accessibility',[DeliverymanAuthController::class,'checkDeliverymanCodeAndRegisterStatus']);
         Route::post('/request-register',[DeliverymanAuthController::class,'makeRegisterRequest'])->middleware('verified.phone');
         // authenticated routes
-        Route::middleware(['auth:deliveryman','notRestricted'])->group(function(){
-            Route::get('/test',function(){
-                broadcast(new TestEvent());
-                return response()->json(['message'=>'event is broadcasted']);
-            });
-            Route::get('/current-delivery',[DeliverymanController::class,'getCurrentDeliveryInfoAndOrders']);
-            Route::get('/current-delivery/orders/{order}',[DeliverymanController::class,'getOrderForDelivery']);
-            Route::put('/current-delivery/orders/{order}/change-status',[DeliverymanController::class,'changeOrderStatus']);
-            Route::post('/current-delivery/orders/{order}/report',[DeliverymanController::class,'reportOrder']);
-            // Route::get('/current-delivery/chef-location',[DeliverymanController::class,'getChefLocation']);
-            Route::put('/update-current-location',[DeliverymanController::class,'updateCurrentLocation']);
-            Route::put('/change-availability-status',[DeliverymanController::class,'changeAvailabilityStatus']);
+        Route::middleware(['auth:deliveryman'])->group(function(){
             Route::delete('/logout',[DeliverymanAuthController::class,'logout']);
-            Route::get('/balance', [DeliverymanController::class, 'getBalance']);
+            //restricted routes
+            Route::middleware([ 'notRestricted'])->group(function () {
+                Route::get('/test',function(){
+                    broadcast(new TestEvent());
+                    return response()->json(['message'=>'event is broadcasted']);
+                });
+                Route::get('/current-delivery',[DeliverymanController::class,'getCurrentDeliveryInfoAndOrders']);
+                Route::get('/current-delivery/orders/{order}',[DeliverymanController::class,'getOrderForDelivery']);
+                Route::put('/current-delivery/orders/{order}/change-status',[DeliverymanController::class,'changeOrderStatus']);
+                Route::post('/current-delivery/orders/{order}/report',[DeliverymanController::class,'reportOrder']);
+                // Route::get('/current-delivery/chef-location',[DeliverymanController::class,'getChefLocation']);
+                Route::put('/update-current-location',[DeliverymanController::class,'updateCurrentLocation']);
+                Route::put('/change-availability-status',[DeliverymanController::class,'changeAvailabilityStatus']);
+                Route::get('/balance', [DeliverymanController::class, 'getBalance']);
+            });
         });
 });

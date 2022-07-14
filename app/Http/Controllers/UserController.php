@@ -166,4 +166,26 @@ class UserController extends Controller
 
         return $this->successResponse($orders);
     }
+    public function getProfile()
+    {
+        $user=auth('user')->user();
+        $userInfo['email']=$user->email;
+        $userInfo['name']=$user->name;
+        $userInfo['phone_number']=$user->phone_number;
+        $userInfo['campus_card_expiry_date']=$user->campus_card_expiry_date;
+
+        return $this->successResponse($userInfo);
+    }
+    public function getSavedList()
+    {
+        $user=auth('user')->user();
+        $savedMeals=$user->savedMeals;
+        $savedMeals=$savedMeals->map(function($meal){
+            $meal->chef_name=$meal->chef->name;
+            return $meal->only(['name','chef_name','image']);
+        });
+
+        return $this->successResponse($savedMeals);
+    }
+
 }
