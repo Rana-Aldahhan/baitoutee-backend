@@ -59,7 +59,7 @@ Route::prefix('chef')->group(function () {
             Route::group(['prefix' => 'profile'], function () {
                 Route::get('/', [ChefController::class, 'getProfile']);
                 Route::get('/balance', [ChefController::class, 'getBalance']);
-                Route::get('/order-history', [OrderController::class, 'getOrderHistory']);
+                Route::get('/order-history', [OrderController::class, 'getChefOrderHistory']);
                 Route::put('/edit-profile-pic', [ChefController::class, 'editProfile']);
                 Route::put('/edit-deliver-meal-time', [ChefController::class, 'editDeliverMealTime']);
                 Route::put('/edit-max-meal', [ChefController::class, 'editMaxMealsPerDay']);

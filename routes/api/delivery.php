@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\DeliverymanAuthController;
 use App\Http\Controllers\DeliverymanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +40,7 @@ Route::prefix('delivery')->group(function () {
                 Route::put('/update-current-location',[DeliverymanController::class,'updateCurrentLocation']);
                 Route::put('/change-availability-status',[DeliverymanController::class,'changeAvailabilityStatus']);
                 Route::get('/balance', [DeliverymanController::class, 'getBalance']);
+                Route::get('/order-history', [OrderController::class, 'getDeliveriedOrderHistory']);
             });
         });
 });
