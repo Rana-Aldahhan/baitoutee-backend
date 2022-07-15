@@ -12,6 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Deliveryman extends Authenticatable
 {
+    use \Backpack\CRUD\app\Models\Traits\CrudTrait;
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
     protected $guarded = [];
     /**

@@ -29,7 +29,7 @@ class PriceChangeRequestCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\PriceChangeRequest::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/price-change-request');
-        CRUD::setEntityNameStrings('طلب تغيير سعر', 'طلبات تغيير السعر');
+        CRUD::setEntityNameStrings(trans('adminPanel.entities.price_change_request'),trans('adminPanel.entities.price_change_requests'));
     }
 
     /**
@@ -43,29 +43,36 @@ class PriceChangeRequestCrudController extends CrudController
         \Auth::shouldUse('backpack');
         Gate::authorize('approve-reject-meal-prices');
         //CRUD::column('id');
-        CRUD::column('meal_id');
         CRUD::addColumn([
-            'name'     => 'chef_name',
-            'label'    => 'Chef name',
-            'type'     => 'closure',
-            'function' => function($entry) {
-                return $entry->meal->chef->name;
+            'name'     => 'meal_id_id',
+            'label'    =>  trans('adminPanel.entities.meal'),
+            'type'     => 'custom_html',
+            'value' => function($entry) {
+                return "<a href='/admin/meal/$entry->meal_id/show' >". $entry->meal->name." </a> ";
+            }
+        ]); 
+        CRUD::addColumn([
+            'name'     => 'chef_id',
+            'label'    =>  trans('adminPanel.entities.chef'),
+            'type'     => 'custom_html',
+            'value' => function($entry) {
+                return "<a href='/admin/chef/".$entry->meal->chef_id."/show' >". $entry->meal->chef->name." </a> ";
             }
         ]); 
         CRUD::addColumn([
             'name'     => 'old_price',
-            'label'    => 'Old price',
+            'label'    => trans('adminPanel.attributes.old_price'),
             'type'     => 'closure',
             'function' => function($entry) {
                 return $entry->meal->price;
             }
         ]); 
-        CRUD::column('new_price');
-        CRUD::column('reason');
-        CRUD::column('approved');
-        CRUD::column('created_at');
-        CRUD::column('updated_at');
+        CRUD::column('new_price')->label(trans('adminPanel.attributes.new_price'));
+        CRUD::column('reason')->label(trans('adminPanel.attributes.reason'));
+        CRUD::column('created_at')->label(trans('adminPanel.attributes.created_at'));
+        CRUD::column('approved')->label(trans('adminPanel.attributes.approved'))->type('boolean');
         $this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
+        //$this->crud->removeButtons(['create','update']);
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
@@ -84,14 +91,9 @@ class PriceChangeRequestCrudController extends CrudController
         \Auth::shouldUse('backpack');
         Gate::authorize('approve-reject-meal-prices');
         CRUD::setValidation(PriceChangeRequestRequest::class);
-
-        CRUD::field('id');
-        CRUD::field('created_at');
-        CRUD::field('updated_at');
-        CRUD::field('meal_id');
-        CRUD::field('new_price');
-        CRUD::field('reason');
-        CRUD::field('approved');
+        CRUD::field('meal_id')->label(trans('adminPanel.entities.meal'));
+        CRUD::field('new_price')->label(trans('adminPanel.attributes.new_price'));
+        CRUD::field('reason')->label(trans('adminPanel.attributes.reason'));
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -99,7 +101,16 @@ class PriceChangeRequestCrudController extends CrudController
          * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
          */
     }
-
+       /**
+     * Define what happens when the show operation is loaded.
+     * 
+     * @see https://backpackforlaravel.com/docs/crud-operation-create
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        $this->setupListOperation();
+    }
     /**
      * Define what happens when the Update operation is loaded.
      * 

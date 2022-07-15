@@ -13,6 +13,7 @@ use Laravel\Scout\Searchable;
 
 class Chef extends Authenticatable
 {
+    use \Backpack\CRUD\app\Models\Traits\CrudTrait;
     use HasApiTokens, HasFactory, Notifiable ,SoftDeletes,Searchable;
     protected $guarded = [];
     protected $hidden = ['created_at','updated_at'];

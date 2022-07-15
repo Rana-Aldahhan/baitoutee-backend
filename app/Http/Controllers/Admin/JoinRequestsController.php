@@ -20,6 +20,7 @@ class JoinRequestsController extends Controller
         
         \Auth::shouldUse('backpack');
         Gate::authorize('approve-reject-join-requests');
+        //TODO if there is already an account with same national id just update the record
         $joinRequest=UserJoinRequest::find($id);
         //case the join request is already rejected or approved
         if($joinRequest->approved===false || $joinRequest->approved===true)

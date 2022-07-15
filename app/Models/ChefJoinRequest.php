@@ -17,4 +17,8 @@ class ChefJoinRequest extends Model
     {
         return $this->hasOne(Chef::class);
     }
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
 }

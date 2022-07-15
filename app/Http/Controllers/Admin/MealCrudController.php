@@ -28,7 +28,7 @@ class MealCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Meal::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/meal');
-        CRUD::setEntityNameStrings('وجبة', 'وجبات');
+        CRUD::setEntityNameStrings( trans('adminPanel.entities.meal'), trans('adminPanel.entities.meals'));
     }
 
     /**
@@ -40,35 +40,35 @@ class MealCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('id');
-        CRUD::column('name');
-        CRUD::column('price');
+        CRUD::column('name')->label(trans('adminPanel.attributes.name'));
+        CRUD::column('price')->label(trans('adminPanel.attributes.price'));
         CRUD::addColumn([
             'name'     => 'chef_id',
-            'label'    => 'chef',
-            'type'     => 'closure',
-            'function' => function($entry) {
-                return $entry->chef->name;
+            'label'    =>  trans('adminPanel.entities.chef'),
+            'type'     => 'custom_html',
+            'value' => function($entry) {
+                return "<a href='/admin/chef/$entry->chef_id/show' >". $entry->chef->name." </a> ";
             }
         ]); 
-        CRUD::column('ingredients');
+        CRUD::column('ingredients')->label(trans('adminPanel.attributes.ingredients'));
         CRUD::addColumn([
             'name'     => 'category_id',
-            'label'    => 'category',
+            'label'    => trans('adminPanel.entities.category'),
             'type'     => 'closure',
             'function' => function($entry) {
                 return $entry->category->name;
             }
         ]); 
-        CRUD::column('expected_preparation_time');
-        CRUD::column('discount_percentage');
-        CRUD::column('image');
-        CRUD::column('max_meals_per_day');
-        CRUD::column('is_available');
-        CRUD::column('approved');
-        CRUD::column('rating');
-        CRUD::column('rates_count');
-        CRUD::column('created_at');
-        CRUD::column('updated_at');
+        CRUD::column('expected_preparation_time')->label(trans('adminPanel.attributes.expected_preparation_time'));
+        CRUD::column('discount_percentage')->label(trans('adminPanel.attributes.discount_percentage'));
+        CRUD::column('image')->prefix(url(''))->type('image')->label(trans('adminPanel.attributes.image'));
+        CRUD::column('max_meals_per_day')->label(trans('adminPanel.attributes.max_meals_per_day'));
+        CRUD::column('is_available')->label(trans('adminPanel.attributes.is_available'));
+        CRUD::column('approved')->label(trans('adminPanel.attributes.approved'));
+        CRUD::column('rating')->label(trans('adminPanel.attributes.rating'));
+        CRUD::column('rates_count')->label(trans('adminPanel.attributes.rates_count'));
+        CRUD::column('created_at')->label(trans('adminPanel.attributes.created_at'));
+        CRUD::column('updated_at')->label(trans('adminPanel.attributes.updated_at'));
         $this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
 
         /**
@@ -88,28 +88,47 @@ class MealCrudController extends CrudController
     {
         CRUD::setValidation(MealRequest::class);
 
-        CRUD::field('id');
-        CRUD::field('created_at');
-        CRUD::field('updated_at');
-        CRUD::field('chef_id');
-        CRUD::field('category_id');
-        CRUD::field('image');
-        CRUD::field('name');
-        CRUD::field('price');
-        CRUD::field('max_meals_per_day');
-        CRUD::field('is_available');
-        CRUD::field('expected_preparation_time');
-        CRUD::field('discount_percentage');
-        CRUD::field('ingredients');
-        CRUD::field('approved');
-        CRUD::field('rating');
-        CRUD::field('rates_count');
+        CRUD::addField([   // Checklist
+            'label'     => trans('adminPanel.entities.chef'),
+            'type'      => 'select',
+            'name'      => 'chef_id',
+            'entity'    => 'chef',
+            'attribute' => 'name',
+            'model'     => "App\Models\Chef",
+            'pivot'     => false,
+        ]); 
+        CRUD::addField([   // Checklist
+            'label'     => trans('adminPanel.entities.category'),
+            'type'      => 'select',
+            'name'      => 'category_id',
+            'entity'    => 'category',
+            'attribute' => 'name',
+            'model'     => "App\Models\Category",
+            'pivot'     => false,
+        ]); 
+        CRUD::field('name')->label(trans('adminPanel.attributes.name'));
+        CRUD::field('price')->label(trans('adminPanel.attributes.price'));
+        CRUD::field('max_meals_per_day')->label(trans('adminPanel.attributes.max_meals_per_day'))->type('text');
+        CRUD::field('is_available')->label(trans('adminPanel.attributes.is_available'));
+        CRUD::field('expected_preparation_time')->label(trans('adminPanel.attributes.expected_preparation_time'))->type('text');
+        CRUD::field('discount_percentage')->label(trans('adminPanel.attributes.discount_percentage'))->type('text');
+        CRUD::field('ingredients')->label(trans('adminPanel.attributes.ingredients'));
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');
          * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
          */
+    }
+       /**
+     * Define what happens when the show operation is loaded.
+     * 
+     * @see https://backpackforlaravel.com/docs/crud-operation-create
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        $this->setupListOperation();
     }
 
     /**

@@ -2,26 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\ChefJoinRequestRequest;
-use App\Models\ChefJoinRequest;
-use App\Models\Location;
+use App\Http\Requests\ChefRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
-use App\Traits\PictureHelper;
 
 /**
- * Class ChefJoinRequestCrudController
+ * Class ChefCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class ChefJoinRequestCrudController extends CrudController
+class ChefCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-    use PictureHelper;
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
@@ -30,9 +26,10 @@ class ChefJoinRequestCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\ChefJoinRequest::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/chef-join-request');
-        CRUD::setEntityNameStrings('طلب انضمام طاهي', 'طلبات انضمام الطهاة');
+        CRUD::setModel(\App\Models\Chef::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/chef');
+        CRUD::setEntityNameStrings(trans('adminPanel.entities.chef'), trans('adminPanel.entities.chefs'));
+        $this->crud->query = $this->crud->query->withTrashed();
     }
 
     /**
@@ -47,6 +44,8 @@ class ChefJoinRequestCrudController extends CrudController
         CRUD::column('name')->label(trans('adminPanel.attributes.name'));
         CRUD::column('email')->label(trans('adminPanel.attributes.email'));
         CRUD::column('phone_number')->label(trans('adminPanel.attributes.phone_number'));
+        CRUD::column('is_available')->label(trans('adminPanel.attributes.is_available'))->type('boolean');
+        CRUD::column('balance')->label(trans('adminPanel.attributes.balance'));
         CRUD::addColumn([
             'name'     => 'location_id',
             'label'    =>  trans('adminPanel.attributes.location'),
@@ -71,8 +70,12 @@ class ChefJoinRequestCrudController extends CrudController
             }
         ]); 
         CRUD::column('birth_date')->label(trans('adminPanel.attributes.birth_date'))->type('date');
+        CRUD::column('approved_at')->label(trans('adminPanel.attributes.approved_at'))->type('datetime');
+        CRUD::column('deleted_at')->label(trans('adminPanel.attributes.deleted_at'));
         CRUD::column('created_at')->label(trans('adminPanel.attributes.created_at'));
-        $this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
+        $this->crud->addButtonFromView('line', 'block', 'block', 'beginning');
+        $this->crud->removeButton('delete');
+        $this->crud->removeButton('create');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -80,7 +83,8 @@ class ChefJoinRequestCrudController extends CrudController
          * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
          */
     }
-      /**
+    
+    /**
      * Define what happens when the show operation is loaded.
      * 
      * @see https://backpackforlaravel.com/docs/crud-operation-create
@@ -89,6 +93,7 @@ class ChefJoinRequestCrudController extends CrudController
     protected function setupShowOperation()
     {
         $this->setupListOperation();
+
     }
     /**
      * Define what happens when the Create operation is loaded.
@@ -98,8 +103,18 @@ class ChefJoinRequestCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(ChefJoinRequestRequest::class);
+        CRUD::setValidation(ChefRequest::class);
 
+        CRUD::field('id');
+        CRUD::addField([   // Checklist
+            'label'     => trans('adminPanel.entities.chef_join_request'),
+            'type'      => 'select',
+            'name'      => 'chef_join_request_id',
+            'entity'    => 'chefJoinRequest',
+            'attribute' => 'id',
+            'model'     => "App\Models\ChefJoinRequest",
+            'pivot'     => false,
+        ]); 
         CRUD::field('phone_number')->label(trans('adminPanel.attributes.phone_number'));
         CRUD::field('name')->label(trans('adminPanel.attributes.name'));
         CRUD::field('email')->label(trans('adminPanel.attributes.email'));
@@ -114,17 +129,12 @@ class ChefJoinRequestCrudController extends CrudController
             'model'     => "App\Models\Location",
             'pivot'     => false,
         ]); 
-        // CRUD::field('location_name')->label(trans('adminPanel.attributes.location'))->attributes(['readonly']);
-        // CRUD::field('location_latitude')->label(trans('adminPanel.attributes.latitude'))->attributes(['readonly']);
-        // CRUD::field('location_longitude')->label(trans('adminPanel.attributes.longitude'))->attributes(['readonly']);
         CRUD::field('delivery_starts_at')->label(trans('adminPanel.attributes.delivery_starts_at'));
         CRUD::field('delivery_ends_at')->label(trans('adminPanel.attributes.delivery_ends_at'));
-        CRUD::field('max_meals_per_day')->type('text')->label(trans('adminPanel.attributes.max_meals_per_day'));
-        // CRUD::field('profile_picture')->type('upload')->label(trans('adminPanel.attributes.profile_picture'));
-        // CRUD::field('certificate')->type('upload')->label(trans('adminPanel.attributes.certificate'));
-        // ChefJoinRequest::creating(function($entry) {
-        //     $entry->profile_picture=$this->storePicture(request(),'profile_picture','profiles');
-        // });
+        CRUD::field('max_meals_per_day')->label(trans('adminPanel.attributes.max_meals_per_day'))->type('text');
+        CRUD::field('is_available')->label(trans('adminPanel.attributes.is_available'));
+        CRUD::field('balance')->label(trans('adminPanel.attributes.balance'));
+
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');
@@ -141,6 +151,5 @@ class ChefJoinRequestCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
-        $this->crud->removeFields(['location_name','location_latitude','location_longitude']);
     }
 }

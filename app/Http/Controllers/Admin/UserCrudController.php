@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\UserJoinRequestRequest;
+use App\Http\Requests\UserRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
- * Class UserJoinRequestCrudController
+ * Class UserCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class UserJoinRequestCrudController extends CrudController
+class UserCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -26,9 +26,10 @@ class UserJoinRequestCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\UserJoinRequest::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/user-join-request');
-        CRUD::setEntityNameStrings(trans('adminPanel.entities.user_join_request'),trans('adminPanel.entities.user_join_requests'));
+        CRUD::setModel(\App\Models\User::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/user');
+        CRUD::setEntityNameStrings(trans('adminPanel.entities.user'), trans('adminPanel.entities.users'));
+        $this->crud->query = $this->crud->query->withTrashed();
     }
 
     /**
@@ -42,7 +43,7 @@ class UserJoinRequestCrudController extends CrudController
         CRUD::column('id');
         CRUD::addColumn([
             'name'     => 'location_id',
-            'label'    => trans('adminPanel.attributes.location'),
+            'label'    => 'مكان السكن',
             'type'     => 'closure',
             'function' => function($entry) {
                 return $entry->location->name;
@@ -59,15 +60,29 @@ class UserJoinRequestCrudController extends CrudController
         CRUD::column('campus_card_expiry_date')->label(trans('adminPanel.attributes.campus_card_expiry_date'));
         CRUD::column('study_specialty')->label(trans('adminPanel.attributes.study_specialty'));
         CRUD::column('study_year')->label(trans('adminPanel.attributes.study_year'));
-        CRUD::column('approved')->label(trans('adminPanel.attributes.approved_at'))->type('boolean');
+        CRUD::column('approved_at')->label(trans('adminPanel.attributes.approved_at'))->type('datetime');
+        CRUD::column('deleted_at')->label(trans('adminPanel.attributes.deleted_at'));
         CRUD::column('created_at')->label(trans('adminPanel.attributes.created_at'));
-        $this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
+        $this->crud->addButtonFromView('line', 'block', 'block', 'beginning');
+        $this->crud->removeButton('delete');
+        $this->crud->removeButton('create');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
          * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
          */
+    }
+    /**
+     * Define what happens when the show operation is loaded.
+     * 
+     * @see https://backpackforlaravel.com/docs/crud-operation-create
+     * @return void
+     */
+    protected function setupShowOperation()
+    {
+        $this->setupListOperation();
+
     }
 
     /**
@@ -78,8 +93,9 @@ class UserJoinRequestCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(UserJoinRequestRequest::class);
-        CRUD::field('location_id');
+        CRUD::setValidation(UserRequest::class);
+
+        CRUD::field('id');
         CRUD::addField([   // Checklist
             'label'     => trans('adminPanel.attributes.location'),
             'type'      => 'select',
@@ -100,21 +116,12 @@ class UserJoinRequestCrudController extends CrudController
         CRUD::field('campus_card_expiry_date')->label(trans('adminPanel.attributes.campus_card_expiry_date'));
         CRUD::field('study_specialty')->label(trans('adminPanel.attributes.study_specialty'));
         CRUD::field('study_year')->label(trans('adminPanel.attributes.study_year'));
+
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');
          * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
          */
-    }
-    /**
-     * Define what happens when the show operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
-     * @return void
-     */
-    protected function setupShowOperation()
-    {
-        $this->setupListOperation();
     }
 
     /**

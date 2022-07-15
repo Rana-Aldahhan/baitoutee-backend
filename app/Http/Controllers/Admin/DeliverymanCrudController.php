@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\DeliverymanJoinRequestRequest;
+use App\Http\Requests\DeliverymanRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 /**
- * Class DeliverymanJoinRequestCrudController
+ * Class DeliverymanCrudController
  * @package App\Http\Controllers\Admin
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class DeliverymanJoinRequestCrudController extends CrudController
+class DeliverymanCrudController extends CrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -26,9 +26,10 @@ class DeliverymanJoinRequestCrudController extends CrudController
      */
     public function setup()
     {
-        CRUD::setModel(\App\Models\DeliverymanJoinRequest::class);
-        CRUD::setRoute(config('backpack.base.route_prefix') . '/deliveryman-join-request');
-        CRUD::setEntityNameStrings(trans('adminPanel.entities.deliveryman_join_request'),trans('adminPanel.entities.deliveryman_join_requests'));
+        CRUD::setModel(\App\Models\Deliveryman::class);
+        CRUD::setRoute(config('backpack.base.route_prefix') . '/deliveryman');
+        CRUD::setEntityNameStrings(trans('adminPanel.entities.deliveryman'), trans('adminPanel.entities.deliverymen'));
+        $this->crud->query = $this->crud->query->withTrashed();
     }
 
     /**
@@ -43,15 +44,21 @@ class DeliverymanJoinRequestCrudController extends CrudController
         CRUD::column('name')->label(trans('adminPanel.attributes.name'));
         CRUD::column('email')->label(trans('adminPanel.attributes.email'));
         CRUD::column('phone_number')->label(trans('adminPanel.attributes.phone_number'));
+        CRUD::column('is_available')->label(trans('adminPanel.attributes.is_available'))->type('boolean');
         CRUD::column('transportation_type')->label(trans('adminPanel.attributes.transportation_type'));
+        CRUD::column('balance')->label(trans('adminPanel.attributes.balance'));
+        CRUD::column('total_collected_order_costs')->label(trans('adminPanel.attributes.total_collected_order_costs'));
         CRUD::column('work_days')->label(trans('adminPanel.attributes.work_days'));
         CRUD::column('work_hours_from')->label(trans('adminPanel.attributes.work_hours_from'));
         CRUD::column('work_hours_to')->label(trans('adminPanel.attributes.work_hours_to'));
         CRUD::column('gender')->label(trans('adminPanel.attributes.gender'));
         CRUD::column('birth_date')->label(trans('adminPanel.attributes.birth_date'))->type('date');
-        CRUD::column('approved')->label(trans('adminPanel.attributes.approved_at'))->type('boolean');
+        CRUD::column('approved_at')->label(trans('adminPanel.attributes.approved_at'))->type('datetime');
+        CRUD::column('deleted_at')->label(trans('adminPanel.attributes.deleted_at'));
         CRUD::column('created_at')->label(trans('adminPanel.attributes.created_at'));
-        $this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
+        $this->crud->addButtonFromView('line', 'block', 'block', 'beginning');
+        $this->crud->removeButton('delete');
+        $this->crud->removeButton('create');
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -59,7 +66,7 @@ class DeliverymanJoinRequestCrudController extends CrudController
          * - CRUD::addColumn(['name' => 'price', 'type' => 'number']); 
          */
     }
-        /**
+      /**
      * Define what happens when the show operation is loaded.
      * 
      * @see https://backpackforlaravel.com/docs/crud-operation-create
@@ -68,7 +75,9 @@ class DeliverymanJoinRequestCrudController extends CrudController
     protected function setupShowOperation()
     {
         $this->setupListOperation();
+
     }
+
     /**
      * Define what happens when the Create operation is loaded.
      * 
@@ -77,9 +86,20 @@ class DeliverymanJoinRequestCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
-        CRUD::setValidation(DeliverymanJoinRequestRequest::class);
+        CRUD::setValidation(DeliverymanRequest::class);
+
+        CRUD::field('id');
+        CRUD::addField([   // Checklist
+            'label'     => trans('adminPanel.entities.deliveryman_join_request'),
+            'type'      => 'select',
+            'name'      => 'deliveryman_join_request_id',
+            'entity'    => 'deliverymanJoinRequest',
+            'attribute' => 'id',
+            'model'     => "App\Models\DeliverymanJoinRequest",
+            'pivot'     => false,
+        ]); 
         CRUD::field('phone_number')->label(trans('adminPanel.attributes.phone_number'));
-        CRUD::field('name')->label(trans('adminPanel.attributes.name'));;
+        CRUD::field('name')->label(trans('adminPanel.attributes.name'));
         CRUD::field('email')->label(trans('adminPanel.attributes.email'));
         CRUD::field('birth_date')->label(trans('adminPanel.attributes.birth_date'));
         CRUD::field('gender')->label(trans('adminPanel.attributes.gender'));
@@ -87,6 +107,12 @@ class DeliverymanJoinRequestCrudController extends CrudController
         CRUD::field('work_days')->label(trans('adminPanel.attributes.work_days'));
         CRUD::field('work_hours_from')->label(trans('adminPanel.attributes.work_hours_from'));
         CRUD::field('work_hours_to')->label(trans('adminPanel.attributes.work_hours_to'));
+        CRUD::field('is_available')->label(trans('adminPanel.attributes.is_available'));
+        CRUD::field('balance')->label(trans('adminPanel.attributes.balance'));
+        CRUD::field('total_collected_order_costs')->label(trans('adminPanel.attributes.total_collected_order_costs'));
+        CRUD::field('current_longitude')->label(trans('adminPanel.attributes.current_longitude'));
+        CRUD::field('current_latitude')->label(trans('adminPanel.attributes.current_latitude'));
+
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:

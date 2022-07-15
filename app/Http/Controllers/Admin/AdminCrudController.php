@@ -30,7 +30,7 @@ class AdminCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\Admin::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/admin');
-        CRUD::setEntityNameStrings('مشرف', 'مشرفين');
+        CRUD::setEntityNameStrings(trans('adminPanel.entities.admin'), trans('adminPanel.entities.admins'));
         CRUD::setValidation(AdminRequest::class);
     }
 
@@ -45,17 +45,17 @@ class AdminCrudController extends CrudController
         \Auth::shouldUse('backpack');
         Gate::authorize('add-admins');
         CRUD::setValidation(AdminRequest::class);
-        CRUD::column('name');
-        CRUD::column('email');
+        CRUD::column('id');
+        CRUD::column('name')->label(trans('adminPanel.attributes.name'));
+        CRUD::column('email')->label(trans('adminPanel.attributes.email'));
         CRUD::addColumn([
             'name'     => 'role_id',
-            'label'    => 'role',
+            'label'    => trans('adminPanel.attributes.role'),
             'type'     => 'closure',
             'function' => function($entry) {
                 return $entry->role->name;
             }
         ]); 
-
         /**
          * Columns can be defined using the fluent syntax or array syntax:
          * - CRUD::column('price')->type('number');
@@ -116,9 +116,7 @@ class AdminCrudController extends CrudController
     }
     protected function setupShowOperation()
     {
-        \Auth::shouldUse('backpack');
-        Gate::authorize('add-admins');
-         $this->autoSetupShowOperation();
+        $this->setupListOperation();
 
     }
     

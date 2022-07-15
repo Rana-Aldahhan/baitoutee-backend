@@ -206,6 +206,9 @@ return [
         'reason'=>'السبب',
         'current_longitude'=>'خط الطول الحالي',
         'current_latitude'=>'خط العرض الحالي',
+        'meal_profit' => 'ربح الوجبة',
+        'cost_of_one_km' => 'تكلفة ال km الواحد',
+        'delivery_profit_percentage' => 'نسبة ربح عامل التوصيل من التوصيلة',
 
     ],
 
