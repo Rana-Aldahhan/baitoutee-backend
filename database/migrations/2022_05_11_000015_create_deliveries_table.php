@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('deliveryman_id')->nullable(false)->constrained('deliverymen');
             $table->unsignedInteger('distance')->nullable();
             $table->unsignedInteger('cost');
+            $table->unsignedInteger('deliveryman_cost_share');
             $table->timestamp('picked_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
             $table->boolean('paid_to_deliveryman')->default(false);

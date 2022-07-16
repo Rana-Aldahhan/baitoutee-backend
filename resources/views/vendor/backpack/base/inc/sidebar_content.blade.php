@@ -48,6 +48,8 @@
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('meal') }}'><i class="nav-icon las la-hamburger"></i>{{trans('adminPanel.entities.meals')}} </a></li>
         <li class='nav-item'><a class='nav-link' href='{{ backpack_url('price-change-request') }}'><i class=" nav-icon las la-hand-holding-usd"></i> {{trans('adminPanel.entities.price_change_requests')}}</a></li>
         <li class='nav-item'><a class='nav-link' href='/admin/profit-values'><i class=" nav-icon las la-funnel-dollar"></i>  {{trans('adminPanel.titles.manage_profit_values')}}</a></li>
+        <li class='nav-item'><a class='nav-link' href='/admin/chefs-financial-accounts'><i class="nav-icon las la-file-invoice-dollar"></i>  {{trans('adminPanel.titles.chefs_financial_accounts')}}</a></li>
+        <li class='nav-item'><a class='nav-link' href='/admin/deliverymen-financial-accounts'><i class="nav-icon las la-file-invoice-dollar"></i>  {{trans('adminPanel.titles.deliverymen_financial_accounts')}}</a></li>
       </div>
     </div>
     @endif

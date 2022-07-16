@@ -13,7 +13,7 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
 @section('header')
     <div class="container-fluid">
         <h2>
-            <span class="text-capitalize"> </span>
+            <span class="text-capitalize"> {{trans('adminPanel.titles.manage_profit_values')}} </span>
         </h2>
     </div>
 @endsection

@@ -5,9 +5,9 @@
     </a>
   
     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-      <a class="dropdown-item @if(request()->filter==null) active @endif" href="/admin/report">{{trans('adminPanel.actions.all_results')}}</a>
-      <a class="dropdown-item @if(request()->filter=='seen') active @endif" href="/admin/report?filter=seen">{{trans('adminPanel.actions.seen')}}</a>
-      <a class="dropdown-item @if(request()->filter=='unseen') active @endif" href="/admin/report?filter=unseen">{{trans('adminPanel.actions.unseen')}}</a>
+      <a class="dropdown-item @if(request()->filter==null) active @endif" href="/admin/report @if(request()->page!=null) &page={{request()->page}} @endif">{{trans('adminPanel.actions.all_results')}}</a>
+      <a class="dropdown-item @if(request()->filter=='seen') active @endif" href="/admin/report?filter=seen @if(request()->page!=null) &page={{request()->page}} @endif">{{trans('adminPanel.actions.seen')}}</a>
+      <a class="dropdown-item @if(request()->filter=='unseen') active @endif" href="/admin/report?filter=unseen @if(request()->page!=null) &page={{request()->page}} @endif">{{trans('adminPanel.actions.unseen')}}</a>
       
     </div>
   </div>

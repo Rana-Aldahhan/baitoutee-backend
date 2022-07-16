@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use App\Services\FCMService;
 
 class AssignOrderToDelivery implements ShouldQueue
@@ -59,9 +60,11 @@ class AssignOrderToDelivery implements ShouldQueue
             $user = $this->order->user;
             $deliveryCost = $this->order->total_cost-($this->order->meals_cost+$this->order->profit);
             $assignedDeliveryman = $availableDeliverymen->first();
+            $deliveryProfitPercentage= DB::table('global_variables')->where('name','delivery_profit_percentage')->first()->value;
             $delivery = Delivery::create([
                 'deliveryman_id' => $assignedDeliveryman->id,
                 'cost' => $deliveryCost,
+                'deliveryman_cost_share'=>($deliveryCost*$deliveryProfitPercentage)/100
             ]);
             $this->order->delivery()->associate($delivery);
             $this->order->save();

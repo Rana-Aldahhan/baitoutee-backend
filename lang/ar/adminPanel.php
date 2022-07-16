@@ -48,6 +48,14 @@ return [
         'seen'=>'تمت مشاهدته',
         'unseen'=>'غير مشاهدة',
         'all_results'=>'كل النتائج',
+        'show_details'=>'عرض التفاصيل',
+        'search'=>'بحث',
+        'pay'=>'إجراء عملية الدفع',
+        'paid'=>'مدفوع',
+        'unpaid'=>'غير مدفوع',
+        'take_money'=>'استلام المبلغ',
+        'taken'=>'مقبوض',
+        'not_taken'=>'غير مقبوض'
     ],
     'titles'=>[
         'manage_profit_values'=>'إدارة قيم الأرباح',
@@ -55,10 +63,14 @@ return [
         'manage_join_requests'=>'إدارة طلبات الانضمام',
         'manage_financial_affairs'=>'إدارة الأمور المالية',
         'manage_orders'=>'إدارة الطلبات',
-        'manage_pending_orders'=>' الطلبات المعلّقة'
-
+        'manage_pending_orders'=>' الطلبات المعلّقة',
+        'chefs_financial_accounts'=>'الحسابات المالية للطهاة',
+        'deliverymen_financial_accounts'=>'الحسابات المالية لعمال التوصيل',
+        'chef_financial_account'=>'الحساب المالي للطاهي',
+        'deliveryman_financial_account'=>'الحساب المالي لعامل التوصيل',
     ],
     'attributes' => [
+        'id'=> 'id',
         'name'=>'الاسم',
         'password'=>'كلمة السر',
         'phone_number' => 'رقم الهاتف',
@@ -129,7 +141,20 @@ return [
         'prepared_at'=>'تاريخ التحضير',
         'paid_to_chef'=>'تم دفعه للطاهي',
         'paid_to_accountant'=>'تم دفعه للمحساب',
-        'order_details'=>'تفاصيل الطلب'
+        'order_details'=>'تفاصيل الطلب',
+        'chef_name'=>'اسم الطاهي',
+        'deliveryman_name'=>'اسم عامل التوصيل',
+        'unpaid_orders_count'=>'عدد الطلبات الغير مقبوضة',
+        'unpaid_deliveries_count'=>'عدد طلبات التوصيل الغير مدفوعة',
+        'earned_balance'=>'الرصيد المستحق',
+        'order_id'=>'رقم الطلب',
+        'order_date'=>'تاريخ الطلب',
+        'delivery_date'=>'تاريخ عملية التوصيل',
+        'orders_history'=>'سجل الطلبات',
+        'deliveries_history'=>'سجل طلبات التوصيل',
+        'order_status'=>'حالة الطلب',
+        'collected_fees'=>'المبلغ التي تم جمعه',
+        'delivery_id'=>'رقم عملية التوصيل',
     ],
 
 ];

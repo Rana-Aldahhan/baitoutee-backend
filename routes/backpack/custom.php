@@ -55,5 +55,17 @@ Route::group([
     Route::get('/profit-values',[PricingController::class,'showProfitValues']);
     Route::post('/profit-values/edit',[PricingController::class,'editProfitValues']);
     Route::post('/report/{id}/mark-as-seen',[ReportCrudController::class,'markAsSeen']);
+    //financial functionalities
+    //chef
+    Route::get('/chefs-financial-accounts',[PricingController::class,'showChefsFinancialAccounts']);
+    Route::get('/chefs-financial-accounts/search',[PricingController::class,'searchChefsAccounts']);
+    Route::get('/chefs-financial-accounts/{id}',[PricingController::class,'showChefFinancialAccount']);
+    Route::post('/order/{id}/pay-to-chef',[PricingController::class,'payOrderToChef']);
+    //deliveryman
+    Route::get('/deliverymen-financial-accounts',[PricingController::class,'showDeliverymenFinancialAccounts']);
+    Route::get('/deliverymen-financial-accounts/search',[PricingController::class,'searchDeliverymenAccounts']);
+    Route::get('/deliverymen-financial-accounts/{id}',[PricingController::class,'showDeliverymanFinancialAccount']);
+    Route::post('/delivery/{id}/pay-to-deliveryman',[PricingController::class,'payDeliveryToDeliveryman']);
+    Route::post('/order/{id}/pay-to-accountant',[PricingController::class,'payOrderToAccountant']);
     
 }); // this should be the absolute last line of this file
