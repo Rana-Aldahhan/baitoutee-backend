@@ -112,7 +112,7 @@ return [
     'developer_name' => 'Baitoutee team',
 
     // Developer website. Link in footer. Type false if you want to hide it.
-    'developer_link' => '#',
+    'developer_link' => '/admin/team',
 
     // Show powered by Laravel Backpack in the footer? true/false
     'show_powered_by' => false,

@@ -81,6 +81,9 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
                                                 {{trans('adminPanel.attributes.earned_balance')}}
                                             </th>
                                             <th data-orderable="false" data-priority="" data-visible-in-export="false">
+                                                {{trans('adminPanel.attributes.orders_count')}}
+                                            </th>
+                                            <th data-orderable="false" data-priority="" data-visible-in-export="false">
                                                 {{trans('adminPanel.attributes.delivery_date')}}
                                             </th>
                                             <th>
@@ -91,7 +94,8 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
                                        @foreach ($deliveries as $delivery)
                                         <tr id="delivery_{{ $delivery->id }}" >
                                             <td><a href="/admin/delivery/{{$delivery->id}}/show"> {{ $delivery->id }} </a> </td>
-                                            <td>{{ $delivery->deliveryman_cost_share }} </td>
+                                            <td>{{ $delivery->deliveryman_cost_share * $delivery->orders->count() }} </td>
+                                            <td>{{$delivery->orders->count() }} </td>
                                             <td>{{ $delivery->created_at }} </td>
                                             <td>
                                                 @if(!$delivery->paid_to_deliveryman)

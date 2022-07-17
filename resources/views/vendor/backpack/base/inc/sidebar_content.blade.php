@@ -53,27 +53,28 @@
       </div>
     </div>
     @endif
-    @if(backpack_user()->role->name=='super admin' || backpack_user()->role->name=='orders admin')
+    {{-- @if(backpack_user()->role->name=='super admin' || backpack_user()->role->name=='orders admin') --}}
     <div class='nav-item'> 
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#869ab8" class="bi bi-gear" viewBox="0 0 16 16">
         <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
         <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
       </svg>       
       <button class="btn" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseTwo">
-        {{trans('adminPanel.titles.manage_orders')}} 
+        {{trans('adminPanel.titles.manage_orders_and_subscriptions')}} 
       </button>
       <div id="collapseThree" class="collapse hide" aria-labelledby="headingTwo" data-parent="#accordion">
         <li class='nav-item'><a class='nav-link' href='/admin/new-orders'>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#869ab8" class="bi bi-hourglass-split" viewBox="0 0 16 16">
           <path d="M2.5 15a.5.5 0 1 1 0-1h1v-1a4.5 4.5 0 0 1 2.557-4.06c.29-.139.443-.377.443-.59v-.7c0-.213-.154-.451-.443-.59A4.5 4.5 0 0 1 3.5 3V2h-1a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-1v1a4.5 4.5 0 0 1-2.557 4.06c-.29.139-.443.377-.443.59v.7c0 .213.154.451.443.59A4.5 4.5 0 0 1 12.5 13v1h1a.5.5 0 0 1 0 1h-11zm2-13v1c0 .537.12 1.045.337 1.5h6.326c.216-.455.337-.963.337-1.5V2h-7zm3 6.35c0 .701-.478 1.236-1.011 1.492A3.5 3.5 0 0 0 4.5 13s.866-1.299 3-1.48V8.35zm1 0v3.17c2.134.181 3 1.48 3 1.48a3.5 3.5 0 0 0-1.989-3.158C8.978 9.586 8.5 9.052 8.5 8.351z"/>
         </svg>{{trans('adminPanel.titles.manage_pending_orders')}}  </a></li>
+        <li class='nav-item'><a class='nav-link' href='{{ backpack_url('order') }}'><i class="nav-icon las la-clipboard-list"></i> {{trans('adminPanel.entities.orders')}}</a></li>
+        <li class='nav-item'><a class='nav-link' href='{{ backpack_url('delivery') }}'><i class="nav-icon las la-motorcycle"></i> {{trans('adminPanel.entities.deliveries')}}</a></li>
+        <li class='nav-item'><a class='nav-link' href='{{ backpack_url('subscription') }}'><i class=" nav-icon las la-stream"></i> {{trans('adminPanel.entities.subscriptions')}}</a></li>
       </div>
     </div>
-    @endif
+    {{-- @endif --}}
   </div>
 
-
-<li class='nav-item'><a class='nav-link' href='{{ backpack_url('order') }}'><i class="nav-icon las la-clipboard-list"></i> {{trans('adminPanel.entities.orders')}}</a></li>
 
 @if(backpack_user()->role->name=='super admin' || backpack_user()->role->name=='reports admin')
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('report') }}'><i class="nav-icon las la-flag"></i> {{trans('adminPanel.entities.reports')}}</a></li>

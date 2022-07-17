@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\OrderRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Class OrderCrudController
@@ -95,7 +96,13 @@ class OrderCrudController extends CrudController
         CRUD::column('paid_to_chef')->label(trans('adminPanel.attributes.paid_to_chef'))->type('boolean');
         CRUD::column('paid_to_accountant')->label(trans('adminPanel.attributes.paid_to_accountant'))->type('boolean');
         CRUD::column('created_at')->label(trans('adminPanel.attributes.created_at'));
-        //$this->crud->addButtonFromView('line', 'approveOrReject', 'approveOrReject', 'beginning');
+        if(request()->status!=null){
+            $this->crud->addClause('whereStatus', request()->status);
+        }
+        $this->crud->addButtonFromView('top', 'filterOrderStatus', 'filterOrderStatus', 'end');
+        $this->crud->addButtonFromView('line', 'cancelOrder', 'cancelOrder', 'end');
+        $this->crud->addButtonFromView('line', 'reassignOrder', 'reassignOrder', 'end');
+        $this->crud->removeButtons(['create','delete']);
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
@@ -113,6 +120,8 @@ class OrderCrudController extends CrudController
     protected function setupCreateOperation()
     {
         CRUD::setValidation(OrderRequest::class);
+        \Auth::shouldUse('backpack');
+        Gate::authorize('manage-orders');
 
         CRUD::field('id');
         CRUD::addField([   // Checklist
@@ -192,7 +201,7 @@ class OrderCrudController extends CrudController
      * @return void
      */
     protected function setupUpdateOperation()
-    {
+    {   
         $this->setupCreateOperation();
     }
 }

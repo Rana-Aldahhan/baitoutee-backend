@@ -25,6 +25,29 @@ class JoinRequestsController extends Controller
         //case the join request is already rejected or approved
         if($joinRequest->approved===false || $joinRequest->approved===true)
             return  redirect('/admin/user-join-request');
+        //check if a user with the same notional_id was registered already 
+        $user=User::where('national->id',$joinRequest->national_id)->get();
+        //case already registered => update new user info
+        if($user->count()>0)
+        {
+            //TODO replace if condition with updateOrInsert
+            $user->update([
+            'phone_number' => $joinRequest->phone_number,
+            'name' => $joinRequest->name,
+            'email' => $joinRequest->email,
+            'birth_date'=>$joinRequest->birth_date,
+            'gender'=> $joinRequest->gender,
+            'national_id'=>$joinRequest->national_id,
+            'campus_card_id'=>$joinRequest->campus_card_id,
+            'campus_unit_number' => $joinRequest->campus_unit_number,
+            'campus_card_expiry_date' =>$joinRequest->campus_card_expiry_date,
+            'study_specialty'=>$joinRequest->study_specialty,
+            'study_year'=>$joinRequest->study_year,
+            'location_id'=>$joinRequest->location_id,
+            'approved_at'=>now(),
+            ]);
+        }
+        else {
         //create new user entity
         $user=User::create([
             'phone_number' => $joinRequest->phone_number,
@@ -41,6 +64,7 @@ class JoinRequestsController extends Controller
             'location_id'=>$joinRequest->location_id,
             'approved_at'=>now(),
         ]);
+        }
         //TODO send notification to that user
 
         // make the request entity approved

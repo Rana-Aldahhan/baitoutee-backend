@@ -20,11 +20,13 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
 @section('content')
     <!-- Default box -->
     <div class="row">
-        <div class="card text-white bg-success mb-3">
-            <div class="card-body">
-               {{ trans('adminPanel.attributes.earned_balance')}} : {{$chef->balance}} S.P
+        <div class="col-sm-6">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                {{ trans('adminPanel.attributes.earned_balance')}} : {{$chef->balance}} S.P
+                </div>
             </div>
-          </div>
+        </div>
     </div>
     <div class="row">
         <h3>

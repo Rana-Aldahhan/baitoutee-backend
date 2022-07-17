@@ -190,7 +190,8 @@ class PricingController extends Controller
     {
         $delivery=Delivery::findOrFail($id);
         $delivery->paid_to_deliveryman=true;
-        $delivery->deliveryman->balance-=$delivery->deliveryman_cost_share;
+        //substracte the delivery cost multiplied by delivery's orders' count
+        $delivery->deliveryman->balance-=$delivery->deliveryman_cost_share * $delivery->orders->count();
         $delivery->deliveryman->save();
         $delivery->save();
 

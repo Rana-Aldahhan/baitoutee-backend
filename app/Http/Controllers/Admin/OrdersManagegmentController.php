@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Jobs\AssignOrderToDelivery;
 use Illuminate\Support\Facades\Gate;
 use App\Services\FCMService;
 
@@ -58,6 +59,28 @@ class OrdersManagegmentController extends Controller
         );
         return response()->json([]);
         
+    }
+
+    public function reassignOrder($id)
+    {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('manage-orders');
+        $order=Order::findOrFail($id);
+        AssignOrderToDelivery::dispatch($order)->onConnection('database');
+
+        \Alert::add('info', trans('adminPanel.messages.order_reassigned'))->flash();;
+        return redirect('/admin/order');
+    }
+    public function cancelOrder($id)
+    {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('manage-orders');
+        $order=Order::findOrFail($id);
+       $order->status='canceled';
+       $order->save();
+
+        \Alert::add('info', trans('adminPanel.messages.order_canceled'))->flash();;
+        return redirect('/admin/order');
     }
 
 }

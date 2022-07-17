@@ -56,6 +56,12 @@ class DeliverymanCrudController extends CrudController
         CRUD::column('approved_at')->label(trans('adminPanel.attributes.approved_at'))->type('datetime');
         CRUD::column('deleted_at')->label(trans('adminPanel.attributes.deleted_at'));
         CRUD::column('created_at')->label(trans('adminPanel.attributes.created_at'));
+        if(request()->available==1){
+            $this->crud->addClause('whereIsAvailable', true);
+        }else if(request()->available==0 && request()->available!=null){
+            $this->crud->addClause('whereIsAvailable', false);
+        }
+        $this->crud->addButtonFromView('top', 'filterDeliverymen', 'filterDeliverymen', 'end');
         $this->crud->addButtonFromView('line', 'block', 'block', 'beginning');
         $this->crud->removeButton('delete');
         $this->crud->removeButton('create');

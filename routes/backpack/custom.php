@@ -22,6 +22,7 @@ Route::group([
     ),
     'namespace'  => 'App\Http\Controllers\Admin',
 ], function () { // custom admin routes
+    //cruds
     Route::crud('admin', 'AdminCrudController');
     Route::crud('user-join-request', 'UserJoinRequestCrudController');
     Route::crud('chef-join-request', 'ChefJoinRequestCrudController');
@@ -33,6 +34,9 @@ Route::group([
     Route::crud('chef', 'ChefCrudController');
     Route::crud('deliveryman', 'DeliverymanCrudController');
     Route::crud('report', 'ReportCrudController');
+    Route::crud('delivery', 'DeliveryCrudController');
+    Route::crud('subscription', 'SubscriptionCrudController');
+    //buttons
     Route::get('/user-join-request/{id}/approve',[JoinRequestsController::class,'approveUser']);
     Route::get('/chef-join-request/{id}/approve',[JoinRequestsController::class,'approveChef']);
     Route::get('/deliveryman-join-request/{id}/approve',[JoinRequestsController::class,'approveDeliveryman']);
@@ -67,5 +71,8 @@ Route::group([
     Route::get('/deliverymen-financial-accounts/{id}',[PricingController::class,'showDeliverymanFinancialAccount']);
     Route::post('/delivery/{id}/pay-to-deliveryman',[PricingController::class,'payDeliveryToDeliveryman']);
     Route::post('/order/{id}/pay-to-accountant',[PricingController::class,'payOrderToAccountant']);
+    //orders admin
+    Route::post('/order/{id}/reassign-order-to-delivery',[OrdersManagegmentController::class,'reassignOrder']);
+    Route::post('/order/{id}/cancel',[OrdersManagegmentController::class,'cancelOrder']);
     
 }); // this should be the absolute last line of this file
