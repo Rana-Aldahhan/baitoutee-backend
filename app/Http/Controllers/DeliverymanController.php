@@ -173,7 +173,7 @@ class DeliverymanController extends Controller
         use (&$todayBalance,&$thisWeekBalance,&$thisMonthBalance,
             &$todayBalanceReceived,&$thisWeekBalanceReceived,&$thisMonthBalanceReceived,
             &$todayOrders,&$thisWeekOrders,&$thisMonthOrders){
-                $deliveryCost =$delivery->cost;
+                $deliveryCost =$delivery->delivaryman_cost_share;//$deliveryCost =$delivery->cost;
                 $deliveryRecievedCost =  $delivery->paid_to_deliveryman;
                 $deliveredOrders = $delivery->orders()->get()->count();
 

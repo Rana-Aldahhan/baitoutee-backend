@@ -308,7 +308,7 @@ class OrderController extends Controller
                 $order->distenation = $userLocation->name;
                 $order->meals_quantity = $mealsQuantity;
                 $order->delivered_at = $order->delivery->delivered_at->format('Y-m-d H:i:s');
-                $order->delivery_cost = $order->delivery->cost;
+                $order->delivery_cost = $order->delivery->delivaryman_cost_share;//$order->delivery_cost = $order->delivery->cost;
                 $order->chef_name = $order->chef->name;
                 // hide undesired information from each order
                 $order->setHidden(['user_id','chef_id','delivery_id','subscription_id','status',
