@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -25,7 +26,17 @@ class UserRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'phone_number' => 'required',
+            'name' => 'required',
+            'email' => 'required|email',
+            'birth_date'=>'required|date',
+            'gender'=> ['required', Rule::in(['f','m'])],
+            'national_id'=>'required|numeric',
+            'campus_card_id'=>'required',
+            'campus_unit_number' => 'required|numeric',
+            'campus_card_expiry_date' => 'required|date',
+            'study_specialty'=>'required',
+            'study_year'=>'required',
         ];
     }
 

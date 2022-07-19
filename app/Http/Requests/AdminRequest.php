@@ -25,7 +25,10 @@ class AdminRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'name' => 'required|max:255',
+            'email' => 'required|email|unique:admins,email,'.request()->route('id'),
+            'password'=>'required',
+
         ];
     }
 

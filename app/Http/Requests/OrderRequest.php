@@ -25,7 +25,10 @@ class OrderRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'selected_delivery_time' => 'required',
+            'total_cost'=>'required',
+            'profit'=>'required',
+            'meals_cost'=>'required'
         ];
     }
 

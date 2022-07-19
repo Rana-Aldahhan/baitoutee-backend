@@ -79,7 +79,6 @@ class UserJoinRequestCrudController extends CrudController
     protected function setupCreateOperation()
     {
         CRUD::setValidation(UserJoinRequestRequest::class);
-        CRUD::field('location_id');
         CRUD::addField([   // Checklist
             'label'     => trans('adminPanel.attributes.location'),
             'type'      => 'select',
@@ -93,7 +92,7 @@ class UserJoinRequestCrudController extends CrudController
         CRUD::field('email')->label(trans('adminPanel.attributes.email'));
         CRUD::field('phone_number')->label(trans('adminPanel.attributes.phone_number'));
         CRUD::field('birth_date')->label(trans('adminPanel.attributes.birth_date'));
-        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'));
+        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'))->type('enum');
         CRUD::field('national_id')->label(trans('adminPanel.attributes.national_id'));
         CRUD::field('campus_card_id')->label(trans('adminPanel.attributes.campus_card_id'));
         CRUD::field('campus_unit_number')->label(trans('adminPanel.attributes.campus_unit_number'));

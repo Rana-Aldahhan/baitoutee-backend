@@ -104,7 +104,7 @@ class ChefJoinRequestCrudController extends CrudController
         CRUD::field('name')->label(trans('adminPanel.attributes.name'));
         CRUD::field('email')->label(trans('adminPanel.attributes.email'));
         CRUD::field('birth_date')->label(trans('adminPanel.attributes.birth_date'));
-        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'));
+        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'))->type('enum');
         CRUD::addField([   // Checklist
             'label'     => trans('adminPanel.attributes.location'),
             'type'      => 'select',

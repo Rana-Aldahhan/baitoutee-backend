@@ -123,7 +123,6 @@ class OrderCrudController extends CrudController
         \Auth::shouldUse('backpack');
         Gate::authorize('manage-orders');
 
-        CRUD::field('id');
         CRUD::addField([   // Checklist
             'label'     => trans('adminPanel.entities.user'),
             'type'      => 'select',
@@ -151,16 +150,20 @@ class OrderCrudController extends CrudController
             'model'     => "App\Models\Subscription",
             'pivot'     => false,
         ]); 
-        CRUD::addField([   // Checklist
-            'label'     => trans('adminPanel.entities.meals'),
-            'type'      => 'select_multiple',
-            'name'      => 'meals', 
-            // optional
-            'entity'    => 'meals',
-            'model'     => "App\Models\Meal", 
-            'attribute' => 'name',
-            'pivot'     => true, 
-        ]); 
+        // CRUD::addField([   // Checklist
+        //     'label'     => trans('adminPanel.entities.meals'),
+        //     'type'      => 'select_multiple',
+        //     'name'      => 'meals', 
+        //     // optional
+        //     'entity'    => 'meals',
+        //     'model'     => "App\Models\Meal", 
+        //     'attribute' => 'name',
+        //     'pivot'     => true, 
+        // ]); 
+        // CRUD::field('meals')->subfields([
+        //     ['name' => 'quantity', 'type' => 'text'],
+        //     ['name' => 'notes']
+        // ]);
         CRUD::field('selected_delivery_time')->label(trans('adminPanel.attributes.selected_delivery_time'));
         CRUD::field('notes')->label(trans('adminPanel.attributes.notes'));
         CRUD::field('total_cost')->label(trans('adminPanel.attributes.total_cost'));

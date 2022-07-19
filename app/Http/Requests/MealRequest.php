@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+
 class MealRequest extends FormRequest
 {
     /**
@@ -25,7 +26,13 @@ class MealRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'name' => 'required|min:1|max:50',
+            'category_name' => 'required_without:category_id',
+            'ingredients' => 'required',
+            'expected_preparation_time' => 'required|numeric|max:255',
+            'max_meals_per_day' => ['required', 'numeric', 'min:0', 'max:255'], // check if this make a problem
+            'price' => 'required|numeric',
+            'discount_percentage' => 'nullable|numeric',
         ];
     }
 

@@ -25,7 +25,12 @@ class SubscriptionRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'name' => 'required',
+            'days_number' => 'required'.'|numeric|min:1',
+            'starts_at' => ['required','date_format:Y-m-d'],
+            'meal_delivery_time' => ['required','date_format:H:i:s'],
+            'max_subscribers' => 'required'.'|numeric',
+            'meals_cost'=> ['required','numeric']
         ];
     }
 

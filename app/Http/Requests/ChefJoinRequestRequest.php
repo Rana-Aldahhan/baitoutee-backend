@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ChefJoinRequestRequest extends FormRequest
 {
@@ -25,7 +26,14 @@ class ChefJoinRequestRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'phone_number' => 'required|unique:chef_join_requests,phone_number,'.request()->route('id'),
+            'name' => 'required',
+            'email' => 'required|email|unique:chef_join_requests,email,'.request()->route('id'),
+            'birth_date'=>'required|date',
+            'gender'=> ['required', Rule::in(['f','m'])],
+            'delivery_starts_at' =>['required','date_format:H:i:s'],
+            'delivery_ends_at' =>['required','date_format:H:i:s'],
+            'max_meals_per_day'=>'required|numeric',
         ];
     }
 

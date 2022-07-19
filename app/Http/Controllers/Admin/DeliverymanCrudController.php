@@ -93,8 +93,6 @@ class DeliverymanCrudController extends CrudController
     protected function setupCreateOperation()
     {
         CRUD::setValidation(DeliverymanRequest::class);
-
-        CRUD::field('id');
         CRUD::addField([   // Checklist
             'label'     => trans('adminPanel.entities.deliveryman_join_request'),
             'type'      => 'select',
@@ -108,8 +106,8 @@ class DeliverymanCrudController extends CrudController
         CRUD::field('name')->label(trans('adminPanel.attributes.name'));
         CRUD::field('email')->label(trans('adminPanel.attributes.email'));
         CRUD::field('birth_date')->label(trans('adminPanel.attributes.birth_date'));
-        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'));
-        CRUD::field('transportation_type')->label(trans('adminPanel.attributes.transportation_type'));
+        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'))->type('enum');
+        CRUD::field('transportation_type')->label(trans('adminPanel.attributes.transportation_type'))->type('enum');
         CRUD::field('work_days')->label(trans('adminPanel.attributes.work_days'));
         CRUD::field('work_hours_from')->label(trans('adminPanel.attributes.work_hours_from'));
         CRUD::field('work_hours_to')->label(trans('adminPanel.attributes.work_hours_to'));

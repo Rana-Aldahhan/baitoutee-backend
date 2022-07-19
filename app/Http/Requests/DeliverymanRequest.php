@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class DeliverymanRequest extends FormRequest
 {
@@ -25,7 +26,15 @@ class DeliverymanRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+            'phone_number' => 'required|unique:deliveryman_join_requests,phone_number,'.request()->route('id'),
+            'name' => 'required',
+            'email' => 'required|email|unique:deliveryman_join_requests,email,'.request()->route('id'),
+            'birth_date'=>'required|date',
+            'gender'=> ['required', Rule::in(['f','m'])],
+            // 'transportation_type'=>['required', Rule::in([0,1,2,3])],
+            'work_days'=>'required',
+            'work_hours_from'=>'required|date_format:H:i:s',
+            'work_hours_to'=>'required|date_format:H:i:s',
         ];
     }
 

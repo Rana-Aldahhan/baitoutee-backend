@@ -25,7 +25,8 @@ class PriceChangeRequestRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'name' => 'required|min:5|max:255'
+             'new_price' => 'required|numeric',
+             'reason'=>'required'
         ];
     }
 
