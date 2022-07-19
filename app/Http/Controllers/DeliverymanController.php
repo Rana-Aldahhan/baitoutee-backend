@@ -174,7 +174,7 @@ class DeliverymanController extends Controller
             &$todayBalanceReceived,&$thisWeekBalanceReceived,&$thisMonthBalanceReceived,
             &$todayOrders,&$thisWeekOrders,&$thisMonthOrders){
                 $deliveryCost =$delivery->delivaryman_cost_share;//$deliveryCost =$delivery->cost;
-                $deliveryRecievedCost =  $delivery->paid_to_deliveryman;
+                $deliveryRecievedCost =  ($delivery->paid_to_deliveryman)?($delivery->delivaryman_cost_share):0;
                 $deliveredOrders = $delivery->orders()->get()->count();
 
             if($delivery->delivered_at->isSameDay()){

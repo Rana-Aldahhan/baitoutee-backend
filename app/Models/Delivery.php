@@ -11,6 +11,9 @@ class Delivery extends Model
     use HasFactory;
     protected $guarded = [];
     protected $dates = ['delivered_at'];
+    protected $casts = [
+        'paid_to_deliveryman'=>'boolean'
+    ];
     /**
      * relationships
      */
