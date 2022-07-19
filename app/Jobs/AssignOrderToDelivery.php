@@ -58,7 +58,12 @@ class AssignOrderToDelivery implements ShouldQueue
             });
             //make new Delivery and assign it to first deliveryman
             $user = $this->order->user;
-            $deliveryCost = $this->order->total_cost-($this->order->meals_cost+$this->order->profit);
+            if($this->order->subscription_id!=null)//case of a subscription order take delivery cost from pivot table
+            {
+                $deliveryCost=$this->order->subscription->users()->find($this->order->user_id)->pivot->delivery_cost_per_day;
+            } else {
+                $deliveryCost = $this->order->total_cost-($this->order->meals_cost+$this->order->profit);
+            }
             $assignedDeliveryman = $availableDeliverymen->first();
             $deliveryProfitPercentage= DB::table('global_variables')->where('name','delivery_profit_percentage')->first()->value;
             $delivery = Delivery::create([
