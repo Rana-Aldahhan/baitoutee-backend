@@ -644,7 +644,7 @@ class MealController extends Controller
             if($meal->price_with_discount !=null){
                 return $meal->price_with_discount;
             }else return $meal->price_without_discount;
-        })->values():$sortedMeals);
+        },SORT_REGULAR,$priceSortDesc)->values():$sortedMeals);
         $paginated_meals = $sortedMeals->paginate(10);
         return $this->paginatedResponse($paginated_meals);
     }
