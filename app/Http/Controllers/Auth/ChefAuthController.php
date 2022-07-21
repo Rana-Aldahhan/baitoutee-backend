@@ -167,7 +167,8 @@ class ChefAuthController extends Controller
             'max_meals_per_day'=>$request['max_meals_per_day'],
             'profile_picture'=>$profilePath,
             'certificate'=>$certificatePath,
-            'location_id'=>$newLocation->id
+            'location_id'=>$newLocation->id,
+            'fcm_token'=>$request['fcm_token']
         ]);
         return $this->successResponse([],201);
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Controller;
+use App\Services\FCMService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
@@ -20,4 +21,12 @@ Broadcast::routes(['middleware' => ['auth:deliveryman']]);
 //     return $request->user();
 // });
 Route::get('/support', [Controller::class, 'getSupport']);
+
+Route::get('/send-notification', function(){
+        $percentage=50;
+        $name='رز ببزاليا';
+        FCMService::sendPushNotification('/topics/user','عنوان عنوان' , "تم إضافة خصم جديد على وجبة ".$name."بنسبة".$percentage."%");
+        return response()->json('notification sent');
+
+});
 

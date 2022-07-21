@@ -16,6 +16,9 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('fcm_token')->nullable();
         });
+        Schema::table('user_join_requests', function (Blueprint $table) {
+            $table->string('fcm_token')->nullable();
+        });
     }
 
     /**

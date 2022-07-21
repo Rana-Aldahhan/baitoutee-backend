@@ -71,6 +71,7 @@ class AssignOrderToDelivery implements ShouldQueue
                 'cost' => $deliveryCost,
                 'deliveryman_cost_share'=>($deliveryCost*$deliveryProfitPercentage)/100
             ]);
+            $this->order->status='prepared';
             $this->order->delivery()->associate($delivery);
             $this->order->save();
             $assignedDeliveryman->is_available = false;
@@ -79,7 +80,7 @@ class AssignOrderToDelivery implements ShouldQueue
             FCMService::sendPushNotification(
                 $assignedDeliveryman->fcm_token,
                 'طلب توصيل جديد ',
-                $delivery->id.' لقد تم إسناد طلب توصيل جديد إليك، توصيل  رقم'
+                ' لقد تم إسناد طلب توصيل جديد إليك، توصيل  رقم'.$delivery->id
             );
             //broadcast event to deliveryman so he knows a new delivery has been assigned to him
             broadcast(new DeliveryIsAssigned($assignedDeliveryman));

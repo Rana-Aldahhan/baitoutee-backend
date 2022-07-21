@@ -258,7 +258,7 @@ class OrderController extends Controller
         FCMService::sendPushNotification(
             $user->fcm_token,
             'تم تحضير طلبك',
-            $order->id.' لقد تم إتمام تحضير طلبك رقم'
+            ' لقد تم إتمام تحضير طلبك رقم'.$order->id
         );
         //add  order meals cost to chef balance
         $chef=auth('chef')->user();

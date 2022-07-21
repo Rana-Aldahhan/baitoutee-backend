@@ -16,6 +16,9 @@ return new class extends Migration
         Schema::table('chefs', function (Blueprint $table) {
             $table->string('fcm_token')->nullable();
         });
+        Schema::table('chef_join_requests', function (Blueprint $table) {
+            $table->string('fcm_token')->nullable();
+        });
     }
 
     /**

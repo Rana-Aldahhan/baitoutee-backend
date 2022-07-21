@@ -115,7 +115,7 @@ class DeliverymanController extends Controller
             FCMService::sendPushNotification(
                 $user->fcm_token,
                 'طلبك جاري توصيله',
-                $order->id.'يتم الآن توصيل طلبك ذو الرقم '
+               ' يتم الآن توصيل طلبك ذو الرقم ' .$order->id
             );
         }
         else{

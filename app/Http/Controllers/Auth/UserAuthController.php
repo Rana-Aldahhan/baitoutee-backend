@@ -131,7 +131,8 @@ class UserAuthController extends Controller
              * 2 means Barzeh campus , it is the third record in DB
              * we get the agreed upon location code and add 1 to it to store the foreign key
              */
-            'location_id'=>$request['location']+1
+            'location_id'=>$request['location']+1,
+            'fcm_token'=>$request['fcm_token']
         ]);
         return $this->successResponse([],201);
 

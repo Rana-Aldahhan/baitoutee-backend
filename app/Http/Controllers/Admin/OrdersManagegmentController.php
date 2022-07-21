@@ -55,7 +55,7 @@ class OrdersManagegmentController extends Controller
         FCMService::sendPushNotification(
             $user->fcm_token,
             'تم رفض طلبك',
-            $order->id.'عذراً لقد تم رفض طلبك رقم'
+            'عذراً لقد تم رفض طلبك رقم'.$order->id
         );
         return response()->json([]);
         
@@ -73,12 +73,18 @@ class OrdersManagegmentController extends Controller
     }
     public function cancelOrder($id)
     {
-        \Auth::shouldUse('backpack');
-        Gate::authorize('manage-orders');
-        $order=Order::findOrFail($id);
+       \Auth::shouldUse('backpack');
+       Gate::authorize('manage-orders');
+       $order=Order::findOrFail($id);
        $order->status='canceled';
        $order->save();
 
+       FCMService::sendPushNotification(
+        $order->user->fcm_token,
+        'تم إلغاء طلبك',
+        'تم إلغاء طلبك ذو الرقم '.$id
+        );
+        
         \Alert::add('info', trans('adminPanel.messages.order_canceled'))->flash();;
         return redirect('/admin/order');
     }

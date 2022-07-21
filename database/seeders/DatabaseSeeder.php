@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
             GlobalVariablesSeeder::class,
             LocationsSeeder::class,
             CategoriesSeeder::class,
-            RolesSeeder::class
+            RolesSeeder::class,
+            AdminsSeeder::class
         ]);
     }
 }

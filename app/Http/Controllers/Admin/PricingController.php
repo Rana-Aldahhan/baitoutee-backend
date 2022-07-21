@@ -12,6 +12,7 @@ use App\Models\Meal;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Services\FCMService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,6 +25,13 @@ class PricingController extends Controller
         $meal=Meal::find($id);
         $meal->approved=true;
         $meal->save();
+
+        FCMService::sendPushNotification(
+            $meal->chef->fcm_token,
+            ' تم قبول وجبتك الجديدة',
+            'تمت الموافقة على إضافة وجبتك الجديدة  '.$meal->name
+        ); 
+
         return redirect('/admin/meal');
     }
     public function rejectMeal($id) {
@@ -31,7 +39,14 @@ class PricingController extends Controller
         Gate::authorize('approve-reject-meal-prices');
         $meal=Meal::find($id);
         $meal->approved=false;
-        $meal->save();
+        $meal->save(); 
+
+        FCMService::sendPushNotification(
+            $meal->chef->fcm_token,
+            ' تم رفض وجبتك الجديدة',
+            'تم رفض إضافة وجبتك الجديدة  '.$meal->name." يمكنك مراجعة الدعم الفني للاستفسار عن السبب"
+        ); 
+
         return redirect('/admin/meal');
     }
     public function approvePriceChangeRequest($id) {
@@ -43,6 +58,13 @@ class PricingController extends Controller
            $meal=Meal::find($priceChangeRequest->meal_id);
            $meal->price=$priceChangeRequest->new_price;
            $meal->save();
+           
+           FCMService::sendPushNotification(
+            $meal->chef->fcm_token,
+            ' تم قبول السعر الجديد',
+            'تمت الموافقة على تغيير سعر الوجبة   '.$meal->name
+            ); 
+
            return redirect('/admin/price-change-request');
     }
     public function rejectPriceChangeRequest($id) {
@@ -51,6 +73,13 @@ class PricingController extends Controller
         $priceChangeRequest=PriceChangeRequest::find($id);
         $priceChangeRequest->approved=false;
         $priceChangeRequest->save();
+
+        FCMService::sendPushNotification(
+            $priceChangeRequest->meal->chef->fcm_token,
+            ' تم رفض السعر الجديد',
+            'لم تتم الموافقة على طلب  تغيير سعر الوجبة   '.$priceChangeRequest->meal
+            );  
+
         return redirect('/admin/price-change-request');
     }
     public function showProfitValues()

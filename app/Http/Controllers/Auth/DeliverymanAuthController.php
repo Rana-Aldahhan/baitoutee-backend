@@ -112,6 +112,7 @@ class DeliverymanAuthController extends Controller
             'work_days'=>$request['work_days'],
             'work_hours_from'=>$request['work_hours_from'],
             'work_hours_to'=>$request['work_hours_to'],
+            'fcm_token'=>$request['fcm_token']
         ]);
         return $this->successResponse([],201);
 

@@ -9,6 +9,7 @@ use App\Models\DeliverymanJoinRequest;
 use App\Models\User;
 use App\Models\Chef;
 use App\Models\Deliveryman;
+use App\Services\FCMService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -66,7 +67,11 @@ class JoinRequestsController extends Controller
         ]);
         }
         //TODO send notification to that user
-
+        FCMService::sendPushNotification(
+            $joinRequest->fcm_token,
+            'تم قبولك ضمن المنصة',
+            ' تهانينا! أصبحت الآن جزء من منصة بيتوتي ،يمكنك الآن استخدام خدمات المنصة'
+        ); 
         // make the request entity approved
         $joinRequest->approved=true;
         $joinRequest->user_id=$user->id;
@@ -98,7 +103,11 @@ class JoinRequestsController extends Controller
             'approved_at'=>now(),
         ]);
         //TODO send notification to that chef
-
+        FCMService::sendPushNotification(
+            $joinRequest->fcm_token,
+            'تم قبولك ضمن المنصة',
+            ' تهانينا! أصبحت الآن جزء من منصة بيتوتي ،يمكنك الآن استخدام خدمات المباشرة في إضافة وجباتك واستقبال الطلبات'
+        ); 
         // make the request entity approved
         $joinRequest->approved=true;
         $joinRequest->save();
@@ -127,7 +136,11 @@ class JoinRequestsController extends Controller
             'approved_at'=>now(),
         ]);
         //TODO send notification to that chef
-
+        FCMService::sendPushNotification(
+            $joinRequest->fcm_token,
+            'تم قبولك ضمن المنصة',
+            ' تهانينا! أصبحت الآن جزء من منصة بيتوتي ،يمكنك الآن استخدام  المباشرة في استلام طلبات التوصيل'
+        ); 
         // make the request entity approved
         $joinRequest->approved=true;
         $joinRequest->save();
@@ -142,7 +155,11 @@ class JoinRequestsController extends Controller
         if($joinRequest->approved===false || $joinRequest->approved===true)
             return  redirect('/admin/user-join-request');
         //TODO send notification to that user
-
+        FCMService::sendPushNotification(
+            $joinRequest->fcm_token,
+            'تم رفض انضمامك للمنصة',
+            ' عذراً! لم تتم الموافقة على انضمامك إلى منصة بيتوتي'
+        ); 
         // make the request entity rejected
         $joinRequest->approved=false;
         $joinRequest->save();
@@ -158,7 +175,11 @@ class JoinRequestsController extends Controller
             return  redirect('/admin/chef-join-request');
        
         //TODO send notification to that chef
-
+        FCMService::sendPushNotification(
+            $joinRequest->fcm_token,
+            'تم رفض انضمامك للمنصة',
+            ' عذراً! لم تتم الموافقة على انضمامك إلى منصة بيتوتي'
+        ); 
         // make the request entity rejected
         $joinRequest->approved=false;
         $joinRequest->save();
@@ -173,7 +194,11 @@ class JoinRequestsController extends Controller
         if($joinRequest->approved===false || $joinRequest->approved===true)
             return  redirect('/admin/deliveryman-join-request');
         //TODO send notification to that chef
-
+        FCMService::sendPushNotification(
+            $joinRequest->fcm_token,
+            'تم رفض انضمامك للمنصة',
+            ' عذراً! لم تتم الموافقة على انضمامك إلى منصة بيتوتي'
+        ); 
         // make the request entity approved
         $joinRequest->approved=false;
         $joinRequest->save();

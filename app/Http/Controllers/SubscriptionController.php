@@ -15,7 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use App\Rules\InChefDeliveryRange;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
+use App\Services\FCMService;
 
 class SubscriptionController extends Controller
 {
@@ -308,6 +308,12 @@ class SubscriptionController extends Controller
         ]);
         //make orders for each day
         $this->addSubscriptionOrdersToUser($subscription,$request);
+        //send notification of new subscriber to chef
+        FCMService::sendPushNotification(
+            $subscription->chef->fcm_token,
+            'مشترك جديد',
+            ' لقد تم إضافة مشترك جديد إلى الاشتراك '.$subscription->name
+        ); 
 
         return $this->successResponse(['message'=>'subscribed successfully'],201);
 

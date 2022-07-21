@@ -16,6 +16,9 @@ return new class extends Migration
         Schema::table('deliverymen', function (Blueprint $table) {
             $table->string('fcm_token')->nullable();
         });
+        Schema::table('deliveryman_join_requests', function (Blueprint $table) {
+            $table->string('fcm_token')->nullable();
+        });
     }
 
     /**

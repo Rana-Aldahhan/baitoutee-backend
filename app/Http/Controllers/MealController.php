@@ -335,7 +335,7 @@ class MealController extends Controller
             FCMService::sendPushNotification(
                 '/topics/user',
                 'خصم جديد',
-                "$request->discount_percentage بنسبة  $request->name تم إضافة خصم جديد على وجبة "
+                "تم إضافة خصم جديد على وجبة ".$request->name." بنسبة ".$request->discount_percentage."%"
             );
         }
         $updatedMeal = $meal->fill($validateResponse->validated())->save(); // check if it is working or do update
