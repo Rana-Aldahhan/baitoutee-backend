@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('chefs', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('chef_join_request_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
+            // if a request is deleted, the chef request will be null
+            $table->foreignId('chef_join_request_id')->nullable()->constrained()->nullOnDelete(); // ->references('id)->on('locations');
             $table->string('phone_number', 10)->nullable(false);
             $table->string('name', 50)->nullable(false);
             $table->string('email',50)->nullable(false)->unique();

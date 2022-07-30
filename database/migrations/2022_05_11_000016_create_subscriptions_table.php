@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            // if the chef has been deleted the subscription should not be deleted (get with trash in the model)
             $table->foreignId('chef_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
             $table->string('name', 50)->nullable(false);
             $table->unsignedTinyInteger('days_number')->nullable(false);

@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('meals', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('chef_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
-            $table->foreignId('category_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
+            $table->foreignId('chef_id')->nullable(false)->constrained()->cascadeOnDelete(); // ->references('id)->on('locations');
+            $table->foreignId('category_id')->nullable(false)->constrained()->cascadeOnDelete(); // ->references('id)->on('locations');
             $table->string('image')->nullable(false)->default('');
             $table->string('name', 50)->nullable(false);
             $table->unsignedInteger('price')->nullable(false);

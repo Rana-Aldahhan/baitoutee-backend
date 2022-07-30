@@ -15,9 +15,13 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            // if the user has been deleted the order should not be deleted (get with trash in the model)
             $table->foreignId('user_id')->references('id')->on('users');
+            // if the chef has been deleted the order should not be deleted (get with trash in the model)
             $table->foreignId('chef_id')->references('id')->on('chefs');
+            // if the delivery has been deleted the order should not be deleted (get with trash in the model)
             $table->foreignId('delivery_id')->nullable()->references('id')->on('deliveries');
+            // if the subscription has been deleted the order should not be deleted (get with trash in the model)
             $table->foreignId('subscription_id')->nullable()->references('id')->on('subscriptions');
             $table->timestamp('selected_delivery_time');
             $table->string('notes')->nullable();

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('deliverymen', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('deliveryman_join_request_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
+            $table->foreignId('deliveryman_join_request_id')->nullable(false)->constrained()->nullOnDelete(); // ->references('id)->on('locations');
             $table->string('phone_number', 10)->nullable(false);
             $table->string('name', 50)->nullable(false);
             $table->string('email',50)->nullable(false)->unique();

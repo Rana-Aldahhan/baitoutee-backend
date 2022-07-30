@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('subscription_user', function (Blueprint $table) {
             $table->id();
+            // if the user has been deleted his subscription should not be deleted to show it for the chef
             $table->foreignId('user_id')->references('id')->on('users');
             $table->foreignId('subscription_id')->references('id')->on('subscriptions');
             $table->string('notes');

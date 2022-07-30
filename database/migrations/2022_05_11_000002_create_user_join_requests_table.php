@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('user_join_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('location_id')->references('id')->on('locations');
-            $table->foreignId('user_id')->nullable()->references('id')->on('users');
+            $table->foreignId('location_id')->references('id')->on('locations')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->references('id')->on('users')->cascadeOnDelete();
             $table->string('name');
             $table->string('email');
             $table->timestamp('email_verified_at')->nullable();

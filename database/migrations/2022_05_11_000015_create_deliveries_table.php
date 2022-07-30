@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('deliveries', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('deliveryman_id')->nullable(false)->constrained('deliverymen');
+            $table->foreignId('deliveryman_id')->nullable(false)->constrained('deliverymen')->cascadeOnDelete();
             $table->unsignedInteger('distance')->nullable();
             $table->unsignedInteger('cost');
             $table->unsignedInteger('deliveryman_cost_share');

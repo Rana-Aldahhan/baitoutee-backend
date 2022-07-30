@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('meals_saved_list', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users');
-            $table->foreignId('meal_id')->references('id')->on('meals');
+            $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreignId('meal_id')->references('id')->on('meals')->cascadeOnDelete();
             $table->timestamps();
         });
     }

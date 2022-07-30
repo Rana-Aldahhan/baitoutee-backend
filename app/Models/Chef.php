@@ -34,6 +34,10 @@ class Chef extends Authenticatable
      */
      protected $appends = [];
 
+     /**
+      * soft delete on cascade
+      */
+      protected $cascadeDeletes = ['subscriptions','orders'];
     /**
      * relationships
      */
