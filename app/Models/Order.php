@@ -21,11 +21,13 @@ class Order extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id')
+        ->withTrashed();
     }
     public function chef()
     {
-        return $this->belongsTo(Chef::class, 'chef_id');
+        return $this->belongsTo(Chef::class, 'chef_id')
+        ->withTrashed();
     }
     public function delivery()
     {
@@ -37,12 +39,14 @@ class Order extends Model
     }
     public function subscription()
     {
-        return $this->belongsTo(Subscription::class, 'subscription_id');
+        return $this->belongsTo(Subscription::class, 'subscription_id')
+        ->withTrashed();
     }
     public function meals()
     {
         return $this->belongsToMany(Meal::class, 'meal_order', 'order_id', 'meal_id')
-            ->withPivot('quantity', 'notes', 'meal_rate', 'meal_rate_notes')->withTimestamps();
+            ->withPivot('quantity', 'notes', 'meal_rate', 'meal_rate_notes')->withTimestamps()
+            ->withTrashed();
     }
     public function reports()
     {

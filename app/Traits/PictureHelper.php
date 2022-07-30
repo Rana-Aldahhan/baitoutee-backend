@@ -19,7 +19,7 @@ trait PictureHelper{
             // Filename to store
             $fileNameToStore = $filename . '_' . time() . '.' . $extension;
             // Upload Image
-            $imagePath = $request->file($imageKey)->storeAs('public/'.$path, $fileNameToStore);
+            $imagePath = $request->file($imageKey)->storeAs('public/'.$path, $fileNameToStore);//,['disk'=>'public_uploads']
             //$profilePath=asset('storage/profiles/'.$fileNameToStore);
             $imagePath = '/storage/'.$path.'/' . $fileNameToStore;
         }
