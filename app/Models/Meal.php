@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Meal extends Model
 {
     use \Backpack\CRUD\app\Models\Traits\CrudTrait;
-    use HasFactory,Searchable;
+    use HasFactory,Searchable,SoftDeletes;
     protected $guarded = [];
     protected $hidden = ['created_at', 'updated_at', 'chef_id'];
     protected $with = ['chef:id,name', 'category:name,id'];
@@ -38,7 +39,7 @@ class Meal extends Model
     }
     public function chef()
     {
-        return $this->belongsTo(Chef::class);
+        return $this->belongsTo(Chef::class)->withTrashed();
     }
     public function savingUsers()
     {

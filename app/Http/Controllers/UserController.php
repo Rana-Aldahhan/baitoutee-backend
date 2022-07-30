@@ -182,7 +182,7 @@ class UserController extends Controller
         $savedMeals=$user->savedMeals;
         $savedMeals=$savedMeals->map(function($meal){
             $meal->chef_name=$meal->chef->name;
-            return $meal->only(['name','chef_name','image']);
+            return $meal->only(['id','name','chef_name','image']);
         });
 
         return $this->successResponse($savedMeals);

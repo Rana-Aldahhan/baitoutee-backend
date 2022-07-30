@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subscription extends Model
 {
     use \Backpack\CRUD\app\Models\Traits\CrudTrait;
-    use HasFactory;
+    use HasFactory,SoftDeletes;
     protected $guarded = [];
     protected $with=['chef:id,name,profile_picture'];
     protected $casts = [ 'is_available' => 'boolean' ];
@@ -22,11 +23,13 @@ class Subscription extends Model
     }
     public function meals()
     {
-        return $this->belongsToMany(Meal::class)->withPivot('day_number');
+        return $this->belongsToMany(Meal::class)->withPivot('day_number')
+        ->withTrashed();
     }
     public function chef()
     {
-        return $this->belongsTo(Chef::class);
+        return $this->belongsTo(Chef::class)
+        ->withTrashed();
     }
     public function users()
     {

@@ -238,6 +238,8 @@ class SubscriptionController extends Controller
                 $subscription->rating_count=$this->getsubscriptionRatingCount($subscription);
                 $subscription->available_subscriptions_count=$subscription->max_subscribers-$this->getCurrentSubscribersCount($subscription);
                 $subscription->has_subscribed=auth('user')->user()->subscriptions->where('id',$subscription->id)->count()>0;
+                $chef=Chef::find($subscription->chef->id);
+                $subscription->chef->location=$chef->location->name;
                 $subscription->setHidden(['meals','users']);
                 return $this->successResponse($subscription);
             }
@@ -254,7 +256,10 @@ class SubscriptionController extends Controller
         return $this->successResponse($meals);
     }
     public function getChefSubscriptions(Chef $chef){
-        $subscriptions=$chef->subscriptions()->where('is_available',true)->orderBy('starts_at')->get();
+        $subscriptions=$chef->subscriptions()
+        ->where('is_available',true)
+        ->where('starts_at','>',now())
+        ->orderBy('starts_at')->get();
         $subscriptions->map(function($subscription){
             $subscription->total_cost=$this->getTotalSubscriptionPrice($subscription);
             $subscription->rating=$this->getsubscriptionRating($subscription);

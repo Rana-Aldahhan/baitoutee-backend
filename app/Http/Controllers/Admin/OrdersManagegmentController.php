@@ -66,6 +66,8 @@ class OrdersManagegmentController extends Controller
         \Auth::shouldUse('backpack');
         Gate::authorize('manage-orders');
         $order=Order::findOrFail($id);
+        //braodcast event to deliverymen
+        broadcast(new OrderIsPrepared($order))->toOthers();
         AssignOrderToDelivery::dispatch($order)->onConnection('database');
 
         \Alert::add('info', trans('adminPanel.messages.order_reassigned'))->flash();;

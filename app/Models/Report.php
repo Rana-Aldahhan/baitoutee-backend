@@ -11,11 +11,11 @@ class Report extends Model
     use HasFactory;
     public function sendable()
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();;
     }
     public function receivable()
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();;
     }
     public function order(){
         return $this->belongsTo(Order::class);
