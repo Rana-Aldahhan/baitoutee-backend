@@ -16,7 +16,9 @@ return new class extends Migration
         Schema::create('meal_order', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('order_id')->nullable(false)->constrained();
+            // if the order has been deleted all the related meals (relation) will be deleted not the meal it self
+            $table->foreignId('order_id')->nullable(false)->constrained()->cascadeOnDelete();
+            // if the meal is deleted (softdeleted) the the orders that had this meal should not lost it (get with trash in the model)
             $table->foreignId('meal_id')->nullable(false)->constrained();
             $table->unsignedTinyInteger('quantity')->nullable(false);
             $table->string('notes',500)->nullable();

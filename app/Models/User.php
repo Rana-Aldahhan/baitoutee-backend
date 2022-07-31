@@ -63,7 +63,8 @@ class User extends Authenticatable
     }
     public function subscriptions()
     {
-        return $this->belongsToMany(Subscription::class)->withPivot('notes', 'paid', 'total_cost', 'delivery_cost_per_day')->withTimestamps();
+        return $this->belongsToMany(Subscription::class)->withPivot('notes', 'paid', 'total_cost', 'delivery_cost_per_day')->withTimestamps()
+        ->withTrashed();
     }
     public function outcomingReports()
     {

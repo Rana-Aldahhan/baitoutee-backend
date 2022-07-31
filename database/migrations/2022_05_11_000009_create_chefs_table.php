@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('email',50)->nullable(false)->unique();
             $table->date('birth_date')->nullable(false);
             $table->enum('gender', ['m', 'f'])->nullable(false);
-            $table->foreignId('location_id')->nullable(false)->constrained(); // ->references('id)->on('locations');
+            // if the location deleted then the chef will be deleted
+            $table->foreignId('location_id')->nullable(false)->constrained()->cascadeOnDelete(); // ->references('id)->on('locations');
             $table->time('delivery_starts_at')->nullable(false);
             $table->time('delivery_ends_at')->nullable(false);
             $table->unsignedTinyInteger('max_meals_per_day')->nullable(false);

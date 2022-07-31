@@ -17,8 +17,10 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->integer('day_number')->default(1);
-            $table->foreignId('meal_id')->nullable(false)->constrained()->onDelete('cascade');;
-            $table->foreignId('subscription_id')->nullable(false)->constrained()->onDelete('cascade');;
+            // if the meal has been deleted the subscription (relation) should not be deleted (get with trash in the model)
+            $table->foreignId('meal_id')->nullable(false)->constrained();
+            // if the subscription has been deleted the relation will be deleted
+            $table->foreignId('subscription_id')->nullable(false)->constrained()->onDelete('cascade');
         });
     }
 
