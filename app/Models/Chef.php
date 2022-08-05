@@ -10,11 +10,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Scout\Searchable;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 
 class Chef extends Authenticatable
 {
     use \Backpack\CRUD\app\Models\Traits\CrudTrait;
     use HasApiTokens, HasFactory, Notifiable ,SoftDeletes,Searchable;
+    use CascadeSoftDeletes;
     protected $guarded = [];
     protected $hidden = ['created_at','updated_at'];
 
@@ -34,6 +36,10 @@ class Chef extends Authenticatable
      */
      protected $appends = [];
 
+     /**
+      * soft delete on cascade
+      */
+      protected $cascadeDeletes = ['meals'];
     /**
      * relationships
      */

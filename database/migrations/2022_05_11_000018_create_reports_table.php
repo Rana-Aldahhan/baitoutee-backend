@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->morphs('sendable');
             $table->morphs('receivable');
+            // if the order has been deleted the report should not be deleted (get with trash in the model)
             $table->foreignId('order_id')->references('id')->on('orders');
             $table->string('reason',500);
             $table->boolean('seen')->default(false);
