@@ -188,6 +188,7 @@ return [
         'starts_at'=>'تاريخ البداية',
         'max_subscribers'=>'عدد المشتركين الأعظمي',
         'orders_count'=>'عدد الطلبات',
+        'payment_method'=>'طريقة الدفع',
     ],
 
 ];

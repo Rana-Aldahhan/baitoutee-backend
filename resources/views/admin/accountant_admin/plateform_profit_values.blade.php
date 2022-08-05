@@ -8,6 +8,7 @@ $defaultBreadcrumbs = [
 
 // if breadcrumbs aren't defined in the CrudController, use the default breadcrumbs
 $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
+$title=trans('adminPanel.titles.manage_profit_values');
 @endphp
 
 @section('header')
@@ -26,14 +27,7 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
 
         <form method="post" action="/admin/profit-values/edit" id="form">
             @csrf 
-            <!--edit/save button-->
-            <div class="row mb-5 ml-3 mt-3" id="primaryButton">
-                <button  class="btn btn-primary"  onclick="replaceTextsWithInput()"> 
-                    <i class="las la-pen"></i> 
-                    {{trans('adminPanel.actions.edit_values')}}
-                </button>
-
-            </div>
+           
             <!-- alert area-->
             <div id="alert">
                 @if ($errors->any())
@@ -80,12 +74,18 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
                   </div>
                 </div>
                 <div class="col-sm-6">
-                  <div class="card" style="width: 293px;height: 178px;">
+                  <div class="card bg-primary" style="width: 293px;height: 178px;" id="primaryButtonCard">
                     <div class="card-body">
-                      <h5 class="card-title">{{trans('adminPanel.attributes.balance')}}</h5>
-                      <p class="card-text">{{$balance}} S.P</p>
+                       <!--edit/save button-->
+                       <div class="row mb-5 ml-3 mt-3" id="primaryButton">
+                        <button  class="btn btn-primary stretched-link"  onclick="replaceTextsWithInput()"> 
+                            <i class="las la-pen"></i> 
+                            {{trans('adminPanel.actions.edit_values')}}
+                        </button>
+                    </div>
                     </div>
                   </div>
+
                 </div>
               </div>
 
@@ -98,6 +98,8 @@ $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
 @section('after_scripts')
     <script>
       function replaceTextsWithInput(){
+        document.getElementById(`primaryButtonCard`).classList.remove('bg-primary');
+        document.getElementById(`primaryButtonCard`).classList.add('bg-success');
         document.getElementById(`primaryButton`).innerHTML =
             `<button type="submit" class="btn btn-success" "> 
                 <i class="las la-save"></i>

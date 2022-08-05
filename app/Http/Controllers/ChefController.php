@@ -41,6 +41,8 @@ class ChefController extends Controller
         $meals=$chef->meals->where('category_id',$categoryId)->values();
         $meals->map(function ($meal)use($chef){
             $meal->remaining_available_meal_count=$meal->max_meals_per_day-$this->getCountOfTodayAssingedMeals($chef,$meal);
+            if($meal->discount_percentage!=null)
+                $meal->price_after_discount=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100)) +$this->getMealProfit();
             $meal->setHidden(['chef','chef_id','created_at', 'updated_at', 'approved', 'max_meals_per_day', 'expected_preparation_time', 'ingredients', 'category', 'category_id']);
             return $meal->price = $meal->price + $this->getMealProfit() ;
            return $meal->only('name','is_available');

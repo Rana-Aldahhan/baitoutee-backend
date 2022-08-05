@@ -25,6 +25,7 @@ return new class extends Migration
             $table->float('total_cost');
             $table->float('meals_cost');
             $table->float('profit');
+            $table->string('payment_method')->default('cash');
             $table->timestamp('accepted_at')->nullable();
             $table->timestamp('prepared_at')->nullable();
             $table->boolean('paid_to_chef')->default(false);

@@ -8,6 +8,7 @@ $defaultBreadcrumbs = [
 
 // if breadcrumbs aren't defined in the CrudController, use the default breadcrumbs
 $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
+$title='إدرارة طلبات الطعام الجديدة';
 @endphp
 
 @section('header')

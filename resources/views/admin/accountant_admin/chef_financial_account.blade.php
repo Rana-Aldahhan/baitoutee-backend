@@ -7,6 +7,7 @@ $defaultBreadcrumbs = [
     trans('adminPanel.titles.chef_financial_account')=>false
 ];
 $breadcrumbs = $breadcrumbs ?? $defaultBreadcrumbs;
+$title= trans('adminPanel.titles.chef_financial_account');
 @endphp
 
 @section('header')

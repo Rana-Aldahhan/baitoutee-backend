@@ -116,6 +116,7 @@ class OrderController extends Controller
             'total_cost' => $totalCost,
             'meals_cost' => $mealsCost-$mealsProfit,
             'profit' => $mealsProfit,
+            'payment_method'=>$request->payment_method
         ]);
         //attach order with meals
         foreach ($request->meals as $meal) {

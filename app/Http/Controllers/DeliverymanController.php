@@ -42,6 +42,7 @@ class DeliverymanController extends Controller
         if($delivery!=null){
             $delivery->chef_name=$delivery->orders->first()->chef->name;
             $delivery->chef_location=$delivery->orders->first()->chef->location->only(['id','latitude','longitude','name']);
+            $delivery->chef_phone_number=$delivery->orders->first()->chef->phone_number;
             $delivery->destination=$delivery->orders->first()->user->location->name;
             $delivery->selected_delivery_time=$delivery->orders->first()->selected_delivery_time;
             $delivery->total_meal_count=0;
@@ -54,7 +55,7 @@ class DeliverymanController extends Controller
             $delivery->orders->map(function($order)use(&$delivery){
                 $delivery->total_cost+=$order->total_cost;
             });
-            $delivery=$delivery->only(['id','chef_name','chef_location','destination','selected_delivery_time','total_meal_count','total_cost','orders']);
+            $delivery=$delivery->only(['id','chef_name','chef_phone_number','chef_location','destination','selected_delivery_time','total_meal_count','total_cost','orders']);
             $delivery['orders']=$delivery['orders']->map(function ($order){
                 $order->user_name=$order->user->name;
                 $order->user_phone_number=$order->user->phone_number;

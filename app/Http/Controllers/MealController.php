@@ -108,7 +108,12 @@ class MealController extends Controller
         /// $request->route('id'); or  $request->id; (try)
         /// $category->meals (try this instead 👈🏻)
         $categoryMeals = auth('chef')->user()->meals()
-        ->where('category_id', $id)->where('approved',1)->get()->map(function ($meal){
+        ->where('category_id', $id)
+        ->where('approved',true)
+        ->orWhereNull('approved')
+        ->where('category_id', $id)
+        ->where('chef_id', auth('chef')->user()->id)
+        ->get()->map(function ($meal){
             return $meal->setHidden(['chef', 'category']);
         })->values();
         $categoryMeals->toArray();
@@ -128,10 +133,10 @@ class MealController extends Controller
     {
         $ChefMeals = auth('chef')->user()->meals;
         $countActive = $ChefMeals->where('is_available', true)->count();
-        $countNonActive = $ChefMeals->count() - $countActive;
+        $totalCount = $ChefMeals->count();
         $mealsCount = Collection::make([
             'active_meals' => $countActive,
-            'total_meals' => $countNonActive,
+            'total_meals' => $totalCount,
         ]);
         return $this->successResponse($mealsCount);
     }
@@ -204,10 +209,10 @@ class MealController extends Controller
     {
         if ($meal->exists && $meal->approved) {
             $meal->is_saved = auth('user')->user()->savedMeals->where('id', $meal->id)->count() > 0;
-            $meal->price = $meal->price + $this->getMealProfit();
             if($meal->discount_percentage!=null)
              $meal->price_after_discount=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100)) +$this->getMealProfit();
             $meal->delivery_fee = $this->getMealDeliveryFee($meal->chef_id);
+            $meal->price = $meal->price + $this->getMealProfit();
             $meal->remaining_available_meal_count = $meal->max_meals_per_day - $this->getCountOfTodayAssingedMeals($meal->chef, $meal);
             $meal->chef->remaining_available_chef_meals_count = $meal->chef()->get()->first()->max_meals_per_day - $this->getCountOfTodayAssingedTotalMeals($meal->chef);
             $meal->chef->location = $meal->chef()->get()->first()->location()->get()->first()->name;

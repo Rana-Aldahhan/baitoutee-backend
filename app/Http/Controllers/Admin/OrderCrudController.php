@@ -75,6 +75,7 @@ class OrderCrudController extends CrudController
         CRUD::column('total_cost')->label(trans('adminPanel.attributes.total_cost'));
         CRUD::column('meals_cost')->label(trans('adminPanel.attributes.meals_cost'));
         CRUD::column('profit')->label(trans('adminPanel.attributes.profit'));
+        CRUD::column('payment_method')->label(trans('adminPanel.attributes.payment_method'));
         CRUD::addColumn([
             'name'     => 'delivery_id',
             'label'    =>  trans('adminPanel.entities.delivery'),
