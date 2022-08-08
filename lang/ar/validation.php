@@ -50,13 +50,13 @@ return [
     'file' => 'The :attribute يجب أن يكون ملفاً.',
     'filled' => 'The :attribute field must have a value.',
     'gt' => [
-        'numeric' => 'The :attribute must be greater than :value.',
+        'numeric' => ' :attribute يجب أن تكون أكبر من  :value.',
         'file' => 'The :attribute must be greater than :value kilobytes.',
         'string' => 'The :attribute must be greater than :value characters.',
         'array' => 'The :attribute must have more than :value items.',
     ],
     'gte' => [
-        'numeric' => 'The :attribute must be greater than or equal to :value.',
+        'numeric' => 'The :attribute يجب أن تكون أكبر من  :value.',
         'file' => 'The :attribute must be greater than or equal to :value kilobytes.',
         'string' => 'The :attribute must be greater than or equal to :value characters.',
         'array' => 'The :attribute must have :value items or more.',
@@ -83,7 +83,7 @@ return [
     ],
     'mac_address' => 'The :attribute must be a valid MAC address.',
     'max' => [
-        'numeric' => 'The :attribute must not be greater than :max.',
+        'numeric' => ' :attribute يجب ألا تكون أكبر من  :max.',
         'file' => 'The :attribute must not be greater than :max kilobytes.',
         'string' => 'The :attribute must not be greater than :max characters.',
         'array' => 'The :attribute must not have more than :max items.',
@@ -157,7 +157,7 @@ return [
             'InChefDeliveryRange'=>' :attribute يجب أن يكون ضمن الأوقات المتاحة للتوصيل  '
         ],
         'selected_max_meals_per_day' =>[
-            'MoreThanMaxMeals' => ':attribute يجب أن يكون أكبر من العدد الأعظمي الذي يمكن تحضيره من هذه الوجبة'
+            'MoreThanMaxMeals' => ' العدد الأعظمي يجب أن يكون أصغر من :attribute  '
         ]
     ],
 
@@ -190,7 +190,7 @@ return [
         'code'=>'رمز التحقق',
         'delivery_starts_at'=>'وقت بداية التوصيل المتاحة',
         'delivery_ends_at' => 'وقت نهاية التوصيل المتاحة',
-        'max_meals_per_day' => 'عدد الوجبات الأعظمي التي يمكن تحضيرها باليوم',
+        'max_meals_per_day' => 'عدد الوجبات الكلي الممكن تحضيره',
         'profile_picture' => 'الصورة الشخصية',
         'expected_preparation_time' => 'الوقت المتوقع لتحضير الوجبة',
         'meals.max_meals_per_day' => 'العدد الأعظمي الممكن تحضيره من هذه الوجبة يوميا',

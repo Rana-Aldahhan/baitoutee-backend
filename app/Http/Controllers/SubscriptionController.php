@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Rules\InChefDeliveryRange;
 use Illuminate\Support\Arr;
 use App\Services\FCMService;
+use App\Rules\ApprovedMeal;
 
 class SubscriptionController extends Controller
 {
@@ -26,7 +27,7 @@ class SubscriptionController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => $fieldRequired,
             'days_number' => $fieldRequired.'|numeric|min:1',
-            'meals' => $fieldRequired.'|array|size:'.$request->days_number,
+            'meals' => [$fieldRequired,'array','size:'.$request->days_number,new ApprovedMeal],
             'starts_at' => [$fieldRequired,'date_format:Y-m-d H:i:s', new TimeAfter(Carbon::tomorrow()->toDateString())],
             'meal_delivery_time' => [$fieldRequired,'date_format:H:i:s',new InChefDeliveryRange(auth('chef')->user())],
             'max_subscribers' => $fieldRequired.'|numeric',
@@ -138,11 +139,11 @@ class SubscriptionController extends Controller
         $is_updated = $subscription->fill($updatedData)->save();
 
         // delete the the meals that was before update
-        $subscription->meals()->sync($request->meals[0]);
+       $subscription->meals()->detach();
         $day =1;
         //attach subscription with meals
         foreach ($request->meals as $meal) {
-            $subscription->meals()->syncWithPivotValues($meal,['day_number' => $day],false);
+           $subscription->meals()->attach($meal,['day_number' => $day],false);
             $day++;
         }
         return $this->successResponse($is_updated);
@@ -318,7 +319,7 @@ class SubscriptionController extends Controller
             $subscription->chef->fcm_token,
             'مشترك جديد',
             ' لقد تم إضافة مشترك جديد إلى الاشتراك '.$subscription->name
-        ); 
+        );
 
         return $this->successResponse(['message'=>'subscribed successfully'],201);
 
