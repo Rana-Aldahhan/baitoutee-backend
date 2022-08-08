@@ -21,11 +21,11 @@ class InsureNotRestricted
         if(auth()->user()->tokenCan('chef') || auth()->user()->tokenCan('deliveryman'))
         {
                 if(auth()->user()->deleted_at != null)
-                    return $this->errorResponse("حسابك مقيّد",403);
+                    return $this->errorResponse("حسابك مقيّد",401);
         }else if(auth()->user()->tokenCan('user'))
         {
             if(auth()->user()->deleted_at != null || now()>auth()->user()->campus_card_expiry_date)
-                return $this->errorResponse("حسابك مقيّد",403);
+                return $this->errorResponse("حسابك مقيّد",401);
         }
         return $next($request);
     }

@@ -24,9 +24,9 @@ Route::prefix('chef')->group(function () {
     Route::post('/send-code', [CommonAuthController::class, 'sendPhoneNumberVerificationCode']);
     Route::post('/check-code-and-accessibility', [ChefAuthController::class, 'checkChefCodeAndRegisterStatus']);
     Route::post('/request-register', [ChefAuthController::class, 'makeRegisterRequest'])->middleware('verified.phone');
+    Route::delete('/logout', [ChefAuthController::class, 'logout']);
     // authenticated routes
     Route::middleware(['auth:chef'])->group(function () {
-        Route::delete('/logout', [ChefAuthController::class, 'logout']);
         //restricted routes
         Route::middleware([ 'notRestricted'])->group(function () {
             Route::group(['prefix' => 'meals'], function () {

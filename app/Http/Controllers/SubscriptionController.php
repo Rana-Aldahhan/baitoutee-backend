@@ -10,6 +10,7 @@ use App\Rules\AcceptableMealsCost;
 use App\Rules\TimeAfter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Traits\MealsHelper;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -299,13 +300,13 @@ class SubscriptionController extends Controller
     public function subscribe(Subscription $subscription,Request $request)
     {
         if($subscription->starts_at<now())
-         return $this->errorResponse("عذراً لم يعد التسجيل على هذا الاشتراك متاحاً",400);
+         return $this->errorResponse("عذراً ، لقد بدأ هذا الاشتراك بالفعل",400);
         if(!$subscription->is_available)
          return $this->errorResponse("عذراً لم يعد التسجيل على هذا الاشتراك متاحاً",400);
+        if($subscription->max_subscribers < $this->getCurrentSubscribersCount($subscription)+1)
+         return $this->errorResponse("لقد وصل الاشتراك إلى العدد الأقصى من المشتركين",400);
         if(auth('user')->user()->subscriptions->where('id',$subscription->id)->count()>0)
             return $this->errorResponse("أنت مشترك ضمن هذا الاشتراك مسبقاً",400);
-        if($subscription->max_subscribers < $this->getCurrentSubscribersCount($subscription)+1)
-            return $this->errorResponse("لقد وصل الاشتراك إلى العدد الأقصى من المشتركين",400);
         auth('user')->user()->subscriptions()->attach($subscription->id,[
             'notes'=>$request->notes,
             'total_cost'=>$this->getTotalSubscriptionPrice($subscription),
@@ -331,15 +332,17 @@ class SubscriptionController extends Controller
             $totalCost=0;
             $profits=0;
             $mealsCost=0;
+            $mealDate=Carbon::create($subscription->starts_at);
             $meal->pivot->day_number==1?$totalCost=$this->getTotalSubscriptionPrice($subscription):$totalCost=0;
             $meal->pivot->day_number==1?$profits=$this->getSubscriptionMealsProfit($subscription):$profits=0;
             $meal->pivot->day_number==1?$mealsCost=$subscription->meals_cost:$mealsCost=0;
+            $meal->pivot->day_number!=1?$mealDate=Carbon::create($subscription->starts_at)->addDays( $meal->pivot->day_number)
+            ->setTimeFromTimeString($subscription->meal_delivery_time)->toDateTimeString():$mealDate;
             $order=Order::create([
                 'user_id'=>auth('user')->user()->id,
                 'chef_id'=>$subscription->chef_id,
                 'subscription_id'=>$subscription->id,
-                'selected_delivery_time'=>Carbon::create($subscription->starts_at)->addDays( $meal->pivot->day_number)
-                                        ->setTimeFromTimeString($subscription->meal_delivery_time)->toDateTimeString(),
+                'selected_delivery_time'=>$mealDate,
                 'notes'=>$request->notes,
                 'status'=>'approved',
                 'accepted_at'=>now(),
@@ -363,12 +366,14 @@ class SubscriptionController extends Controller
           $query->where('name','like', '%' . $search . '%');
           })->orWhere('name','like', '%' . $search . '%')
           ->where('is_available',1)
-          ->get()->filter(function($subscription) use ($request) {
+          ->whereDate('starts_at','>',now())
+          ->paginate(10);
+          $filtered=$paginated_subscribtions->filter(function($subscription) use ($request) {
               $subscription->total_cost = $this->getTotalSubscriptionPrice($subscription);
               $numOfSubscribers =$this->getSubscribersCount($subscription);
               $subscription->current_subscribers = $numOfSubscribers;
               $subscription->setHidden(['chef_id','created_at','updated_at','meals_cost','meal_delivery_time',
-              'max_subscribers','current_subscribers','is_available']);
+              'max_subscribers','current_subscribers']);
               //FIXED: not recount the repeated meals
               $mealsCount = $subscription->meals->unique()->where('rating','!=',null)->count();
               $subscription->rating = $subscription->meals->unique()->sum('rating')/$mealsCount;
@@ -384,8 +389,8 @@ class SubscriptionController extends Controller
                   && $subscription->is_available == true){
                       return $subscription;
               }
-          })->values()->paginate(10);
-
+          })->values();
+          $paginated_subscribtions = new LengthAwarePaginator($filtered, $filtered->count(), $paginated_subscribtions->perPage());
           return $this->paginatedResponse($paginated_subscribtions);
     }
     // the current way to calculate the shown price of a subscription is:

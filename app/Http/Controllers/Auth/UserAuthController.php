@@ -143,9 +143,18 @@ class UserAuthController extends Controller
         return $user;
     }
     public function logout(){
-        $user=auth('user')->user()->tokens()->delete();
-        $user->fcm_token=null;
-        $user->save();
-        return $this->successResponse([],200);
+        //insure the request comes with authenticated access token
+        $access_token=request()->bearerToken();
+        $token_id=explode('|',$access_token)[0];//take out token id
+        $tokenable_id=DB::table('personal_access_tokens')->where('id',$token_id)->first()->tokenable_id;
+        $user=User::withTrashed()->where('id',$tokenable_id)->first();
+        if($user!=null)  
+        { //logout
+            $user->fcm_token=null;
+            $user->save();
+            $user->tokens()->delete();
+            return $this->successResponse([],200);
+        }
+        else return $this->errorResponse('unauthenticated',401);
     }
 }

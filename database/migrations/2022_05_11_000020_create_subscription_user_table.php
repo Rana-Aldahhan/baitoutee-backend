@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
             // if the subscription has been deleted the user subscription should not be deleted (get with trash in the model)
             $table->foreignId('subscription_id')->references('id')->on('subscriptions');
-            $table->string('notes');
+            $table->string('notes')->nullable();
             $table->boolean('paid')->default(false);
             $table->float('total_cost', 8, 2);
             $table->float('delivery_cost_per_day',6,2);

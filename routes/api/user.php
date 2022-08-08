@@ -26,11 +26,12 @@ Route::prefix('user')->group(function () {
     Route::post('/check-code-and-accessibility', [UserAuthController::class, 'checkUserCodeAndRegisterStatus']);
     Route::get('/locations', [LocationController::class, 'getCampusLocations']);
     Route::post('/request-register', [UserAuthController::class, 'makeRegisterRequest'])->middleware('verified.phone');
+    Route::delete('/logout', [UserAuthController::class, 'logout']);
     // authenticated routes
     Route::middleware(['auth:user'])->group(function () {
-        Route::delete('/logout', [UserAuthController::class, 'logout']); 
+        // Route::delete('/logout', [UserAuthController::class, 'logout']); 
         //restricted routes
-        Route::middleware([ 'notRestricted'])->group(function () {
+        Route::middleware(['notRestricted'])->group(function () {
             //student chef home page
             Route::get('/filter-top-rated-chefs', [ChefController::class, 'filterTopRated']);
             Route::get('/filter-nearest-chefs', [ChefController::class, 'filterNearest']);

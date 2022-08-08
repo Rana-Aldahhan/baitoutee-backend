@@ -23,7 +23,13 @@ class UserController extends Controller
         ->get();
         
         $orders=$orders->map(function($order){
-            $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow());
+            $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow() && $order->status!='canceled');
+            if($order->supscription_id!=null){
+                if($order->total_cost==0)
+                    $order->can_be_canceled=true;
+                else
+                    $order->can_be_canceled=false;
+            }
             $order->chef_name=$order->chef->name;
             $order->chef_image=$order->chef->profile_picture;
             return $order->only(['id','can_be_canceled','status','chef_name','chef_image','selected_delivery_time','created_at','subscription_id']);
@@ -37,6 +43,9 @@ class UserController extends Controller
             return $this->errorResponse('لا يمكن إلغاء هذا الطلب',400);
         }
         else{
+            if($order->subscription_id!=null && $order->total_cost!=0 ){
+                return $this->errorResponse('لا يمكن إلغاء هذا الطلب',400);
+            }
             $order->status='canceled';
             $order->save();
             return $this->successResponse(['message'=>'order has been canceled successfully'],200);
@@ -61,15 +70,20 @@ class UserController extends Controller
     public function showOrder(Order $order){
         $order->chef_name=$order->chef->name;
         $order->delivery_fee=$order->total_cost-($order->meals_cost + $order->profit );
-        $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow());
+        $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow() && $order->status!='canceled');
         $order->meals_count=0;
         $order->meals->map(function($meal)use($order){
             $order->meals_count+=$meal->pivot->quantity;
         });
         if($order->subscription_id!=null)
             {
+                if($order->total_cost==0)
+                    $order->can_be_canceled=true;
+                else
+                    $order->can_be_canceled=false;
                 $order->total_cost='-';
                 $order->delivery_fee='-';
+                
             }
         $order->can_be_evaluated=$order->status=='delivered';
         $order->meals=$order->meals->map(function($meal)use($order){
@@ -144,7 +158,8 @@ class UserController extends Controller
         $user=auth('user')->user();
         $subscriptions=$user->subscriptions->filter(function($subscription){
             return Carbon::create($subscription->starts_at)->addDays($subscription->days_number)>=Carbon::today();
-        });
+        })
+        ->values();
         $subscriptions->map(function($subscription){
             $subscription->ends_at= Carbon::create($subscription->starts_at)->addDays($subscription->days_number);
             $subscription->makeHidden(['pivot','chef_id','is_available']);
@@ -154,11 +169,11 @@ class UserController extends Controller
     public function getSubscriptionOrders(Subscription $subscription)
     {
        $orders=$subscription->orders->filter(function($order){
-        return Carbon::create($order->selected_delivery_time)>=Carbon::today();
+        return Carbon::create($order->selected_delivery_time)>=Carbon::today() && $order->status!='canceled';
         })
         ->values()
         ->map(function($order){
-            $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow() && $order->status!='canceled');
+            $order->can_be_canceled=($order->selected_delivery_time >=Carbon::tomorrow() && $order->status!='canceled'&& $order->total_cost==0);//TODO can't canel first order
             $order->meal_name=$order->meals->first()->name;
             $order->meal_image=$order->meals->first()->image;
             return $order->only(['id','selected_delivery_time','meal_name','meal_image','can_be_canceled']);

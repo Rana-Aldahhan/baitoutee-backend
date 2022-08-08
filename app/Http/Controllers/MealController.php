@@ -15,6 +15,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -624,7 +625,7 @@ class MealController extends Controller
         //return the records that fit with the search
         $searched_meals = Meal::search($search)->query(function (Builder $builder)  {
             $builder->approved();
-        })->get();
+        })->paginate(10);
 
         // not the best but it is not bad if the meal have the exact name in the search
         //it will appear first
@@ -650,7 +651,7 @@ class MealController extends Controller
                 return $meal->price_with_discount;
             }else return $meal->price_without_discount;
         },SORT_REGULAR,$priceSortDesc)->values():$sortedMeals);
-        $paginated_meals = $sortedMeals->paginate(10);
+        $paginated_meals = new LengthAwarePaginator($sortedMeals, $searched_meals->total(), $searched_meals->perPage());
         return $this->paginatedResponse($paginated_meals);
     }
 }

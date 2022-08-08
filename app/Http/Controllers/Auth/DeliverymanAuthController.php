@@ -118,16 +118,27 @@ class DeliverymanAuthController extends Controller
 
     }
     public function login(Deliveryman $deliveryman){
+        $deliveryman->is_available=false;
+        $deliveryman->save();
         $access_token= $deliveryman->createToken('app',['deliveryman'])->plainTextToken;
         $deliveryman->access_token=$access_token;
         return $deliveryman;
     }
     public function logout(){
-        $deliveryman=auth('deliveryman')->user();
-        $deliveryman->is_available=false;
-        $deliveryman->fcm_token=null;
-        $deliveryman->save();
-       $deliveryman->tokens()->delete();
-        return $this->successResponse([],200);
+         //insure the request comes with authenticated access token
+         $access_token=request()->bearerToken();
+         $token_id=explode('|',$access_token)[0];//take out token id
+         $tokenable_id=DB::table('personal_access_tokens')->where('id',$token_id)->first()->tokenable_id;
+         $deliveryman=Deliveryman::withTrashed()->where('id',$tokenable_id)->first();
+         if($deliveryman!=null)  
+         { //logout
+            $deliveryman=auth('deliveryman')->user();
+            $deliveryman->is_available=false;
+            $deliveryman->fcm_token=null;
+            $deliveryman->save();
+            $deliveryman->tokens()->delete();
+            return $this->successResponse([],200);
+         }
+         else return $this->errorResponse('unauthenticated',401);
     }
 }

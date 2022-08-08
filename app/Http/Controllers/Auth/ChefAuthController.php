@@ -174,17 +174,28 @@ class ChefAuthController extends Controller
 
     }
     public function login(Chef $chef){
+        $chef->is_available=false;
+        $chef->save();
         $access_token= $chef->createToken('app',['chef'])->plainTextToken;
         $chef->access_token=$access_token;
         return $chef;
     }
     public function logout(){
-        $chef=auth('chef')->user();
-        $chef->is_available=false;
-        $chef->fcm_token=null;
-        $chef->save();
-        $chef->tokens()->delete();
-        return $this->successResponse([],200);
+        //insure the request comes with authenticated access token
+        $access_token=request()->bearerToken();
+        $token_id=explode('|',$access_token)[0];//take out token id
+        $tokenable_id=DB::table('personal_access_tokens')->where('id',$token_id)->first()->tokenable_id;
+        $chef=Chef::withTrashed()->where('id',$tokenable_id)->first();
+        if($chef!=null)  
+        { //logout
+            $chef=auth('chef')->user();
+            $chef->is_available=false;
+            $chef->fcm_token=null;
+            $chef->save();
+            $chef->tokens()->delete();
+            return $this->successResponse([],200);
+        }
+        else return $this->errorResponse('unauthenticated',401);
     }
 
 }

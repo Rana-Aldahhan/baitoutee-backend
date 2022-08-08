@@ -8,6 +8,7 @@ use App\Models\Location;
 use App\Models\Meal;
 use App\Models\Order;
 use App\Rules\InChefDeliveryRange;
+use App\Rules\TimeAfter;
 use App\Traits\MealsHelper;
 use Carbon\Carbon;
 use DateTime;
@@ -36,7 +37,7 @@ class OrderController extends Controller
         $chef = Chef::findOrFail($request->chef_id);
         //check if selected time is in the range of the chef
         $validator = Validator::make($request->all(), [
-            'selected_delivery_time' => [new InChefDeliveryRange($chef)],
+            'selected_delivery_time' => [new InChefDeliveryRange($chef),new TimeAfter(now())],
         ]);
         if ($validator->fails()) { //case of input validation failure
             return $this->errorResponse($validator->errors()->first(), 422);
