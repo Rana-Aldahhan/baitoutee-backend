@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Models\Meal;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Arr;
 
@@ -30,12 +31,13 @@ class AcceptableMealsCost implements Rule
     public function passes($attribute, $value)
     {
         $mealsCost = 0;
-        $meals = auth('chef')->user()->meals()->whereIn('id',$this->mealsIDs)->get()
-        ->map(function ($meal) use (&$mealsCost){
-            $mealsCost+= $meal->price;
-        });
+
+        foreach($this->mealsIDs as $mealID){
+           $meal = Meal::find($mealID);
+           $mealsCost+= $meal?->price;
+        }
         $this->mealsCost =$mealsCost ;
-        return intval($value)<= $mealsCost;
+        return (intval($value)<= $mealsCost && intval($value)>0);
     }
 
     /**

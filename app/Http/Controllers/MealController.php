@@ -32,13 +32,13 @@ class MealController extends Controller
     protected function getRules(Request $request)
     {
         return [
-            'image' => 'required|image',
+            //'image' => 'required|image',
             'name' => 'required|min:1|max:50',
             'category_id' => 'required_without:new_category_name|exists:categories,id',
             'category_name' => 'required_without:category_id',
             'ingredients' => 'required',
             'expected_preparation_time' => 'required|numeric|max:255',
-            'max_meals_per_day' => ['required', 'numeric', 'min:0', 'max:255', new MaximumMealNumber()], // check if this make a problem
+            'max_meals_per_day' => ['required', 'numeric', 'min:0', new MaximumMealNumber()], // check if this make a problem
             'price' => 'required|numeric',
             //  'reason' => new RequiredIf($this->changedPrice),
             'discount_percentage' => 'nullable|numeric',
@@ -54,7 +54,7 @@ class MealController extends Controller
             'category_id' => 'filled|exists:categories,id',
             'ingredients' => 'filled',
             'expected_preparation_time' => 'filled|numeric|max:255',
-            'max_meals_per_day' => ['filled', 'numeric', 'min:0', 'max:255', new MaximumMealNumber()], // check if this make a problem
+            'max_meals_per_day' => ['filled', 'numeric', 'min:0', new MaximumMealNumber()], // check if this make a problem
             'price' => 'filled|numeric',
             // 'reason' => new RequiredIf($this->changedPrice),
             'discount_percentage' => 'nullable|numeric',
@@ -69,7 +69,7 @@ class MealController extends Controller
      */
     protected function validateMeal(Request $request, $rules)
     {
-        $validator = Validator::make($request->only('image', 'name',
+        $validator = Validator::make($request->only(/*'image', */'name',
             'category_id', 'ingredients', 'expected_preparation_time', 'max_meals_per_day',
             'price', 'discount_percentage', 'new_category_name'),
             $rules);
@@ -283,7 +283,7 @@ class MealController extends Controller
  * @param Request $request
  * @return false|string|null
  */
-   /* public function storeMealPic(Request $request)
+    public function storeMealPic(Request $request)
     {
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -301,7 +301,7 @@ class MealController extends Controller
             $imagePath = '/storage/mealsImages/' . $fileNameToStore;
         }
         return $imagePath;
-    }*/
+    }
 /**
  * Update the specified resource in storage.
  *
