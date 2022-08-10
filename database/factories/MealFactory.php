@@ -17,7 +17,7 @@ class MealFactory extends Factory
     public function definition()
     {
         return [
-            'image'=>'/storage/profiles/'. $this->faker->word(),
+            'image'=>'/storage/mealsImages/'. $this->faker->word(),
             'name' => $this->faker->word(),
             'price'=>$this->faker->numberBetween(500,20000),
             'max_meals_per_day'=>$this->faker->numberBetween(3,50),

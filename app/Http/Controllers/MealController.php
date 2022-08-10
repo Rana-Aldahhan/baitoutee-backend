@@ -32,16 +32,16 @@ class MealController extends Controller
     protected function getRules(Request $request)
     {
         return [
-            //'image' => 'required|image',
+            'image' => 'required'/*|image'*/,
             'name' => 'required|min:1|max:50',
             'category_id' => 'required_without:new_category_name|exists:categories,id',
             'category_name' => 'required_without:category_id',
             'ingredients' => 'required',
             'expected_preparation_time' => 'required|numeric|max:255',
             'max_meals_per_day' => ['required', 'numeric', 'min:0', new MaximumMealNumber()], // check if this make a problem
-            'price' => 'required|numeric',
+            'price' => 'required|numeric|min:1',
             //  'reason' => new RequiredIf($this->changedPrice),
-            'discount_percentage' => 'nullable|numeric',
+            'discount_percentage' => 'nullable|numeric|min:1|max:100',
         ];
 
     }
@@ -55,9 +55,9 @@ class MealController extends Controller
             'ingredients' => 'filled',
             'expected_preparation_time' => 'filled|numeric|max:255',
             'max_meals_per_day' => ['filled', 'numeric', 'min:0', new MaximumMealNumber()], // check if this make a problem
-            'price' => 'filled|numeric',
+            'price' => 'filled|numeric|min:1',
             // 'reason' => new RequiredIf($this->changedPrice),
-            'discount_percentage' => 'nullable|numeric',
+            'discount_percentage' => 'nullable|numeric|min:1|max:100',
         ];
 
     }
@@ -69,7 +69,7 @@ class MealController extends Controller
      */
     protected function validateMeal(Request $request, $rules)
     {
-        $validator = Validator::make($request->only(/*'image', */'name',
+        $validator = Validator::make($request->only('image', 'name',
             'category_id', 'ingredients', 'expected_preparation_time', 'max_meals_per_day',
             'price', 'discount_percentage', 'new_category_name'),
             $rules);
@@ -219,6 +219,7 @@ class MealController extends Controller
             $meal->chef->location = $meal->chef()->get()->first()->location()->get()->first()->name;
             $meal->chef->delivery_starts_at = $meal->chef()->get()->first()->delivery_starts_at;
             $meal->chef->delivery_ends_at = $meal->chef()->get()->first()->delivery_ends_at;
+            $meal->image = $meal->image;
             return $this->successResponse($meal);
         } else {
             return $this->errorResponse("لم يتمكن من عرض الوجبة", 404);
