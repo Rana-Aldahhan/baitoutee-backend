@@ -224,6 +224,7 @@ class OrderController extends Controller
                     $mealNote = $meal->name . ": " . $meal->pivot->notes;
                     return $notes .=$mealNote . ", ";
                 });
+                dd($item->$notes);
                 return [
                     'id' => $item->id,
                     'status' => $item->status,
