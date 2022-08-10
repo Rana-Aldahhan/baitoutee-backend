@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Events\OrderIsPrepared;
 use Illuminate\Http\Request;
 use App\Jobs\AssignOrderToDelivery;
 use Illuminate\Support\Facades\Gate;

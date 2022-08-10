@@ -128,10 +128,9 @@ class DeliverymanController extends Controller
             $deliveryProfitPercentage= DB::table('global_variables')->where('name','delivery_profit_percentage')->first()->value;
             $deliveryman=auth('deliveryman')->user();
             // $deliveryman->balance+=($order->delivery->cost*$deliveryProfitPercentage)/100;
-            $deliveryman->balance+=$order->delivery->delivaryman_cost_share;
-            $deliveryman->total_collected_order_costs=$order->total_cost;
+            $deliveryman->balance+=$order->delivery->deliveryman_cost_share;
+            $deliveryman->total_collected_order_costs+=$order->total_cost;
             //set the deliveryman status to available again
-            $deliveryman->is_available=true;
             $deliveryman->save();
         }
         return $this->successResponse(['message'=>'status of order changed successfully']);

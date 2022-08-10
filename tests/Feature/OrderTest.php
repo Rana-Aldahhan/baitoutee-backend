@@ -21,7 +21,7 @@ class OrderTest extends TestCase
     /**
      * make a successful order:
      */
-    public function test_make_successful_order(){
+    public function test_successful_order_returns_201(){
         $knownDate = Carbon::create(2022, 8, 9, 12);
         Carbon::setTestNow($knownDate); 
 
@@ -62,11 +62,54 @@ class OrderTest extends TestCase
        
     }
     /**
+     * make an order with no authenticated user
+     */
+    public function test_unauthorized_order_request_returns_401(){
+        $knownDate = Carbon::create(2022, 8, 9, 12);
+        Carbon::setTestNow($knownDate); 
+
+        $faker = \Faker\Factory::create();
+        $category=Category::factory()->create();
+        $location=Location::factory()->create();
+        $user = User::factory()->create([
+            'location_id' => 1,
+        ]);
+        $chef=Chef::factory()->create([
+            'is_available'=>true,
+            'location_id'=>$location->id,
+            'delivery_starts_at'=>now()->subHours(2),
+            'delivery_ends_at'=>now()->addHours(2),
+        ]);
+        $meal=Meal::factory()->create([
+            'chef_id'=>$chef->id,
+            'category_id'=>$category->id,
+            'is_available'=>true
+        ]);
+        $response = $this->postJson('/api/user/make-order',
+         [
+            'chef_id' => $chef->id,
+            'meals_count'=>1,
+            'meals'=>[
+                ['id'=>$meal->id,'quantity'=>1,'notes'=>'extra salt']
+            ],
+            'selected_delivery_time'=>$faker->dateTimeBetween(Carbon::create($chef->delivery_ends_at)->subHour(),Carbon::create($chef->delivery_ends_at))
+            ->format('Y-m-d H:i:s'),
+            'notes'=>'extra extra',
+            'total_cost'=>'15722',
+            'meals_cost'=>'11000',
+            'payment_method'=>'cash'
+         ]
+        );
+         $response->assertStatus(401);
+       
+    }
+    /**
      * make an invalid order 
      * the selected deivery time is out range the chef schedule
      */
-    public function test_make_invalid_order(){
-       
+    public function test_invalid_order_returns_422(){
+        $knownDate = Carbon::create(2022, 8, 9, 12);
+        Carbon::setTestNow($knownDate); 
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();
@@ -108,8 +151,9 @@ class OrderTest extends TestCase
      * make an invalid order 
      * the ordered dmeal quantity is more than the max accepted number
      */
-    public function test_make_bad_order_bad_meal_quantity(){
-       
+    public function test_order_over_allowed_meal_quantity_returns_400(){
+        $knownDate = Carbon::create(2022, 8, 9, 12);
+        Carbon::setTestNow($knownDate); 
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();
@@ -152,8 +196,9 @@ class OrderTest extends TestCase
      * make an invalid order 
      * the ordered dmeal quantity is more than the max orders for chef
      */
-    public function test_make_bad_order_bad_chef_meal_quantity(){
-       
+    public function test_order_over_allowed_chef_meal_quantity_returns_400(){
+        $knownDate = Carbon::create(2022, 8, 9, 12);
+        Carbon::setTestNow($knownDate); 
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();
@@ -196,8 +241,9 @@ class OrderTest extends TestCase
      * make an invalid order 
      * the order includes an inavailable meal
      */
-    public function test_make_bad_order_inavailable_meal(){
-       
+    public function test_order_inavailable_meal_returns_400(){
+        $knownDate = Carbon::create(2022, 8, 9, 12);
+        Carbon::setTestNow($knownDate); 
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();

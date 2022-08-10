@@ -32,6 +32,6 @@ class DeliveryIsAssigned implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('deliveryman.'.$this->deliveryman->id);
+        return new Channel('deliveryman.'.$this->deliveryman->id);
     }
 }

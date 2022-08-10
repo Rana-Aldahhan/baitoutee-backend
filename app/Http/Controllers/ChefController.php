@@ -220,18 +220,18 @@ class ChefController extends Controller
                 $costRecivedCost=  $order->paid_to_chef;
             if($order->prepared_at?->isSameDay()){
                 $todayBalance+= $mealsCost;
-                $todayBalanceReceived+= $costRecivedCost;
+                $todayBalanceReceived+= $costRecivedCost?$mealsCost:0;
                 $todayOrders+= 1;
             }
             //Note: that the week start from monday not sunday
             if($order->prepared_at?->isSameWeek()){
                 $thisWeekBalance+= $mealsCost;
-                $thisWeekBalanceReceived+= $costRecivedCost;
+                $thisWeekBalanceReceived+= $costRecivedCost?$mealsCost:0;
                 $thisWeekOrders+= 1;
             }
             if($order->prepared_at?->isCurrentMonth()){
                 $thisMonthBalance+= $mealsCost;
-                $thisMonthBalanceReceived+= $costRecivedCost;
+                $thisMonthBalanceReceived+= $costRecivedCost?$mealsCost:0;
                 $thisMonthOrders+= 1;
             }
         });

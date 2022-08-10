@@ -31,6 +31,6 @@ class OrderIsPrepared implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('order.deliverymen');
+        return new Channel('order.deliverymen');
     }
 }

@@ -71,8 +71,8 @@ class AssignOrderToDelivery implements ShouldQueue
                 'cost' => $deliveryCost,
                 'deliveryman_cost_share'=>($deliveryCost*$deliveryProfitPercentage)/100
             ]);
-            $this->order->status='prepared';
             $this->order->delivery()->associate($delivery);
+            $this->order->status='prepared';
             $this->order->save();
             $assignedDeliveryman->is_available = false;
             $assignedDeliveryman->save();

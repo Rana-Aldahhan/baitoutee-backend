@@ -139,11 +139,15 @@ class OrderController extends Controller
      */
     public function indexForChefOrderedMeals()
     {
+        if(request()->day==null || request()->day=='today')
+            $ordersTime=Carbon::today();
+        else 
+            $ordersTime=Carbon::tomorrow();
         $chefOrders = auth('chef')->user()->orders()
-            ->whereDate('selected_delivery_time',Carbon::today())
+            ->whereDate('selected_delivery_time',$ordersTime)
             ->where('status', 'approved')
             ->orWhere('status', 'notAssigned')//TODO query might bring undesired recoreds
-            ->whereDate('selected_delivery_time',Carbon::today())
+            ->whereDate('selected_delivery_time',$ordersTime)
             ->where('chef_id',auth('chef')->user()->id)
             ->get()
             ->groupby('selected_delivery_time')
@@ -187,6 +191,10 @@ class OrderController extends Controller
      */
     public function indexForChefOrders(Request $request)
     {
+        if(request()->day==null || request()->day=='today')
+            $ordersTime=Carbon::today();
+        else 
+            $ordersTime=Carbon::tomorrow();
         $time = request('time');
         $request->merge(['time' => request('time')]);
         $validator = Validator::make($request->only('time'),
@@ -199,11 +207,11 @@ class OrderController extends Controller
             return $this->errorResponse($validator->errors()->first(), 422);
         }
         $chefOrders = auth('chef')->user()->orders()
-            ->whereDate('selected_delivery_time',Carbon::today())
+            ->whereDate('selected_delivery_time', $ordersTime)
            ->where('selected_delivery_time', Carbon::create($time))
             ->where('status', 'approved')
             ->orWhere('status', 'notAssigned')//TODO query might bring undesired recoreds
-            ->whereDate('selected_delivery_time',Carbon::today())
+            ->whereDate('selected_delivery_time', $ordersTime)
             ->where('selected_delivery_time', Carbon::create($time))
             ->where('chef_id',auth('chef')->user()->id)
             ->get()->flatten()
@@ -212,24 +220,24 @@ class OrderController extends Controller
                 if ($item->delivery_id != null) {
                     $deliveryman = $item->delivery->deliveryman;
                 }
-
-                $notes = 'ملاحظات الطلب :' . $item->notes  . '\n ملاحظات الوجبات: \n';
+                $notes = 'ملاحظات الطلب :' . $item->notes  . '  ملاحظات الوجبات:  ';
                  $item->meals->map(function ($meal) use(&$notes) {
-                    $notes=$notes.'الوجبة '.$meal->name.' : '.$meal->pivot->notes.'\n';
+                    $notes=$notes.'الوجبة '.$meal->name.' : '.$meal->pivot->notes.' ';
                     $meal->quantity = $meal->pivot->quantity;
                     $meal->setHidden(['category_id', 'max_meals_per_day', 'is_available',
                         'expected_preparation_time', 'ingredients', 'rates_count', 'rating',
                         'created_at', 'updated_at', 'approved',
                         'pivot', 'category', 'chef']);
                     $mealNote = $meal->name . ": " . $meal->pivot->notes;
-                    return $notes .=$mealNote . ", ";
+                    $notes =$notes . $mealNote . ", ";
+                    return $notes;
                 });
                 return [
                     'id' => $item->id,
                     'status' => $item->status,
                     'selected_delivery_time' => $item->selected_delivery_time,
                     'subscription' => $item->subscription_id,
-                    'notes' =>$item->$notes,
+                    'notes' =>$notes,
                     'meals' => $item->meals,
 
                     // 'deliveryman' => $deliveryman,
@@ -274,7 +282,7 @@ class OrderController extends Controller
         {
             // the history is the prepared orders (the order can't be changed to prepared if the admin did not accept the order)
             $orders = auth('chef')->user()->orders()
-            ->where('status','prepared')->get();
+            ->whereIn('status',['prepared','picked','delivered','notDelivered','failedAssigning'])->get();
             $orders->map(function($order){
                 $order->setHidden(['user_id','chef_id','delivery_id','subscription_id',
                 'total_cost','profit','accepted_at','selected_delivery_time','notes','paid_to_accountant',
