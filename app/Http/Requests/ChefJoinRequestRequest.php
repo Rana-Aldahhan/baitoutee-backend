@@ -31,8 +31,8 @@ class ChefJoinRequestRequest extends FormRequest
             'email' => 'required|email|unique:chef_join_requests,email,'.request()->route('id'),
             'birth_date'=>'required|date',
             'gender'=> ['required', Rule::in(['f','m'])],
-            'delivery_starts_at' =>['required','date_format:H:i:s'],
-            'delivery_ends_at' =>['required','date_format:H:i:s'],
+            'delivery_starts_at' =>['required'],
+            'delivery_ends_at' =>['required'],
             'max_meals_per_day'=>'required|numeric',
         ];
     }

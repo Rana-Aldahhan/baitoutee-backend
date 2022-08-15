@@ -40,7 +40,9 @@ class OrderCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('id');
+        CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
+                $query->orWhere('id', $searchTerm);}
+            );
         CRUD::addColumn([
             'name'     => 'user_id',
             'label'    =>  trans('adminPanel.entities.user'),
@@ -102,6 +104,7 @@ class OrderCrudController extends CrudController
         }
         $this->crud->addButtonFromView('top', 'filterOrderStatus', 'filterOrderStatus', 'end');
         $this->crud->addButtonFromView('line', 'cancelOrder', 'cancelOrder', 'end');
+        $this->crud->addButtonFromView('line', 'approveRejectOrders', 'approveRejectOrders', 'beginning');
         $this->crud->addButtonFromView('line', 'reassignOrder', 'reassignOrder', 'end');
         $this->crud->removeButtons(['create','delete']);
 
@@ -207,5 +210,6 @@ class OrderCrudController extends CrudController
     protected function setupUpdateOperation()
     {   
         $this->setupCreateOperation();
+        CRUD::field('status')->label(trans('adminPanel.attributes.status'))->type('enum');
     }
 }

@@ -40,7 +40,9 @@ class UserCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('id');
+        CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
+            $query->orWhere('id', $searchTerm);}
+        );
         CRUD::addColumn([
             'name'     => 'location_id',
             'label'    => 'مكان السكن',

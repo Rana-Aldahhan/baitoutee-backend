@@ -28,7 +28,7 @@ class SubscriptionRequest extends FormRequest
             'name' => 'required',
             'days_number' => 'required'.'|numeric|min:1',
             'starts_at' => ['required','date_format:Y-m-d'],
-            'meal_delivery_time' => ['required','date_format:H:i:s'],
+            'meal_delivery_time' => ['required'],
             'max_subscribers' => 'required'.'|numeric',
             'meals_cost'=> ['required','numeric']
         ];

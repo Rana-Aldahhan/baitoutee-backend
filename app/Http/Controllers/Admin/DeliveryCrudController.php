@@ -40,7 +40,9 @@ class DeliveryCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('id');
+        CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
+            $query->orWhere('id', $searchTerm);}
+        );
         CRUD::addColumn([
             'name'     => 'deliveryman_id',
             'label'    =>  trans('adminPanel.entities.deliveryman'),

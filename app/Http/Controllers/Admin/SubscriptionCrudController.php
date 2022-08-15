@@ -40,7 +40,9 @@ class SubscriptionCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('id');
+        CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
+            $query->orWhere('id', $searchTerm);}
+        );
         CRUD::addColumn([
             'name'     => 'chef_id',
             'label'    =>  trans('adminPanel.entities.chef'),

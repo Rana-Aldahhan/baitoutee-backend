@@ -25,7 +25,7 @@ return new class extends Migration
             $table->time('delivery_starts_at')->nullable(false);
             $table->time('delivery_ends_at')->nullable(false);
             $table->unsignedTinyInteger('max_meals_per_day')->nullable(false);
-            $table->string('profile_picture')->default('');
+            $table->string('profile_picture')->nullable()->default(null);
             $table->string('certificate')->nullable(true);
             $table->boolean('approved')->nullable()->default(null);
         });

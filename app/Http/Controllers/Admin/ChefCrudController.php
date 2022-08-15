@@ -40,7 +40,9 @@ class ChefCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('id');
+        CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
+            $query->orWhere('id', $searchTerm);}
+        );
         CRUD::column('name')->label(trans('adminPanel.attributes.name'));
         CRUD::column('email')->label(trans('adminPanel.attributes.email'));
         CRUD::column('phone_number')->label(trans('adminPanel.attributes.phone_number'));

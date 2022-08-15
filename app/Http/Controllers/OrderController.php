@@ -232,7 +232,6 @@ class OrderController extends Controller
                     $notes =$notes . $mealNote . ", ";
                     return $notes;
                 });
-                dd($item->$notes);
                 return [
                     'id' => $item->id,
                     'status' => $item->status,

@@ -81,6 +81,11 @@ $title=trans('adminPanel.titles.chefs_financial_accounts');
                             </td>
                         </tr>
                     @endforeach
+                    @if($chefs->count()==0)
+                    <tr class="odd">
+                        <td valign="top" colspan="10" class="dataTables_empty"> {{trans('adminPanel.messages.empty_table')}} </td>
+                    </tr>
+                    @endif
                 </tbody>
             </table>
             <!--pagination-->

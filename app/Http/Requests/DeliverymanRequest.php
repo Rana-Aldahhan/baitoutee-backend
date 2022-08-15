@@ -33,8 +33,8 @@ class DeliverymanRequest extends FormRequest
             'gender'=> ['required', Rule::in(['f','m'])],
             // 'transportation_type'=>['required', Rule::in([0,1,2,3])],
             'work_days'=>'required',
-            'work_hours_from'=>'required|date_format:H:i:s',
-            'work_hours_to'=>'required|date_format:H:i:s',
+            'work_hours_from'=>'required',
+            'work_hours_to'=>'required',
         ];
     }
 

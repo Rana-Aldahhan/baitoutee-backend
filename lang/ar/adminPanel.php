@@ -62,8 +62,11 @@ return [
         'cancel_order'=>'إلغاء الطلب',
     ],
     'messages'=>[
+        'order_approved'=>'تم قبول الطلب',
+        'order_rejected'=>'تم رفض الطلب',
         'order_canceled'=>'لقد تم إلغاء الطلب بنجاح',
         'order_reassigned'=>'لقد تمت إعادة محاولة إسناد الطلب لعملية توصيل الرجاء التأكد من نجاح الإسناد',
+        'empty_table'=>'لا توجد معلومات بَعد'
     ],
     'status'=>[
       'order'=>[

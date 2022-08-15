@@ -45,7 +45,9 @@ class AdminCrudController extends CrudController
         \Auth::shouldUse('backpack');
         Gate::authorize('add-admins');
         CRUD::setValidation(AdminRequest::class);
-        CRUD::column('id');
+        CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
+            $query->orWhere('id', $searchTerm);}
+        );
         CRUD::column('name')->label(trans('adminPanel.attributes.name'));
         CRUD::column('email')->label(trans('adminPanel.attributes.email'));
         CRUD::addColumn([

@@ -30,7 +30,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('max_meals_per_day')->nullable(false);
             $table->boolean('is_available')->nullable(false)->default(false);
             $table->integer('balance')->nullable(false)->default(0);
-            $table->string('profile_picture')->nullable(false)->default('');
+            $table->string('profile_picture')->nullable()->default(null);
             $table->timestamp('approved_at')->nullable();
             $table->string('certificate')->nullable(true);
             $table->softDeletes();

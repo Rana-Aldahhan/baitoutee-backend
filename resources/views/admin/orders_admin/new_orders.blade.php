@@ -118,6 +118,11 @@ $title='إدرارة طلبات الطعام الجديدة';
                             </td>
                         </tr>
                     @endforeach
+                    @if($orders->count()==0)
+                        <tr class="odd">
+                            <td valign="top" colspan="10" class="dataTables_empty">لا توجد طلبات جديدة </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
             {{ $orders->links() }}
