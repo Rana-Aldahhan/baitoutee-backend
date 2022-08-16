@@ -25,6 +25,7 @@ return new class extends Migration
             $table->date('starts_at')->nullable(false);
             $table->unsignedSmallInteger('max_subscribers');
             $table->unsignedInteger('meals_cost')->nullable(false);
+            $table->softDeletes();
 
         });
     }

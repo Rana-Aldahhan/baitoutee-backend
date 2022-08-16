@@ -251,7 +251,10 @@ class SubscriptionController extends Controller
         $meals=$subscription->meals()->get(['meal_id','name','price','image','rating','rates_count']);
         $meals->map(function ($meal) use($subscription){
             $meal->day_number=$meal->pivot->day_number;
-            $meal->meal_date=Carbon::create($subscription->starts_at)->addDays($meal->day_number)->setTimeFromTimeString($subscription->meal_delivery_time)->toDateTimeString();
+            if($meal->day_number!=1)
+                $meal->meal_date=Carbon::create($subscription->starts_at)->addDays($meal->day_number)->setTimeFromTimeString($subscription->meal_delivery_time)->toDateTimeString();
+            else
+            $meal->meal_date=$subscription->starts_at;
             $meal->setHidden(['pivot','chef','category']);
         })
         ->sortBy('day_number');

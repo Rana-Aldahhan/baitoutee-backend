@@ -212,7 +212,7 @@ class ChefController extends Controller
         $todayOrders =0; $thisWeekOrders=0; $thisMonthOrders =0;
 
         //map throw orders to get balance - what recieved - orders count for chef
-        $chef->orders()->get()->map(function($order)
+        $chef->orders()->whereNotNull('prepared_at')->get()->map(function($order)
         use (&$todayBalance,&$thisWeekBalance,&$thisMonthBalance,
             &$todayBalanceReceived,&$thisWeekBalanceReceived,&$thisMonthBalanceReceived,
             &$todayOrders,&$thisWeekOrders,&$thisMonthOrders){
@@ -266,7 +266,7 @@ class ChefController extends Controller
     public function editProfile (Request $request){
         // change the profile picture
         $validator = Validator::make($request->only('profile_picture'),
-        ['profile_picture'=>'nullable|image']);
+        ['profile_picture'=>'nullable']);
         if ($validator->fails()) { //case of input validation failure
            return $this->errorResponse($validator->errors()->first(), 422);
         }

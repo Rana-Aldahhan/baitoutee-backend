@@ -132,7 +132,7 @@ class DeliverymanAuthController extends Controller
          $deliveryman=Deliveryman::withTrashed()->where('id',$tokenable_id)->first();
          if($deliveryman!=null)  
          { //logout
-            $deliveryman=auth('deliveryman')->user();
+            // $deliveryman=auth('deliveryman')->user();
             $deliveryman->is_available=false;
             $deliveryman->fcm_token=null;
             $deliveryman->save();

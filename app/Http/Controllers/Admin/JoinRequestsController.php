@@ -27,7 +27,7 @@ class JoinRequestsController extends Controller
         if($joinRequest->approved===false || $joinRequest->approved===true)
             return  redirect('/admin/user-join-request');
         //check if a user with the same notional_id was registered already 
-        $user=User::where('national->id',$joinRequest->national_id)->get();
+        $user=User::where('national_id',$joinRequest->national_id)->get();
         //case already registered => update new user info
         if($user->count()>0)
         {

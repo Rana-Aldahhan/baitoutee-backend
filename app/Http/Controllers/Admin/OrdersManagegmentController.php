@@ -32,7 +32,7 @@ class OrdersManagegmentController extends Controller
         FCMService::sendPushNotification(
             $user->fcm_token,
             'تم قبول طلبك',
-             $order->id.'لقد تم قبول طلبك رقم'
+            ' لقد تم قبول طلبك رقم' .$order->id
         );
         //send notification to chef
         $chef=$order->chef;
@@ -69,7 +69,6 @@ class OrdersManagegmentController extends Controller
         $order=Order::findOrFail($id);
         //braodcast event to deliverymen
         broadcast(new OrderIsPrepared($order))->toOthers();
-        AssignOrderToDelivery::dispatch($order)->onConnection('database');
 
         \Alert::add('info', trans('adminPanel.messages.order_reassigned'))->flash();;
         return redirect('/admin/order');

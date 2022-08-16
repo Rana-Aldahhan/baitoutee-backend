@@ -23,7 +23,6 @@ return new class extends Migration
             $table->boolean('paid')->default(false);
             $table->float('total_cost', 8, 2);
             $table->float('delivery_cost_per_day',6,2);
-            $table->softDeletes();
             $table->timestamps();
         });
     }

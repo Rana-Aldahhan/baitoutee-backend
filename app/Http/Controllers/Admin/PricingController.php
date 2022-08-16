@@ -25,13 +25,12 @@ class PricingController extends Controller
         $meal=Meal::find($id);
         $meal->approved=true;
         $meal->save();
-
+        $chef=Chef::find($meal->chef->id);
         FCMService::sendPushNotification(
-            $meal->chef->fcm_token,
+            $chef->fcm_token,
             ' تم قبول وجبتك الجديدة',
             'تمت الموافقة على إضافة وجبتك الجديدة  '.$meal->name
         ); 
-
         return redirect('/admin/meal');
     }
     public function rejectMeal($id) {
@@ -133,8 +132,9 @@ class PricingController extends Controller
     {
         $chef=Chef::findOrFail($id);
         $orders=Order::where('chef_id',$id)
-        ->where('selected_delivery_time','<',now())
-        ->whereIn('status', ['prepared','picked', 'delivered', 'notDelivered','failedAssigning'])
+        // ->where('selected_delivery_time','<',now())
+        ->whereIn('status', ['prepared','canceled','picked', 'delivered', 'notDelivered','failedAssigning'])
+        ->whereNotNull('prepared_at')
         ->when(request()->paid!=null,function($query){
             return $query->where('paid_to_chef',request()->paid);
         })

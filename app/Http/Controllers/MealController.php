@@ -134,7 +134,7 @@ class MealController extends Controller
     {
         $ChefMeals = auth('chef')->user()->meals;
         $countActive = $ChefMeals->where('is_available', true)->count();
-        $totalCount = $ChefMeals->count();
+        $totalCount = $ChefMeals->where('approved',true)->count();
         $mealsCount = Collection::make([
             'active_meals' => $countActive,
             'total_meals' => $totalCount,

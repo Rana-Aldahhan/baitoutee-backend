@@ -188,7 +188,7 @@ class ChefAuthController extends Controller
         $chef=Chef::withTrashed()->where('id',$tokenable_id)->first();
         if($chef!=null)  
         { //logout
-            $chef=auth('chef')->user();
+            // $chef=auth('chef')->user();
             $chef->is_available=false;
             $chef->fcm_token=null;
             $chef->save();

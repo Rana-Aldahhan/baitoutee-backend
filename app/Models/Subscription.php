@@ -11,7 +11,7 @@ class Subscription extends Model
     use \Backpack\CRUD\app\Models\Traits\CrudTrait;
     use HasFactory,SoftDeletes;
     protected $guarded = [];
-    protected $with=['chef:id,name,profile_picture'];
+    protected $with=['chef:id,name,profile_picture,fcm_token'];
     protected $casts = [ 'is_available' => 'boolean' ];
     protected $hidden=['created_at','updated_at','max_subscribers','meals_cost'];
     /**

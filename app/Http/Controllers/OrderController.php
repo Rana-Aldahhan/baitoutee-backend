@@ -191,11 +191,17 @@ class OrderController extends Controller
      */
     public function indexForChefOrders(Request $request)
     {
-        if(request()->day==null || request()->day=='today')
-            $ordersTime=Carbon::today();
-        else 
-            $ordersTime=Carbon::tomorrow();
         $time = request('time');
+        if(request()->day==null || request()->day=='today')
+        { 
+            $ordersTime=Carbon::today();
+            $time= Carbon::create($time);
+        }
+        else 
+        { 
+            $ordersTime=Carbon::tomorrow();
+            $time= Carbon::create($time)->addDay();
+        }
         $request->merge(['time' => request('time')]);
         $validator = Validator::make($request->only('time'),
             ['time' => [
@@ -208,11 +214,11 @@ class OrderController extends Controller
         }
         $chefOrders = auth('chef')->user()->orders()
             ->whereDate('selected_delivery_time', $ordersTime)
-           ->where('selected_delivery_time', Carbon::create($time))
+           ->where('selected_delivery_time', $time)
             ->where('status', 'approved')
             ->orWhere('status', 'notAssigned')//TODO query might bring undesired recoreds
             ->whereDate('selected_delivery_time', $ordersTime)
-            ->where('selected_delivery_time', Carbon::create($time))
+            ->where('selected_delivery_time', $time)
             ->where('chef_id',auth('chef')->user()->id)
             ->get()->flatten()
             ->map(function ($item) {
@@ -220,24 +226,24 @@ class OrderController extends Controller
                 if ($item->delivery_id != null) {
                     $deliveryman = $item->delivery->deliveryman;
                 }
-                $notes = 'ملاحظات الطلب :' . $item->notes  . '  ملاحظات الوجبات:  ';
-                 $item->meals->map(function ($meal) use(&$notes) {
-                    $notes=$notes.'الوجبة '.$meal->name.' : '.$meal->pivot->notes.' ';
+                // $notes = 'ملاحظات الطلب :' . $item->notes  . '  ملاحظات الوجبات:  ';
+                 $item->meals->map(function ($meal)  {
+                    // $notes=$notes.'الوجبة '.$meal->name.' : '.$meal->pivot->notes.' ';
                     $meal->quantity = $meal->pivot->quantity;
+                    $meal->notes=$meal->pivot->notes;
                     $meal->setHidden(['category_id', 'max_meals_per_day', 'is_available',
                         'expected_preparation_time', 'ingredients', 'rates_count', 'rating',
                         'created_at', 'updated_at', 'approved',
                         'pivot', 'category', 'chef']);
-                    $mealNote = $meal->name . ": " . $meal->pivot->notes;
-                    $notes =$notes . $mealNote . ", ";
-                    return $notes;
+                    // $mealNote = $meal->name . ": " . $meal->pivot->notes;
+                    // $notes =$notes . $mealNote . ", ";
                 });
                 return [
                     'id' => $item->id,
                     'status' => $item->status,
                     'selected_delivery_time' => $item->selected_delivery_time,
                     'subscription' => $item->subscription_id,
-                    'notes' =>$notes,
+                    'notes' =>$item->notes,
                     'meals' => $item->meals,
 
                     // 'deliveryman' => $deliveryman,
@@ -287,7 +293,7 @@ class OrderController extends Controller
                 $order->setHidden(['user_id','chef_id','delivery_id','subscription_id',
                 'total_cost','profit','accepted_at','selected_delivery_time','notes','paid_to_accountant',
                 'created_at','updated_at']);
-                if($order->subscription_id==null)
+                if($order->subscription_id!=null)
                     $order->type = "اشتراك";
                 else $order->type ="وجبة فردية";
             });
@@ -301,7 +307,7 @@ class OrderController extends Controller
         {
             // the history is the delivered orders
             //dd(auth('deliveryman')->id());
-            $orders = auth('deliveryman')->user()->deliveryOrders()->with('chef')
+            $orders = auth('deliveryman')->user()->deliveryOrders()->whereNotNull('delivered_at')->with('chef')
             ->with('user')->with('delivery')->get();
 
             $orderHistory = $orders->filter(function($order){
@@ -318,7 +324,7 @@ class OrderController extends Controller
                 $order->distenation = $userLocation->name;
                 $order->meals_quantity = $mealsQuantity;
                 $order->delivered_at = $order->delivery->delivered_at->format('Y-m-d H:i:s');
-                $order->delivery_cost = $order->delivery->delivaryman_cost_share;//$order->delivery_cost = $order->delivery->cost;
+                $order->delivery_cost = $order->delivery->deliveryman_cost_share;//$order->delivery_cost = $order->delivery->cost;
                 $order->chef_name = $order->chef->name;
                 // hide undesired information from each order
                 $order->setHidden(['user_id','chef_id','delivery_id','subscription_id','status',

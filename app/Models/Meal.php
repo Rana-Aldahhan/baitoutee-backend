@@ -13,7 +13,7 @@ class Meal extends Model
     use HasFactory,Searchable,SoftDeletes;
     protected $guarded = [];
     protected $hidden = ['created_at', 'updated_at', 'chef_id'];
-    protected $with = ['chef:id,name', 'category:name,id'];
+    protected $with = ['chef:id,name,fcm_token', 'category:name,id'];
     protected $casts = [
         'approved' => 'boolean',
         'is_available' => 'boolean',

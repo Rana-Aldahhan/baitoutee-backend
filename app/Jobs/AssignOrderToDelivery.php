@@ -38,6 +38,7 @@ class AssignOrderToDelivery implements ShouldQueue
      */
     public function handle()
     {
+        if($this->order->delivery==null){
         sleep(10);
         $availableDeliverymen=Deliveryman::where('is_available',true)
         ->where('updated_at','>=',now()->subMinute())
@@ -88,6 +89,7 @@ class AssignOrderToDelivery implements ShouldQueue
             $this->order->status = 'failedِAssigning';
             $this->order->save();
         }
+    }
 
     }
 }

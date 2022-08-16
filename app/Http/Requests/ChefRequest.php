@@ -27,9 +27,9 @@ class ChefRequest extends FormRequest
     public function rules()
     {
         return [
-            'phone_number' => 'required|unique:chef_join_requests,phone_number,'.request()->route('id'),
+            'phone_number' => 'required|unique:chefs,phone_number,'.request()->route('id'),
             'name' => 'required',
-            'email' => 'required|email|unique:chef_join_requests,email,'.request()->route('id'),
+            'email' => 'required|email|unique:chefs,email,'.request()->route('id'),
             'birth_date'=>'required|date',
             'gender'=> ['required', Rule::in(['f','m'])],
             'delivery_starts_at' =>['required'],

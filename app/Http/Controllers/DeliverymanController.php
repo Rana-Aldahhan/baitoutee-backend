@@ -169,30 +169,44 @@ class DeliverymanController extends Controller
         $todayOrders =0; $thisWeekOrders=0; $thisMonthOrders =0;
 
         // map throw orders and deliveries to get the balance - what recieved - orders count for delivery man
-        $deliveryman->deliveries()->get()->map(function($delivery)
+        $deliveryman->deliveries()->whereNotNull('delivered_at')->get()->map(function($delivery)
         use (&$todayBalance,&$thisWeekBalance,&$thisMonthBalance,
             &$todayBalanceReceived,&$thisWeekBalanceReceived,&$thisMonthBalanceReceived,
             &$todayOrders,&$thisWeekOrders,&$thisMonthOrders){
-                $deliveryCost =$delivery->delivaryman_cost_share;//$deliveryCost =$delivery->cost;
-                $deliveryRecievedCost =  ($delivery->paid_to_deliveryman)?($delivery->delivaryman_cost_share):0;
+                $deliveryCost =(!$delivery->paid_to_deliveryman)?($delivery->deliveryman_cost_share):0;
+                // $deliveryRecievedCost =  (!$delivery->paid_to_deliveryman)?($delivery->delivaryman_cost_share):0;
                 $deliveredOrders = $delivery->orders()->get()->count();
 
             if($delivery->delivered_at->isSameDay()){
                 $todayBalance+= $deliveryCost;
-                $todayBalanceReceived+= $deliveryRecievedCost;
+                // $todayBalanceReceived+= $deliveryRecievedCost;
                 $todayOrders+= $deliveredOrders;
             }
             //Note: that the week start from monday not sunday
             if($delivery->delivered_at->isSameWeek()){
                 $thisWeekBalance+= $deliveryCost;
-                $thisWeekBalanceReceived+= $deliveryRecievedCost;
+                // $thisWeekBalanceReceived+= $deliveryRecievedCost;
                 $thisWeekOrders+= $deliveredOrders;
             }
             if($delivery->delivered_at->isCurrentMonth()){
                 $thisMonthBalance+= $deliveryCost;
-                $thisMonthBalanceReceived+= $deliveryRecievedCost;
+                // $thisMonthBalanceReceived+= $deliveryRecievedCost;
                 $thisMonthOrders+= $deliveredOrders;
             }
+            $delivery->orders->map(function($order)use( &$todayBalanceReceived,&$thisWeekBalanceReceived,&$thisMonthBalanceReceived,&$deliveryRecievedCost){
+                $deliveryRecievedCost += (!$order->paid_to_Accountant)?($order->total_cost):0;
+
+            if(Carbon::create($order->selected_delivery_time)->isSameDay()){
+                $todayBalanceReceived+= $deliveryRecievedCost;
+            }
+            //Note: that the week start from monday not sunday
+            if(Carbon::create($order->selected_delivery_time)->isSameWeek()){
+                $thisWeekBalanceReceived+= $deliveryRecievedCost;
+            }
+            if(Carbon::create($order->selected_delivery_time)->isCurrentMonth()){
+                $thisMonthBalanceReceived+= $deliveryRecievedCost;
+            }
+            });
         });
         // today balance
         $today = collect([
