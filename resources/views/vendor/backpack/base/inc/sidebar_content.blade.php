@@ -38,7 +38,7 @@
       </div>
     </div>
     @endif
-    @if(backpack_user()->role->name=='super admin' || backpack_user()->role->name=='hr admin')
+    @if(backpack_user()->role->name=='super admin' || backpack_user()->role->name=='accountant admin')
     <div class='nav-item'>   
       <i class="nav-icon las la-money-bill" style="color: #869ab8"></i>     
       <button class="btn" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">

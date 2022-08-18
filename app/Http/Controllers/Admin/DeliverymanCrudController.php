@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\DeliverymanRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Class DeliverymanCrudController
@@ -94,6 +95,8 @@ class DeliverymanCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('edit-users');
         CRUD::setValidation(DeliverymanRequest::class);
         CRUD::addField([   // Checklist
             'label'     => trans('adminPanel.entities.deliveryman_join_request'),

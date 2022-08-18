@@ -22,9 +22,7 @@ class OrderTest extends TestCase
      * make a successful order:
      */
     public function test_successful_order_returns_201(){
-        $knownDate = Carbon::create(2022, 8, 9, 12);
-        Carbon::setTestNow($knownDate);
-
+    
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();
@@ -65,9 +63,7 @@ class OrderTest extends TestCase
      * make an order with no authenticated user
      */
     public function test_unauthorized_order_request_returns_401(){
-        $knownDate = Carbon::create(2022, 8, 9, 12);
-        Carbon::setTestNow($knownDate); 
-
+       
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();
@@ -108,8 +104,6 @@ class OrderTest extends TestCase
      * the selected deivery time is out range the chef schedule
      */
     public function test_invalid_order_returns_422(){
-        $knownDate = Carbon::create(2022, 8, 9, 12);
-        Carbon::setTestNow($knownDate); 
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();
@@ -152,8 +146,6 @@ class OrderTest extends TestCase
      * the ordered meal quantity is more than the max accepted number
      */
     public function test_order_over_allowed_meal_quantity_returns_400(){
-        $knownDate = Carbon::create(2022, 8, 9, 12);
-        Carbon::setTestNow($knownDate); 
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();
@@ -197,8 +189,6 @@ class OrderTest extends TestCase
      * the ordered dmeal quantity is more than the max orders for chef
      */
     public function test_order_over_allowed_chef_meal_quantity_returns_400(){
-        $knownDate = Carbon::create(2022, 8, 9, 12);
-        Carbon::setTestNow($knownDate); 
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();
@@ -242,8 +232,6 @@ class OrderTest extends TestCase
      * the order includes an inavailable meal
      */
     public function test_order_inavailable_meal_returns_400(){
-        $knownDate = Carbon::create(2022, 8, 9, 12);
-        Carbon::setTestNow($knownDate); 
         $faker = \Faker\Factory::create();
         $category=Category::factory()->create();
         $location=Location::factory()->create();

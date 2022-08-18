@@ -55,6 +55,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('approve-reject-join-requests', function ($user) {
             return $user->role->name === 'hr admin' ;
         });
+        Gate::define('edit-users', function ($user) {
+            return $user->role->name === 'hr admin' ;
+        });
         //TODO change it to feedback admin 
         Gate::define('block-users', function ($user) {
             return $user->role->name === 'reports admin' ;

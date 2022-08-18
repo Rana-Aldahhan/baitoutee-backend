@@ -77,11 +77,11 @@ class AdminCrudController extends CrudController
         Gate::authorize('add-admins');
         CRUD::setValidation(AdminRequest::class);
 
-        CRUD::field('name');
-        CRUD::field('email');
-        CRUD::field('password');
+        CRUD::field('name')->label(trans('adminPanel.attributes.name'));
+        CRUD::field('email')->label(trans('adminPanel.attributes.email'));
+        CRUD::field('password')->label(trans('adminPanel.attributes.password'));
         CRUD::addField([   // Checklist
-            'label'     => 'Roles',
+            'label'     => trans('adminPanel.attributes.role'),
             'type'      => 'select',
             'name'      => 'role_id',
             'entity'    => 'role',

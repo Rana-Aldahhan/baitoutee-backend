@@ -20,11 +20,12 @@ class UserController extends Controller
         ->whereDate('selected_delivery_time',Carbon::today())
         ->orWhereDate('selected_delivery_time',Carbon::tomorrow())//get the preordered or tomorrow subscription order
         ->where('user_id',$user->id)
+        ->orderByDesc('created_at')
         ->get();
         
         $orders=$orders->map(function($order){
             $order->can_be_canceled=($order->status=='pending')||($order->selected_delivery_time >=Carbon::tomorrow() && $order->status!='canceled');
-            if($order->supscription_id!=null){
+            if($order->subscription_id!=null){
                 if($order->total_cost==0)
                     $order->can_be_canceled=true;
                 else
@@ -56,6 +57,7 @@ class UserController extends Controller
         $user=auth('user')->user();
         $orders=$user->orders()
         ->whereDate('selected_delivery_time','<',Carbon::today())
+        ->orderByDesc('created_at')
         ->paginate(10);
         
         $orders->map(function($order){
@@ -78,25 +80,31 @@ class UserController extends Controller
         if($order->subscription_id!=null)
             {
                 if($order->total_cost==0)
-                    $order->can_be_canceled=true;
+                {
+                     $order->can_be_canceled=true;
+                     $order->total_cost=0;
+                     $order->delivery_fee=0;
+                }
                 else
+                  {
                     $order->can_be_canceled=false;
-                $order->total_cost='-';
-                $order->delivery_fee='-';
-                
+                  }
             }
         $order->can_be_evaluated=$order->status=='delivered';
         $order->meals=$order->meals->map(function($meal)use($order){
             $meal->quantity=$meal->pivot->quantity;
             $meal->user_rate=$meal->pivot->meal_rate;
-            if($order->subscription_id!=null)
+            if($order->subscription_id!=null )
                 $meal->price='-';
             else
                {
-                 $meal->price+=$order->profit/ $order->meals_count;
-                 if($meal->discount_percentage!=null)
-                     $meal->price=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100));
+                 
+                 if($meal->discount_percentage!=null){
+                     $meal->price=( $meal->price -( ( $meal->price * $meal->discount_percentage) /100))+($order->profit/ $order->meals_count);
+                } else {
+                    $meal->price+=$order->profit/ $order->meals_count;
                 }
+            }
             $meal=$meal->only(['id','name','image','price','quantity','user_rate']);
             return $meal;
         });
@@ -156,7 +164,7 @@ class UserController extends Controller
     public function getCurrentSubscriptions()
     {
         $user=auth('user')->user();
-        $subscriptions=$user->subscriptions->filter(function($subscription){
+        $subscriptions=$user->subscriptions->sortByDesc('created_at')->filter(function($subscription){
             return Carbon::create($subscription->starts_at)->addDays($subscription->days_number)>=Carbon::today();
         })
         ->values();

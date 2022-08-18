@@ -252,7 +252,7 @@ class SubscriptionController extends Controller
         $meals->map(function ($meal) use($subscription){
             $meal->day_number=$meal->pivot->day_number;
             if($meal->day_number!=1)
-                $meal->meal_date=Carbon::create($subscription->starts_at)->addDays($meal->day_number)->setTimeFromTimeString($subscription->meal_delivery_time)->toDateTimeString();
+                $meal->meal_date=Carbon::create($subscription->starts_at)->addDays($meal->day_number-1)->setTimeFromTimeString($subscription->meal_delivery_time)->toDateTimeString();
             else
             $meal->meal_date=$subscription->starts_at;
             $meal->setHidden(['pivot','chef','category']);
@@ -336,11 +336,11 @@ class SubscriptionController extends Controller
             $totalCost=0;
             $profits=0;
             $mealsCost=0;
-            $mealDate=Carbon::create($subscription->starts_at);
+            $mealDate=Carbon::create($subscription->starts_at)->setTimeFromTimeString($subscription->meal_delivery_time)->toDateTimeString();
             $meal->pivot->day_number==1?$totalCost=$this->getTotalSubscriptionPrice($subscription):$totalCost=0;
             $meal->pivot->day_number==1?$profits=$this->getSubscriptionMealsProfit($subscription):$profits=0;
             $meal->pivot->day_number==1?$mealsCost=$subscription->meals_cost:$mealsCost=0;
-            $meal->pivot->day_number!=1?$mealDate=Carbon::create($subscription->starts_at)->addDays( $meal->pivot->day_number)
+            $meal->pivot->day_number!=1?$mealDate=Carbon::create($subscription->starts_at)->addDays( $meal->pivot->day_number-1)
             ->setTimeFromTimeString($subscription->meal_delivery_time)->toDateTimeString():$mealDate;
             $order=Order::create([
                 'user_id'=>auth('user')->user()->id,

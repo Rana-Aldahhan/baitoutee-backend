@@ -26,7 +26,6 @@ class OrdersManagegmentController extends Controller
         $order=Order::find($id);
         $order->status='approved';
         $order->accepted_at=now();
-        $order->save();
         //send notification to user
         $user=$order->user;
         FCMService::sendPushNotification(
@@ -41,6 +40,7 @@ class OrdersManagegmentController extends Controller
             'طلب جديد',
             '! وصلك طلب جديد قم بتفقّده '
         );
+        $order->save();
         return response()->json([]);
         
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\UserRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Class UserCrudController
@@ -95,6 +96,8 @@ class UserCrudController extends CrudController
      */
     protected function setupCreateOperation()
     {
+        \Auth::shouldUse('backpack');
+        Gate::authorize('edit-users');
         CRUD::setValidation(UserRequest::class);
 
         CRUD::field('id');
