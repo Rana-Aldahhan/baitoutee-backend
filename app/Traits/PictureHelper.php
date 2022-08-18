@@ -26,4 +26,25 @@ trait PictureHelper{
         return $imagePath;
 
     }
+    protected function storePublicFile($request, $fileKey,$path){
+        //$path = 'mealsImages'
+        //fileKey = 'image'
+        $filePath = null;
+        if ($request->hasFile($fileKey)) {
+            // Get filename with the extension
+            $filenameWithExt = $request->file($fileKey)->getClientOriginalName();
+            // Get just filename
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            // Get just ext
+            $extension = $request->file($fileKey)->getClientOriginalExtension();
+            // Filename to store
+            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+            // Upload Image
+            $filePath = $request->file($fileKey)->storeAs($path, $fileNameToStore,['disk'=>'public_uploads']);
+            //$profilePath=asset('storage/profiles/'.$fileNameToStore);
+            $filePath = '/uploads/'.$path.'/' . $fileNameToStore;
+        }
+        return $filePath;
+
+    }
 }

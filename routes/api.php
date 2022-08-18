@@ -50,4 +50,5 @@ Route::get('/send-notification', function(){
         return response()->json([]);
 
 });
+Route::post('/store-pic',[Controller::class, 'storePic']);
 

@@ -271,7 +271,7 @@ class ChefController extends Controller
            return $this->errorResponse($validator->errors()->first(), 422);
         }
 
-        $imagePath =$this->storePicture($request,'profile_picture','profiles');
+        $imagePath =$this->storePublicFile($request,'profile_picture','profiles');
         $chef = auth('chef')->user();
         if ($imagePath != null) {
             if($chef->profile_picture !="")

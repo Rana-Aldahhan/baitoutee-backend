@@ -177,7 +177,7 @@ class MealController extends Controller
         }
 
         //$imagePath = $this->storeMealPic($request);
-        $imagePath = $this->storePicture($request,'image','mealsImages');
+        $imagePath = $this->storePublicFile($request,'image','mealsImages');
         //TODO : enhance create by using validateResponse
         $newMeal = Meal::create([
             'chef_id' => auth('chef')->id(),
@@ -315,7 +315,7 @@ class MealController extends Controller
         // if the image had been updated then store the file
         // dd($request->all());
        // $imagePath = $this->storeMealPic($request);
-       $imagePath = $this->storePicture($request,'image','mealsImages');
+       $imagePath = $this->storePublicFile($request,'image','mealsImages');
 
         $rules = $this->getUpdateRules($request);
         $oldMeal = Meal::find($meal->id);

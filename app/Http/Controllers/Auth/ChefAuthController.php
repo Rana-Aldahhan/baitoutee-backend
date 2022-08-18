@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use App\Traits\DistanceCalculator;
+use App\Traits\PictureHelper;
 use App\Enums\ChefAccessStatus;
 use App\Enums\Gender;
 use App\Rules\BeforeMidnight;
@@ -18,7 +19,7 @@ use App\Rules\TimeAfter;
 
 class ChefAuthController extends Controller
 {
-    use DistanceCalculator;
+    use DistanceCalculator,PictureHelper;
 
     public function checkChefCodeAndRegisterStatus(Request $request){
         $validator = Validator::make($request->all(), [
@@ -123,38 +124,9 @@ class ChefAuthController extends Controller
         $newLocation->distance_to_third_location=$this->calculateDistanceBetween($newLocation,$thirdLocation);
         $newLocation->save();
          //store profile if given
-        // $profilePath = $this->storePicture($request,'profiles');
-        $profilePath=null;
-        if($request->hasFile('profile_picture')){
-            // Get filename with the extension
-            $filenameWithExt = $request->file('profile_picture')->getClientOriginalName();
-            // Get just filename
-            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            // Get just ext
-            $extension = $request->file('profile_picture')->getClientOriginalExtension();
-            // Filename to store
-            $fileNameToStore= $filename.'_'.time().'.'.$extension;
-            // Upload Image
-            $profilePath = $request->file('profile_picture')->storeAs('public/profiles', $fileNameToStore);
-            //profile path to store in DB
-            $profilePath = '/storage/profiles/' . $fileNameToStore;
-        }
+        $profilePath=$this->storePublicFile($request,'profile_picture','profiles');
         //store certificate if given
-         $certificatePath='';
-         if($request->hasFile('certificate')){
-             // Get filename with the extension
-             $filenameWithExt = $request->file('certificate')->getClientOriginalName();
-             // Get just filename
-             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-             // Get just ext
-             $extension = $request->file('certificate')->getClientOriginalExtension();
-             // Filename to store
-             $fileNameToStore= $filename.'_'.time().'.'.$extension;
-             // Upload Image
-             $certificatePath = $request->file('certificate')->storeAs('public/certificates', $fileNameToStore);
-             //certificate path to store in DB
-            $certificatePath = '/storage/certificates/' . $fileNameToStore;
-         }
+        $certificatePath=$this->storePublicFile($request,'certificate','certificates');
         //make new chef join request
         $joinRequest=ChefJoinRequest::create([
             'phone_number' => $request['phone_number'],
