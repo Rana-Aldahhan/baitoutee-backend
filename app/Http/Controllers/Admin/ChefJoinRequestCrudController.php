@@ -32,7 +32,7 @@ class ChefJoinRequestCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\ChefJoinRequest::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/chef-join-request');
-        CRUD::setEntityNameStrings('طلب انضمام طاهي', 'طلبات انضمام الطهاة');
+        CRUD::setEntityNameStrings(trans('adminPanel.attributes.chef_join_request'),trans('adminPanel.attributes.chef_join_requests'));
     }
 
     /**
@@ -44,7 +44,7 @@ class ChefJoinRequestCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
-            $query->orWhere('id', $searchTerm);}
+            $query->orWhere('id','LIKE', $searchTerm);}
         );
         CRUD::column('name')->label(trans('adminPanel.attributes.name'));
         CRUD::column('email')->label(trans('adminPanel.attributes.email'));
@@ -108,13 +108,11 @@ class ChefJoinRequestCrudController extends CrudController
         CRUD::field('birth_date')->label(trans('adminPanel.attributes.birth_date'));
         CRUD::field('gender')->label(trans('adminPanel.attributes.gender'))->type('enum');
         CRUD::addField([   // Checklist
-            'label'     => trans('adminPanel.attributes.location'),
-            'type'      => 'select',
-            'name'      => 'location_id',
-            'entity'    => 'location',
-            'attribute' => 'name',
-            'model'     => "App\Models\Location",
-            'pivot'     => false,
+            'label'     => trans('adminPanel.attributes.gender'),
+            'name'      => 'gender',
+            'type'      => 'select_from_array',
+            'options'   => ['m' => 'male', 'f' => 'female'],
+            'allows_null' => false,
         ]); 
         // CRUD::field('location_name')->label(trans('adminPanel.attributes.location'))->attributes(['readonly']);
         // CRUD::field('location_latitude')->label(trans('adminPanel.attributes.latitude'))->attributes(['readonly']);

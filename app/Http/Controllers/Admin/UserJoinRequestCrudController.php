@@ -40,7 +40,7 @@ class UserJoinRequestCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
-            $query->orWhere('id', $searchTerm);}
+            $query->orWhere('id','LIKE', $searchTerm);}
         );
         CRUD::addColumn([
             'name'     => 'location_id',
@@ -94,7 +94,13 @@ class UserJoinRequestCrudController extends CrudController
         CRUD::field('email')->label(trans('adminPanel.attributes.email'));
         CRUD::field('phone_number')->label(trans('adminPanel.attributes.phone_number'));
         CRUD::field('birth_date')->label(trans('adminPanel.attributes.birth_date'));
-        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'))->type('enum');
+        CRUD::addField([   // Checklist
+            'label'     => trans('adminPanel.entities.gender'),
+            'name'      => 'gender',
+            'type'      => 'select_from_array',
+            'options'   => ['m' => 'male', 'f' => 'female'],
+            'allows_null' => false,
+        ]); 
         CRUD::field('national_id')->label(trans('adminPanel.attributes.national_id'));
         CRUD::field('campus_card_id')->label(trans('adminPanel.attributes.campus_card_id'));
         CRUD::field('campus_unit_number')->label(trans('adminPanel.attributes.campus_unit_number'));

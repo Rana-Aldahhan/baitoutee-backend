@@ -41,7 +41,7 @@ class SubscriptionCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
-            $query->orWhere('id', $searchTerm);}
+            $query->orWhere('id','LIKE', $searchTerm);}
         );
         CRUD::addColumn([
             'name'     => 'chef_id',

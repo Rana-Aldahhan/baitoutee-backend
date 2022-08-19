@@ -41,7 +41,7 @@ class OrderCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
-                $query->orWhere('id', $searchTerm);}
+            $query->orWhere('id','LIKE', $searchTerm);}
             );
         CRUD::addColumn([
             'name'     => 'user_id',
@@ -210,6 +210,14 @@ class OrderCrudController extends CrudController
     protected function setupUpdateOperation()
     {   
         $this->setupCreateOperation();
-        CRUD::field('status')->label(trans('adminPanel.attributes.status'))->type('enum');
+        CRUD::addField([   // Checklist
+            'label'     => trans('adminPanel.attributes.status'),
+            'name'      => 'status',
+            'type'      => 'select_from_array',
+            'options'   => ['pending' => 'pending', 'approved' => 'approved','notApproved' => 'notApproved'
+            ,'prepared' => 'prepared','failedAssigning' => 'failedAssigning','picked' => 'picked',
+            'delivered' => 'delivered','notDelivered' => 'notDelivered','canceled' => 'canceled',],
+            'allows_null' => false,
+        ]); 
     }
 }

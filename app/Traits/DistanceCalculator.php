@@ -10,9 +10,7 @@ trait DistanceCalculator{
 
    public function calculateDistanceBetween(Location $location1,Location $location2)
 	{
-		$response=Http::retry(3, 500)->withOptions([
-            'proxy' => config('app.proxy'),
-        ])
+		$response=Http::retry(3, 500)
         ->withBody(
            ' {"locations": [
     

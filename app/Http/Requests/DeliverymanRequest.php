@@ -26,9 +26,9 @@ class DeliverymanRequest extends FormRequest
     public function rules()
     {
         return [
-            'phone_number' => 'required|unique:deliveryman_join_requests,phone_number,'.request()->route('id'),
+            'phone_number' => 'required|unique:deliverymen,phone_number,'.request()->route('id'),
             'name' => 'required',
-            'email' => 'required|email|unique:deliveryman_join_requests,email,'.request()->route('id'),
+            'email' => 'required|email|unique:deliverymen,email,'.request()->route('id'),
             'birth_date'=>'required|date',
             'gender'=> ['required', Rule::in(['f','m'])],
             // 'transportation_type'=>['required', Rule::in([0,1,2,3])],

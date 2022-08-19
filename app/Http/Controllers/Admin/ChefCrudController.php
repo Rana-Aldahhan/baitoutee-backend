@@ -42,7 +42,7 @@ class ChefCrudController extends CrudController
     protected function setupListOperation()
     {
         CRUD::column('id')->searchLogic(function ($query, $column, $searchTerm) {
-            $query->orWhere('id', $searchTerm);}
+            $query->orWhere('id','LIKE', $searchTerm);}
         );
         CRUD::column('name')->label(trans('adminPanel.attributes.name'));
         CRUD::column('email')->label(trans('adminPanel.attributes.email'));
@@ -122,7 +122,15 @@ class ChefCrudController extends CrudController
         CRUD::field('name')->label(trans('adminPanel.attributes.name'));
         CRUD::field('email')->label(trans('adminPanel.attributes.email'));
         CRUD::field('birth_date')->label(trans('adminPanel.attributes.birth_date'));
-        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'))->type('enum');;
+        CRUD::field('gender')->label(trans('adminPanel.attributes.gender'))->type('enum');
+        CRUD::addField([   // Checklist
+            'label'     => trans('adminPanel.attributes.gender'),
+            'name'      => 'gender',
+            'type'      => 'select_from_array',
+            'options'   => ['m' => 'male', 'f' => 'female'],
+            'allows_null' => false,
+        ]); 
+       
         CRUD::addField([   // Checklist
             'label'     => trans('adminPanel.attributes.location'),
             'type'      => 'select',
