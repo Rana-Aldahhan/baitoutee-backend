@@ -32,7 +32,7 @@ class ChefJoinRequestCrudController extends CrudController
     {
         CRUD::setModel(\App\Models\ChefJoinRequest::class);
         CRUD::setRoute(config('backpack.base.route_prefix') . '/chef-join-request');
-        CRUD::setEntityNameStrings(trans('adminPanel.attributes.chef_join_request'),trans('adminPanel.attributes.chef_join_requests'));
+        CRUD::setEntityNameStrings(trans('adminPanel.entities.chef_join_request'),trans('adminPanel.entities.chef_join_requests'));
     }
 
     /**
@@ -125,11 +125,21 @@ class ChefJoinRequestCrudController extends CrudController
         // ChefJoinRequest::creating(function($entry) {
         //     $entry->profile_picture=$this->storePicture(request(),'profile_picture','profiles');
         // });
+        CRUD::addField([   // Checklist
+            'label'     => trans('adminPanel.attributes.location'),
+            'type'      => 'select',
+            'name'      => 'location_id',
+            'entity'    => 'location',
+            'attribute' => 'name',
+            'model'     => "App\Models\Location",
+            'pivot'     => false,
+        ]); 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
          * - CRUD::field('price')->type('number');
          * - CRUD::addField(['name' => 'price', 'type' => 'number'])); 
          */
+
     }
 
     /**

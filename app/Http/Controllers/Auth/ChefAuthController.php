@@ -119,9 +119,9 @@ class ChefAuthController extends Controller
         $firstLocation=Location::find(1);
         $secondLocation=Location::find(2);
         $thirdLocation=Location::find(3);
-        $newLocation->distance_to_first_location=$this->calculateDistanceBetween($newLocation,$firstLocation);
-        $newLocation->distance_to_second_location=$this->calculateDistanceBetween($newLocation,$secondLocation);
-        $newLocation->distance_to_third_location=$this->calculateDistanceBetween($newLocation,$thirdLocation);
+        $newLocation->distance_to_first_location=$this->calculateDistanceBetweenTwoPoints($newLocation,$firstLocation);
+        $newLocation->distance_to_second_location=$this->calculateDistanceBetweenTwoPoints($newLocation,$secondLocation);
+        $newLocation->distance_to_third_location=$this->calculateDistanceBetweenTwoPoints($newLocation,$thirdLocation);
         $newLocation->save();
          //store profile if given
         $profilePath=$this->storePublicFile($request,'profile_picture','profiles');
