@@ -106,7 +106,7 @@ class JoinRequestsController extends Controller
         FCMService::sendPushNotification(
             $joinRequest->fcm_token,
             'تم قبولك ضمن المنصة',
-            ' تهانينا! أصبحت الآن جزء من منصة بيتوتي ،يمكنك الآن استخدام خدمات المباشرة في إضافة وجباتك واستقبال الطلبات'
+            ' تهانينا! أصبحت الآن جزء من منصة بيتوتي ،يمكنك الآن المباشرة في إضافة وجباتك واستقبال الطلبات'
         ); 
         // make the request entity approved
         $joinRequest->approved=true;
@@ -139,7 +139,7 @@ class JoinRequestsController extends Controller
         FCMService::sendPushNotification(
             $joinRequest->fcm_token,
             'تم قبولك ضمن المنصة',
-            ' تهانينا! أصبحت الآن جزء من منصة بيتوتي ،يمكنك الآن استخدام  المباشرة في استلام طلبات التوصيل'
+            ' تهانينا! أصبحت الآن جزء من منصة بيتوتي ،يمكنك الآن المباشرة في استلام طلبات التوصيل'
         ); 
         // make the request entity approved
         $joinRequest->approved=true;

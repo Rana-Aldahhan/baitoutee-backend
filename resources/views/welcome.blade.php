@@ -39,7 +39,7 @@
                             <div class="flex items-center">
                                 <svg fill="none" stroke="currentColor"  viewBox="0 0 24 24" class="w-8 h-8 text-gray-500"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/>
                                     <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
-                                    <div class="mr-4 text-lg leading-7 font-semibold text-gray-900 dark:text-white " >تطبيق طلاب السكن الجامعي  </div>
+                                    <div class="mr-4 text-lg leading-7 font-semibold "><a href="/download-student-app" class="underline text-gray-900 dark:text-white">تطبيق طلاب السكن الجامعي  </a></div>
                             </div>
                             <div class="ml-12">
                                 <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
@@ -52,7 +52,7 @@
                             <div class="flex items-center">
                                 <svg fill="none" stroke="currentColor"  viewBox="0 0 24 24" class="w-8 h-8 text-gray-500"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/>
                                     <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
-                                    <div class="mr-4 text-lg leading-7 font-semibold text-gray-900 dark:text-white " >تطبيق الطهاة المنزليين </div>
+                                    <div class="mr-4 text-lg leading-7 font-semibold"><a href="/download-chef-app" class="underline text-gray-900 dark:text-white"> تطبيق الطهاة المنزليين </a></div>
                             </div>
                             <div class="ml-12">
                                 <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
@@ -65,7 +65,7 @@
                             <div class="flex items-center">
                                 <svg fill="none" stroke="currentColor"  viewBox="0 0 24 24" class="w-8 h-8 text-gray-500"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/>
                                     <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
-                                    <div class="mr-4 text-lg leading-7 font-semibold text-gray-900 dark:text-white " >تطبيق عمال التوصيل </div>
+                                    <div class="mr-4 text-lg leading-7 font-semibold"><a href="/download-delivery-app" class="underline text-gray-900 dark:text-white"> تطبيق عمال التوصيل </a></div>
                             </div>
                             <div class="ml-12">
                                 <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm "  >
@@ -90,8 +90,39 @@
                     </div>
                 </div>
 
-                
-                </div>
+                <div class="card-deck mt-5">
+                    <div class="card text-center">
+                      <img class="card-img-top mt-5" src="{{asset('/images/student_app_qr.png')}}" alt="Card image cap">
+                      <div class="card-body">
+                        <h5 class="card-title">تطبيق طلاب السكن الجامعي</h5>
+                        <p class="card-text">امسح الرمز السابق لتحميل التطبيق</p>
+                      </div>
+                      <div class="card-footer">
+                        <small class="text-muted">powered by Baitoutee team</small>
+                      </div>
+                    </div>
+                    <div class="card text-center">
+                        <img class="card-img-top mt-5" src="{{asset('/images/chef_app_qr.png')}}" alt="Card image cap">
+                        <div class="card-body">
+                          <h5 class="card-title">تطبيق الطهاة </h5>
+                          <p class="card-text">امسح الرمز السابق لتحميل التطبيق</p>
+                        </div>
+                        <div class="card-footer">
+                          <small class="text-muted">powered by Baitoutee team</small>
+                        </div>
+                      </div>
+                      <div class="card text-center">
+                        <img class="card-img-top mt-5" src="{{asset('/images/delivery_app_qr.png')}}" alt="Card image cap">
+                        <div class="card-body">
+                          <h5 class="card-title">تطبيق طلاب عمال التوصيل </h5>
+                          <p class="card-text">امسح الرمز السابق لتحميل التطبيق</p>
+                        </div>
+                        <div class="card-footer">
+                          <small class="text-muted">powered by Baitoutee team</small>
+                        </div>
+                      </div>
+                  </div>
+
             </div>
         </div>
     </body>

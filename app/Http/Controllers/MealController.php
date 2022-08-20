@@ -15,6 +15,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
@@ -320,7 +321,10 @@ class MealController extends Controller
         $rules = $this->getUpdateRules($request);
         $oldMeal = Meal::find($meal->id);
         if ($imagePath != null) {
-            unlink(storage_path('app/public' . Str::after($oldMeal->image, '/storage')));
+            if(Storage::disk('public_uploads')->exists(Str::after($oldMeal->image, '/uploads/')))
+            {
+                unlink(public_path('uploads' . Str::after($oldMeal->image, '/uploads')));
+            }
         }
         $validateResponse = $this->validateMeal($request, $rules);
         if ($validateResponse instanceof JsonResponse) {
@@ -367,7 +371,10 @@ class MealController extends Controller
     public function destroy(Meal $meal)
     {
         $oldMeal = Meal::find($meal->id);
-        unlink(storage_path('app/public' . Str::after($oldMeal->image, '/storage')));
+        if(Storage::disk('public_uploads')->exists(Str::after($oldMeal->image, '/uploads/')))
+        {
+         unlink(public_path('uploads' . Str::after($oldMeal->image, '/uploads')));
+        }
         $success = $meal->delete();
         if ($success) {
             //$message = str("تم حذف الوجبة ".$meal->name)->after;

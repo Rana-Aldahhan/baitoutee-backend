@@ -10,6 +10,7 @@ use App\Traits\MealsHelper;
 use App\Traits\PictureHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 
@@ -274,8 +275,11 @@ class ChefController extends Controller
         $imagePath =$this->storePublicFile($request,'profile_picture','profiles');
         $chef = auth('chef')->user();
         if ($imagePath != null) {
-            if($chef->profile_picture !="")
-                unlink(storage_path('app/public' . Str::after($chef->profile_picture, '/storage')));
+            if($chef->profile_picture !=null)
+                if(Storage::disk('public_uploads')->exists(Str::after($chef->profile_picture, '/uploads/')))
+                    {
+                        unlink(public_path('uploads' . Str::after($chef->profile_picture, '/uploads')));
+                    }
             $chef->profile_picture = $imagePath;
             $chef->save();
         }

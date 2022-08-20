@@ -113,6 +113,8 @@ class MealCrudController extends CrudController
         CRUD::field('expected_preparation_time')->label(trans('adminPanel.attributes.expected_preparation_time'))->type('text');
         CRUD::field('discount_percentage')->label(trans('adminPanel.attributes.discount_percentage'))->type('text');
         CRUD::field('ingredients')->label(trans('adminPanel.attributes.ingredients'));
+        CRUD::field('rating')->label(trans('adminPanel.attributes.rating'));
+        CRUD::field('rates_count')->label(trans('adminPanel.attributes.rates_count'));
 
         /**
          * Fields can be defined using the fluent syntax or array syntax:
@@ -129,6 +131,7 @@ class MealCrudController extends CrudController
     protected function setupShowOperation()
     {
         $this->setupListOperation();
+        CRUD::column('ingredients')->label(trans('adminPanel.attributes.ingredients'))->type('textarea');
     }
 
     /**

@@ -17,3 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/download-student-app',function(){
+    return redirect()->away(env('STUDENT_APP_URL'));
+});
+Route::get('/download-chef-app',function(){
+    return redirect()->away(env('CHEF_APP_URL'));
+});
+Route::get('/download-delivery-app',function(){
+    return redirect()->away(env('DELIVERY_APP_URL'));
+});
