@@ -39,6 +39,8 @@ trait PictureHelper{
             $extension = $request->file($fileKey)->getClientOriginalExtension();
             // Filename to store
             $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+            //remove white spaces from name
+            $fileNameToStore= str_replace(" ", "", $fileNameToStore);
             // Upload Image
             $filePath = $request->file($fileKey)->storeAs($path, $fileNameToStore,['disk'=>'public_uploads']);
             //$profilePath=asset('storage/profiles/'.$fileNameToStore);

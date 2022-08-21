@@ -339,6 +339,12 @@ class MealController extends Controller
                     $this->storePriceChangeRequest($request, $meal);
                 }
             }
+        }  
+        $updatedMeal = $meal->fill($validateResponse->validated())->save(); // check if it is working or do update
+
+        if ($imagePath != null) {
+            $meal->image = $imagePath;
+            $meal->save();
         }
         //if discount added send notification to all users
         if($request->discount_percentage> $oldMeal->discount_percentage)
@@ -348,12 +354,6 @@ class MealController extends Controller
                 'خصم جديد',
                 "تم إضافة خصم جديد على وجبة ".$request->name." بنسبة ".$request->discount_percentage."%"
             );
-        }
-        $updatedMeal = $meal->fill($validateResponse->validated())->save(); // check if it is working or do update
-
-        if ($imagePath != null) {
-            $meal->image = $imagePath;
-            $meal->save();
         }
         if ($updatedMeal) {
             return $this->successResponse($updatedMeal);

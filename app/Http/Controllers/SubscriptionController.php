@@ -380,8 +380,13 @@ class SubscriptionController extends Controller
               'max_subscribers','current_subscribers']);
               //FIXED: not recount the repeated meals
               $mealsCount = $subscription->meals->unique()->where('rating','!=',null)->count();
-              $subscription->rating = $subscription->meals->unique()->sum('rating')/$mealsCount;
-              $subscription->rates_count =  $subscription->meals->unique()->sum('rates_count');
+              if($mealsCount!=0){
+                $subscription->rating = $subscription->meals->unique()->sum('rating')/$mealsCount;
+                $subscription->rates_count =  $subscription->meals->unique()->sum('rates_count');
+              }else{
+                $subscription->rating = null;
+                $subscription->rates_count = 0;
+              }
               $mealsName = $subscription->meals->transform(function($meal){
                   $meal->price =  $meal->price + $this->getMealProfit(); // price without delivering
                   return $meal->name;
