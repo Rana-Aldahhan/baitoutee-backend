@@ -16,7 +16,7 @@ class Order extends Model
      */
     protected $guarded = [];
     protected $dates = ['prepared_at','created_at'];
-    protected $casts = ['total_cost' => 'double'];
+    protected $casts = ['total_cost' => 'double','meals_cost'=>'double','profit'=>'double'];
     /**
      * relationships
      */

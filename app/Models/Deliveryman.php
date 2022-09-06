@@ -31,6 +31,8 @@ class Deliveryman extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'current_longitude'=>'double',
+        'current_latitude'=>'double',
     ];
     /**
      * The accessors to append to the model's array form.

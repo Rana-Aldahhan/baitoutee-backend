@@ -14,6 +14,7 @@ class Location extends Model
      * @var array<int, string>
      */
     protected $guarded = [];
+    protected $casts = ['longitude'=>'double','latitude'=>'double'];
     /**
      * The attributes that should be hidden for serialization.
      *
