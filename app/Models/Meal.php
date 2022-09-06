@@ -17,6 +17,7 @@ class Meal extends Model
     protected $casts = [
         'approved' => 'boolean',
         'is_available' => 'boolean',
+        'rating'=>'double'
     ];
     /**
      * relationships

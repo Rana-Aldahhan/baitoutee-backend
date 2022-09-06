@@ -105,7 +105,7 @@ class UserAuthController extends Controller
             'campus_unit_number' => 'required|numeric',
             'campus_card_expiry_date' => 'required|date|after:tomorrow',
             'study_specialty'=>'required',
-            'study_year'=>'required',
+            'study_year'=>'required|numeric',
             'location'=> ['required', Rule::in([0,1,2])],
         ]);
         if($validator->fails())//case of input validation failure
